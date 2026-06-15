@@ -28,7 +28,60 @@ namespace openmls
 theorem binary_tree.array_representation.treemath.level.spec.proof
   (index : Std.U32) :
   binary_tree.array_representation.treemath.level.spec index
-  := by sorry
+  := by
+  unfold spec pre post
+  intros h_pre
+  hax_mvcgen [level, level_loop]
+  have hspec :
+      Aeneas.Std.WP.spec
+        (Aeneas.Std.loop
+          (fun k1 => binary_tree.array_representation.treemath.level_loop.body index k1)
+          0#usize)
+        (fun res => res ≤ 31#usize) := by
+    apply Aeneas.Std.loop.spec_decr_nat
+      (measure := fun k => 32 - k.val)
+      (inv := fun k => k.val ≤ 31)
+    · intro k hk
+      unfold binary_tree.array_representation.treemath.level_loop.body
+      step as ⟨i, hi⟩
+      step as ⟨i1, hi1⟩
+      split
+      · -- bit `k` of `index` is set: the loop continues with `k + 1`
+        rename_i hcond
+        step as ⟨k1, hk1⟩
+        refine ⟨?_, by omega⟩
+        -- `index < 2^31`, so a set bit at position `k` forces `k ≤ 30`
+        have hidx : (↑index : Nat) < 2 ^ 31 := by scalar_tac
+        have hand : (↑i : Nat) &&& 1 = 1 := by
+          rw [hcond] at hi1
+          simpa [Aeneas.Std.UScalar.val_and] using hi1.symm
+        have hipos : 1 ≤ (↑i : Nat) := by
+          have hmod := Nat.and_one_is_mod (↑i : Nat); omega
+        have hge : 2 ^ (↑k : Nat) ≤ (↑index : Nat) := by
+          rw [hi, Nat.shiftRight_eq_div_pow] at hipos
+          exact (Nat.one_le_div_iff (by positivity)).mp hipos
+        have hklt : (↑k : Nat) < 31 :=
+          (Nat.pow_lt_pow_iff_right (by norm_num)).mp (lt_of_le_of_lt hge hidx)
+        omega
+      · -- bit `k` is clear: the loop stops, returning `k ≤ 31`
+        simp only [Aeneas.Std.WP.spec_ok]
+        scalar_tac
+    · scalar_tac
+  -- bridge the Aeneas `loop` spec to the `mvcgen` goal: the postconditions agree
+  have hpost : ∀ res : Aeneas.Std.Usize,
+      (do let a ← Aeneas.Std.Result.ok (decide (res ≤ 31#usize)); pure (a = true)).holds
+        = (res ≤ 31#usize) := by
+    intro res
+    have hrw :
+        (do let a ← Aeneas.Std.Result.ok (decide (res ≤ 31#usize)); pure (a = true))
+          = Aeneas.Std.Result.ok (res ≤ 31#usize) := by
+      show Aeneas.Std.Result.ok (decide (res ≤ 31#usize) = true)
+            = Aeneas.Std.Result.ok (res ≤ 31#usize)
+      rw [decide_eq_true_eq]
+    rw [hrw]
+    simp [Aeneas.Std.Result.holds, Triple, WP.wp, PredTrans.apply]
+  simp only [hpost]
+  mspec (Aeneas.Std.WP.spec_to_mvcgen hspec)
 
 @[spec]
 theorem binary_tree.array_representation.treemath.root.spec.proof
