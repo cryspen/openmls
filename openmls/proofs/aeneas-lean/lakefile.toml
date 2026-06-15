@@ -1,0 +1,11 @@
+name = "Openmls"
+version = "0.1.0"
+defaultTargets = ["Openmls"]
+
+[[lean_lib]]
+name = "Openmls"
+roots = ["Openmls"]
+
+[[require]]
+name = "Hax"
+path = "/home/cblaudeau/hax/evit/main/proof-libs/aeneas-lean"
