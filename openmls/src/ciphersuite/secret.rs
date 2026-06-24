@@ -15,6 +15,7 @@ pub(crate) struct Secret {
     pub(in crate::ciphersuite) value: SecretVLBytes,
 }
 
+#[hax_lib::exclude]
 impl Debug for Secret {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         let mut ds = f.debug_struct("Secret");

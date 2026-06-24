@@ -279,6 +279,8 @@ fn log2(x: u32) -> usize {
     (31 - x.leading_zeros()) as usize
 }
 
+#[hax_lib::requires(index < (1u32 << 31))]
+#[hax_lib::ensures(|result| result <= 31 && (result == 0) == ((index & 1) == 0))]
 pub fn level(index: u32) -> usize {
     let x = index;
     if (x & 0x01) == 0 {
@@ -291,12 +293,14 @@ pub fn level(index: u32) -> usize {
     k
 }
 
+#[hax_lib::requires(size.u32() > 0 && size.u32() <= 2 * MAX_TREE_SIZE - 1)]
 pub(crate) fn root(size: TreeSize) -> TreeNodeIndex {
     let size = size.u32();
     debug_assert!(size > 0);
     TreeNodeIndex::new((1 << log2(size)) - 1)
 }
 
+#[hax_lib::requires(index.u32() < MAX_TREE_SIZE / 2)]
 pub(crate) fn left(index: ParentNodeIndex) -> TreeNodeIndex {
     let x = index.to_tree_index();
     let k = level(x);
@@ -305,6 +309,7 @@ pub(crate) fn left(index: ParentNodeIndex) -> TreeNodeIndex {
     TreeNodeIndex::new(index)
 }
 
+#[hax_lib::requires(index.u32() < MAX_TREE_SIZE / 2)]
 pub(crate) fn right(index: ParentNodeIndex) -> TreeNodeIndex {
     let x = index.to_tree_index();
     let k = level(x);
@@ -346,6 +351,7 @@ pub(crate) fn test_sibling(index: TreeNodeIndex) -> TreeNodeIndex {
 
 /// Direct path from a node to the root.
 /// Does not include the node itself.
+#[hax_lib::requires(size.u32() > 0 && size.u32() <= 2 * MAX_TREE_SIZE - 1 && node_index.u32() < size.leaf_count())]
 pub(crate) fn direct_path(node_index: LeafNodeIndex, size: TreeSize) -> Vec<ParentNodeIndex> {
     let r = root(size).u32();
 
@@ -360,26 +366,24 @@ pub(crate) fn direct_path(node_index: LeafNodeIndex, size: TreeSize) -> Vec<Pare
 }
 
 /// Copath of a leaf node.
+#[hax_lib::requires(size.u32() > 0 && size.u32() <= 2 * MAX_TREE_SIZE - 1 && leaf_index.u32() < size.leaf_count())]
 pub(crate) fn copath(leaf_index: LeafNodeIndex, size: TreeSize) -> Vec<TreeNodeIndex> {
-    // Start with leaf
-    let mut full_path = vec![TreeNodeIndex::Leaf(leaf_index)];
     let mut direct_path = direct_path(leaf_index, size);
     if !direct_path.is_empty() {
         // Remove root
         direct_path.pop();
     }
-    full_path.append(
-        &mut direct_path
-            .iter()
-            .map(|i| TreeNodeIndex::Parent(*i))
-            .collect(),
-    );
-
+    let mut full_path = Vec::with_capacity(direct_path.len() + 1);
+    full_path.push(TreeNodeIndex::Leaf(leaf_index));
+    for i in &direct_path {
+        full_path.push(TreeNodeIndex::Parent(*i));
+    }
     full_path.into_iter().map(sibling).collect()
 }
 
 /// Common ancestor of two leaf nodes, aka the node where their direct paths
 /// intersect.
+#[hax_lib::requires(x.u32() < MAX_TREE_SIZE / 2 && y.u32() < MAX_TREE_SIZE / 2 && x.u32() != y.u32())]
 pub(super) fn lowest_common_ancestor(x: LeafNodeIndex, y: LeafNodeIndex) -> ParentNodeIndex {
     let x = x.to_tree_index();
     let y = y.to_tree_index();
@@ -402,6 +406,7 @@ pub(super) fn lowest_common_ancestor(x: LeafNodeIndex, y: LeafNodeIndex) -> Pare
 
 /// The common direct path of two leaf nodes, i.e. the path from their common
 /// ancestor to the root.
+#[hax_lib::requires(size.u32() > 0 && size.u32() <= 2 * MAX_TREE_SIZE - 1 && x.u32() < size.leaf_count() && y.u32() < size.leaf_count())]
 pub(crate) fn common_direct_path(
     x: LeafNodeIndex,
     y: LeafNodeIndex,
@@ -412,14 +417,18 @@ pub(crate) fn common_direct_path(
     x_path.reverse();
     y_path.reverse();
 
-    let mut common_path = vec![];
-
-    for (x, y) in x_path.iter().zip(y_path.iter()) {
-        if x == y {
-            common_path.push(*x);
+    let len = core::cmp::min(x_path.len(), y_path.len());
+    let mut common_path = Vec::with_capacity(len);
+    let mut i = 0;
+    while i < len {
+        let xi = x_path[i];
+        let yi = y_path[i];
+        if xi == yi {
+            common_path.push(xi);
         } else {
             break;
         }
+        i += 1;
     }
 
     common_path.reverse();
@@ -435,6 +444,11 @@ pub(crate) fn node_width(n: usize) -> usize {
     }
 }
 
+#[hax_lib::requires(match node_index {
+    TreeNodeIndex::Leaf(l) => l.u32() < MAX_TREE_SIZE / 2,
+    TreeNodeIndex::Parent(p) => p.u32() < MAX_TREE_SIZE / 2,
+})]
+#[hax_lib::ensures(|result| result == (node_index.u32() < size.u32()))]
 pub(crate) fn is_node_in_tree(node_index: TreeNodeIndex, size: TreeSize) -> bool {
     node_index.u32() < size.u32()
 }

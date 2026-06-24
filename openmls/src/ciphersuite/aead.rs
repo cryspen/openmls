@@ -15,6 +15,7 @@ pub struct AeadKey {
 }
 
 #[cfg(not(feature = "crypto-debug"))]
+#[hax_lib::exclude]
 impl core::fmt::Debug for AeadKey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AeadKey")
@@ -30,6 +31,7 @@ impl core::fmt::Debug for AeadKey {
 pub(crate) struct AeadNonce([u8; NONCE_BYTES]);
 
 #[cfg(not(feature = "crypto-debug"))]
+#[hax_lib::exclude]
 impl core::fmt::Debug for AeadNonce {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_tuple("AeadNonce").field(&"***").finish()

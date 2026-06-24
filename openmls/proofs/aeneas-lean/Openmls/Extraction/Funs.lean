@@ -897,6 +897,7 @@ def binary_tree.array_representation.treemath.level
   then ok 0#usize
   else binary_tree.array_representation.treemath.level_loop index 0#usize
 
+
 /-- [openmls::binary_tree::array_representation::treemath::root]:
     Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 297:0-301:1 -/
 def binary_tree.array_representation.treemath.root
@@ -1404,7 +1405,7 @@ def binary_tree.array_representation.treemath.common_direct_path
   ok (deref_mut_back2 s5)
 
 /-- [openmls::binary_tree::array_representation::treemath::is_node_in_tree]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 448:0-450:1 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 452:0-454:1 -/
 def binary_tree.array_representation.treemath.is_node_in_tree
   (node_index : binary_tree.array_representation.treemath.TreeNodeIndex)
   (size : binary_tree.array_representation.treemath.TreeSize) :
