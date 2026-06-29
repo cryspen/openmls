@@ -79,6 +79,8 @@ impl ParentNodeIndex {
     }
 
     /// Return the index as a TreeNodeIndex value.
+    #[hax_lib::requires(self.u32() < (1u32 << 31))]
+    #[hax_lib::ensures(|result| result == self.u32() * 2 + 1)]
     fn to_tree_index(self) -> u32 {
         self.0 * 2 + 1
     }
@@ -128,6 +130,7 @@ pub enum TreeNodeIndex {
 
 impl TreeNodeIndex {
     /// Create a new `TreeNodeIndex` from a `u32`.
+    #[hax_lib::ensures(|result| result.u32() == index)]
     fn new(index: u32) -> Self {
         if index.is_multiple_of(2) {
             TreeNodeIndex::Leaf(LeafNodeIndex::from_tree_index(index))
@@ -351,7 +354,15 @@ pub(crate) fn test_sibling(index: TreeNodeIndex) -> TreeNodeIndex {
 
 /// Direct path from a node to the root.
 /// Does not include the node itself.
-#[hax_lib::requires(size.u32() > 0 && size.u32() <= 2 * MAX_TREE_SIZE - 1 && node_index.u32() < size.leaf_count())]
+#[hax_lib::requires(
+    size.u32() > 0 &&
+    size.u32() <= 2 * MAX_TREE_SIZE - 1 &&
+    node_index.u32() < size.leaf_count())]
+#[hax_lib::ensures(|result|
+    result.len() <= 30 &&
+    hax_lib::forall(|i: usize| hax_lib::implies(
+        i < result.len(),
+        || 2 * result[i].u32() + 1 < (1u32 << 31) - 1)))]
 pub(crate) fn direct_path(node_index: LeafNodeIndex, size: TreeSize) -> Vec<ParentNodeIndex> {
     let r = root(size).u32();
 
