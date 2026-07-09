@@ -137,37 +137,6 @@ def binary_tree.array_representation.treemath.direct_path.pre
     else ok false
   else ok false
 
-/-- [openmls::binary_tree::array_representation::treemath::direct_path::post]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 392:0-396:30 -/
-@[reducible]
-def binary_tree.array_representation.treemath.direct_path.post
-  (node_index : binary_tree.array_representation.treemath.LeafNodeIndex)
-  (size : binary_tree.array_representation.treemath.TreeSize)
-  (result : alloc.vec.Vec
-  binary_tree.array_representation.treemath.ParentNodeIndex) :
-  Result hax_lib.prop.Prop
-  := do
-  let p ←
-    hax_lib.prop.forall (core.convert.Into.Blanket (core.convert.From.Blanket
-      hax_lib.prop.Prop))
-      binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnTupleUsizeProp
-      result
-  let i ← alloc.vec.Vec.len result
-  hax_lib.prop.Prop.and (core.convert.Into.Blanket
-    hax_lib.prop.Prop.Insts.CoreConvertFromBool) p (i <= 30#usize)
-
-def binary_tree.array_representation.treemath.direct_path.spec
-  (node_index : binary_tree.array_representation.treemath.LeafNodeIndex)
-  (size : binary_tree.array_representation.treemath.TreeSize) : Prop :=
-  (binary_tree.array_representation.treemath.direct_path.pre node_index
-  size).holds →
-  ⦃ ⌜ True ⌝ ⦄
-  binary_tree.array_representation.treemath.direct_path node_index size
-  ⦃ ⇓ res =>
-  ⌜
-  (binary_tree.array_representation.treemath.direct_path.post node_index size
-  res).holds ⌝ ⦄
-
 
 /-- [openmls::binary_tree::array_representation::treemath::copath::pre]:
     Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 411:0-416:5 -/

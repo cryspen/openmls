@@ -1024,7 +1024,7 @@ def
   binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnTupleUsizeProp.call
   (c : binary_tree.array_representation.treemath.__14.ensures.closure)
   (tupled_args : Std.Usize) :
-  Result hax_lib.prop.Prop
+  Result Prop
   := do
   let i ← alloc.vec.Vec.len c
   let pni ←
@@ -1035,10 +1035,8 @@ def
   let i2 ← 2#u32 * i1
   let i3 ← i2 + 1#u32
   let i4 ← 1#u32 <<< 31#i32
-  let i5 ← i4 - 1#u32
-  hax_lib.prop.implies (core.convert.Into.Blanket
-    hax_lib.prop.Prop.Insts.CoreConvertFromBool) (core.convert.Into.Blanket
-    hax_lib.prop.Prop.Insts.CoreConvertFromBool) (tupled_args < i) (i3 < i5)
+  let i5 ← i4 - 1#u32;
+  pure <| (tupled_args < i) → (i3 < i5)
 
 /-- [openmls::binary_tree::array_representation::treemath::_#14::ensures::{impl core::ops::function::FnMut<(usize,), hax_lib::prop::Prop> for openmls::binary_tree::array_representation::treemath::_#14::ensures::closure<'_0>}::call_mut]:
     Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 393:11-395:51 -/
@@ -1046,7 +1044,7 @@ def
   binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnMutTupleUsizeProp.call_mut
   (state : binary_tree.array_representation.treemath.__14.ensures.closure)
   (args : Std.Usize) :
-  Result (hax_lib.prop.Prop ×
+  Result (Prop ×
     binary_tree.array_representation.treemath.__14.ensures.closure)
   := do
   let p ←
@@ -1060,7 +1058,7 @@ def
   binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnOnceTupleUsizeProp.call_once
   (c : binary_tree.array_representation.treemath.__14.ensures.closure)
   (i : Std.Usize) :
-  Result hax_lib.prop.Prop
+  Result Prop
   := do
   let (p, _) ←
     binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnMutTupleUsizeProp.call_mut
@@ -1074,7 +1072,7 @@ def
   binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnOnceTupleUsizeProp
   : core.ops.function.FnOnce
   binary_tree.array_representation.treemath.__14.ensures.closure Std.Usize
-  hax_lib.prop.Prop := {
+  Prop := {
   call_once :=
     binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnOnceTupleUsizeProp.call_once
 }
@@ -1086,7 +1084,7 @@ def
   binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnMutTupleUsizeProp
   : core.ops.function.FnMut
   binary_tree.array_representation.treemath.__14.ensures.closure Std.Usize
-  hax_lib.prop.Prop := {
+  Prop := {
   FnOnceInst :=
     binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnOnceTupleUsizeProp
   call_mut :=
@@ -1100,7 +1098,7 @@ def
   binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnTupleUsizeProp
   : core.ops.function.Fn
   binary_tree.array_representation.treemath.__14.ensures.closure Std.Usize
-  hax_lib.prop.Prop := {
+  Prop := {
   FnMutInst :=
     binary_tree.array_representation.treemath.__14.ensures.closure.Insts.CoreOpsFunctionFnMutTupleUsizeProp
   call :=

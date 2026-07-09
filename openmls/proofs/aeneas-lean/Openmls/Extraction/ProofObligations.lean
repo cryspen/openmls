@@ -49,13 +49,6 @@ theorem binary_tree.array_representation.treemath.right.spec.proof
   := by sorry
 
 @[spec]
-theorem binary_tree.array_representation.treemath.direct_path.spec.proof
-   (node_index : binary_tree.array_representation.treemath.LeafNodeIndex)
-  (size : binary_tree.array_representation.treemath.TreeSize) :
-  binary_tree.array_representation.treemath.direct_path.spec node_index size
-  := by sorry
-
-@[spec]
 theorem binary_tree.array_representation.treemath.copath.spec.proof
   (leaf_index : binary_tree.array_representation.treemath.LeafNodeIndex)
   (size : binary_tree.array_representation.treemath.TreeSize) :
