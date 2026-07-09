@@ -119,6 +119,7 @@ clap = { version = "4", features = ["derive"] }
 base64 = "0.22.1"
 flate2 = "1.0"
 indicatif = "0.18.3"
+hax-lib = { version = "=0.3.6"}
 
 # Disable for wasm32 and Win32
 [target.'cfg(not(any(target_arch = "wasm32", all(target_arch = "x86", target_os = "windows"))))'.dev-dependencies]
@@ -141,3 +142,7 @@ harness = false
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
+
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(hax)', 'cfg(hax_compilation)']}

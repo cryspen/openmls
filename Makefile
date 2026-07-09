@@ -279,9 +279,8 @@ hax-treemath:
 
 aeneas-treemath:
 	@echo "==> aeneas-treemath (log: $(TREEMATH_AENEAS))"
-	@cd $(CRATE_DIR) && HAX_AENEAS_BINARY=$$HOME/aeneas/cryspen/dev/bin/aeneas \
+	@cd $(CRATE_DIR) && \
 		cargo hax into -v aeneas-lean \
-		--setup-proof-folder \
 		--charon-args=" \
 			--start-from 'openmls::binary_tree::array_representation::treemath' \
 			$(AENEAS_EXCLUDES) \
@@ -291,7 +290,7 @@ aeneas-treemath:
 			--exclude '{impl tls_codec::Serialize for _}' \
 			--exclude '{impl tls_codec::Deserialize for _}' \
 			--exclude '{impl tls_codec::DeserializeBytes for _}'" \
-		--aeneas-args="-specs hax -core-models-lib" \
+		--aeneas-args="-core-models-lib" \
 		2>&1 | tee $(TREEMATH_AENEAS)
 
 # ----- [3] parenthash recipes ----------------------------------------------
