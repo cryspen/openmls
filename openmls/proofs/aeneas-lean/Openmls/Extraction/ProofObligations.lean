@@ -86,4 +86,46 @@ theorem binary_tree.array_representation.treemath.is_node_in_tree.spec.proof
   size
   := by sorry
 
+@[spec]
+theorem
+  binary_tree.array_representation.treemath.LeafNodeIndex.to_tree_index.spec.proof
+   (self : binary_tree.array_representation.treemath.LeafNodeIndex) :
+  binary_tree.array_representation.treemath.LeafNodeIndex.to_tree_index.spec
+  self
+  := by sorry
+
+@[spec]
+theorem
+  binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index.spec.proof
+   (self : binary_tree.array_representation.treemath.ParentNodeIndex) :
+  binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index.spec
+  self
+  := by sorry
+
+@[spec]
+theorem
+  binary_tree.array_representation.treemath.ParentNodeIndex.from_tree_index.spec.proof
+   (node_index : Std.U32) :
+  binary_tree.array_representation.treemath.ParentNodeIndex.from_tree_index.spec
+  node_index
+  := by sorry
+
+@[spec]
+theorem binary_tree.array_representation.treemath.TreeNodeIndex.u32.spec.proof
+   (self : binary_tree.array_representation.treemath.TreeNodeIndex) :
+  binary_tree.array_representation.treemath.TreeNodeIndex.u32.spec self
+  := by sorry
+
+@[spec]
+theorem binary_tree.array_representation.treemath.TreeSize.inc.spec.proof
+   (self : binary_tree.array_representation.treemath.TreeSize) :
+  binary_tree.array_representation.treemath.TreeSize.inc.spec self
+  := by sorry
+
+@[spec]
+theorem binary_tree.array_representation.treemath.TreeSize.dec.spec.proof
+   (self : binary_tree.array_representation.treemath.TreeSize) :
+  binary_tree.array_representation.treemath.TreeSize.dec.spec self
+  := by sorry
+
 end openmls
