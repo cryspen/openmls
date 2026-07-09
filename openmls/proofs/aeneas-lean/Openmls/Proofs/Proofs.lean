@@ -37,6 +37,62 @@ namespace openmls
 set_option mvcgen.warning false
 set_option hax_mvcgen.warnings false
 
+/-- The `level` trailing-ones loop is panic-free and returns a result `≤ 31` and `≠ 0`, given the
+    input's low bit is set (so it runs ≥ 1 step). Proved via the generic `loop_spec_measure`. -/
+theorem level_loop_spec (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 31)
+    (hbit : index &&& 1#u32 = 1#u32) :
+    ⦃ ⌜ True ⌝ ⦄
+    binary_tree.array_representation.treemath.level_loop index 0#usize
+    ⦃ ⇓ res => ⌜ res ≤ 31#usize ∧ res ≠ 0#usize ⌝ ⦄ := by
+  unfold binary_tree.array_representation.treemath.level_loop
+  apply loop_spec_measure
+    (measure := fun k => 32 - k.val)
+    (inv := fun k => k.val ≤ 31 ∧ (k.val = 0 → index &&& 1#u32 = 1#u32))
+    (post := fun res => res ≤ 31#usize ∧ res ≠ 0#usize)
+  · exact ⟨by scalar_tac, fun _ => hbit⟩
+  · intro k hk
+    obtain ⟨hk31, hk0⟩ := hk
+    unfold binary_tree.array_representation.treemath.level_loop.body
+    mvcgen
+    case vc1.hy => scalar_tac
+    case vc2.hmax => scalar_tac
+    case vc3 =>
+      -- bit `k` is set ⇒ continue with `k + 1`; that node lives below `2^31`, so `k < 31`.
+      rename_i i hi_conj bit hbiteq hbit_conj add hadd
+      obtain ⟨hi, _⟩ := hi_conj
+      obtain ⟨hi1, _⟩ := hbit_conj
+      refine ⟨⟨?_, ?_⟩, ?_⟩
+      · have hand : (↑i : Nat) &&& 1 = 1 := by
+          rw [hbiteq] at hi1
+          simpa [Aeneas.Std.UScalar.val_and] using hi1.symm
+        have hipos : 1 ≤ (↑i : Nat) := by
+          have hmod := Nat.and_one_is_mod (↑i : Nat); omega
+        have hge : 2 ^ (↑k : Nat) ≤ (↑index : Nat) := by
+          rw [hi, Nat.shiftRight_eq_div_pow] at hipos
+          exact (Nat.one_le_div_iff (by positivity)).mp hipos
+        have hklt : (↑k : Nat) < 31 :=
+          (Nat.pow_lt_pow_iff_right (by norm_num)).mp (lt_of_le_of_lt hge hidx)
+        scalar_tac
+      · intro h; exfalso; scalar_tac
+      · scalar_tac
+    case vc4 =>
+      -- bit `k` is clear ⇒ stop, returning `k`. `k = 0` would force the low bit set.
+      rename_i i hi_conj bit hbitne hbit_conj
+      obtain ⟨hi, _⟩ := hi_conj
+      obtain ⟨hi1, _⟩ := hbit_conj
+      refine ⟨by scalar_tac, ?_⟩
+      intro hk0'
+      apply hbitne
+      have hkv : (↑k : Nat) = 0 := by scalar_tac
+      have hb := hk0 hkv
+      have key : (↑bit : Nat) = 1 := by
+        rw [hi1, Aeneas.Std.UScalar.val_and, hi, hkv, Nat.shiftRight_zero]
+        have heq : (↑(index &&& 1#u32) : Nat) = (↑index : Nat) &&& (↑1#u32 : Nat) := by
+          simp [Aeneas.Std.UScalar.val_and]
+        have hone : (↑(1#u32) : Nat) = 1 := by scalar_tac
+        rw [hb] at heq; omega
+      scalar_tac
+
 @[spec]
 theorem binary_tree.array_representation.treemath.level.spec.proof : ∀ (index : Std.U32),
   (pre index).holds →
@@ -58,64 +114,15 @@ theorem binary_tree.array_representation.treemath.level.spec.proof : ∀ (index 
       have hne : (↑(index &&& 1#u32) : Nat) ≠ 0 := by
         intro h; exact hcond0 (by scalar_tac)
       scalar_tac
-    have hspec :
-        Aeneas.Std.WP.spec
-          (Aeneas.Std.loop
-            (fun k1 => binary_tree.array_representation.treemath.level_loop.body index k1)
-            0#usize)
-          (fun res => res ≤ 31#usize ∧ res ≠ 0#usize) := by
-      apply Aeneas.Std.loop.spec_decr_nat
-        (measure := fun k => 32 - k.val)
-        (inv := fun k => k.val ≤ 31 ∧ (k.val = 0 → index &&& 1#u32 = 1#u32))
-      · intro k hk
-        obtain ⟨hk31, hk0⟩ := hk
-        unfold binary_tree.array_representation.treemath.level_loop.body
-        step as ⟨i, hi⟩
-        step as ⟨i1, hi1⟩
-        split
-        · -- bit `k` set: continue with `k + 1`
-          rename_i hcond
-          step as ⟨k1, hk1⟩
-          refine ⟨?_, ?_, ?_⟩
-          · have hidx : (↑index : Nat) < 2 ^ 31 := by scalar_tac
-            have hand : (↑i : Nat) &&& 1 = 1 := by
-              rw [hcond] at hi1
-              simpa [Aeneas.Std.UScalar.val_and] using hi1.symm
-            have hipos : 1 ≤ (↑i : Nat) := by
-              have hmod := Nat.and_one_is_mod (↑i : Nat); omega
-            have hge : 2 ^ (↑k : Nat) ≤ (↑index : Nat) := by
-              rw [hi, Nat.shiftRight_eq_div_pow] at hipos
-              exact (Nat.one_le_div_iff (by positivity)).mp hipos
-            have hklt : (↑k : Nat) < 31 :=
-              (Nat.pow_lt_pow_iff_right (by norm_num)).mp (lt_of_le_of_lt hge hidx)
-            omega
-          · intro h; omega
-          · omega
-        · -- bit `k` clear: stop, returning `k`. `k = 0` would force the low bit set.
-          rename_i hcond
-          simp only [Aeneas.Std.WP.spec_ok]
-          refine ⟨by scalar_tac, ?_⟩
-          intro hk0'
-          apply hcond
-          have hkv : (↑k : Nat) = 0 := by scalar_tac
-          have hb := hk0 hkv
-          have key : (↑i1 : Nat) = 1 := by
-            rw [hi1, Aeneas.Std.UScalar.val_and, hi, hkv, Nat.shiftRight_zero]
-            have heq : (↑(index &&& 1#u32) : Nat) = (↑index : Nat) &&& (↑1#u32 : Nat) := by
-              simp [Aeneas.Std.UScalar.val_and]
-            have hone : (↑(1#u32) : Nat) = 1 := by scalar_tac
-            rw [hb] at heq; omega
-          scalar_tac
-      · exact ⟨by scalar_tac, fun _ => hbit1⟩
-    -- bridge to the `mvcgen` goal: weaken `res ≤ 31 ∧ res ≠ 0` to the spec's postcondition
-    mspec (Aeneas.Std.WP.spec_to_mvcgen hspec)
-    mrename_i hh
-    mpure hh
-    mpure_intro
+    have hidx : (↑index : Nat) < 2 ^ 31 := by scalar_tac
+    have hspec := level_loop_spec index hidx hbit1
+    -- bridge to the `mvcgen` goal: the loop spec gives `res ≤ 31 ∧ res ≠ 0`
+    unfold binary_tree.array_representation.treemath.level_loop at hspec
+    mvcgen [hspec]; intros; mvcgen
+    rename_i hh
     obtain ⟨hle, hne⟩ := hh
-    rw [if_pos hle, hbit1]
     simp [Aeneas.Std.Result.holds, Triple, WP.wp, PredTrans.apply, Aeneas.Std.lift, hne]
-    rfl
+    grind
 
 /-- `TreeNodeIndex.new` never panics, and the node it builds round-trips back to `index`
     under `.u32`: the `is_multiple_of` test it branches on is exactly the parity that the
