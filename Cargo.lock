@@ -278,6 +278,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06"
 
 [[package]]
+name = "bindgen"
+version = "0.72.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "993776b509cfb49c750f11b8f07a46fa23e0a1386ffc01fb1e7d343efc387895"
+dependencies = [
+ "bitflags",
+ "cexpr",
+ "clang-sys",
+ "itertools 0.13.0",
+ "log",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "regex",
+ "rustc-hash",
+ "shlex 1.3.0",
+ "syn",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -343,7 +363,16 @@ dependencies = [
  "find-msvc-tools",
  "jobserver",
  "libc",
- "shlex",
+ "shlex 2.0.1",
+]
+
+[[package]]
+name = "cexpr"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6fac387a98bb7c37292057cffc56d62ecb629900026402633ae9160df93a8766"
+dependencies = [
+ "nom",
 ]
 
 [[package]]
@@ -429,6 +458,17 @@ dependencies = [
  "crypto-common 0.1.7",
  "inout",
  "zeroize",
+]
+
+[[package]]
+name = "clang-sys"
+version = "1.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b023947811758c97c59bf9d1c188fd619ad4718dcaa767947df1cadb14f39f4"
+dependencies = [
+ "glob",
+ "libc",
+ "libloading",
 ]
 
 [[package]]
@@ -593,13 +633,12 @@ checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
 
 [[package]]
 name = "core-models"
-version = "0.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "657f625ff361906f779745d08375ae3cc9fef87a35fba5f22874cf773010daf4"
+version = "0.0.6"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "hax-lib",
  "pastey",
- "rand 0.9.4",
+ "rand 0.10.1",
 ]
 
 [[package]]
@@ -618,6 +657,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b2a41393f66f16b0823bb79094d54ac5fbd34ab292ddafb9a0456ac9f87d201"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "crabgrind"
+version = "0.2.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc7459e07732f6de74001fcf73a3fdfbb0f368e4fd8e2392f4a2206a065e6e95"
+dependencies = [
+ "bindgen",
+ "cc",
+ "pkg-config",
 ]
 
 [[package]]
@@ -1227,6 +1277,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e629b9b98ef3dd8afe6ca2bd0f89306cec16d43d907889945bc5d6687f2f13c7"
 
 [[package]]
+name = "glob"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
+
+[[package]]
 name = "group"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1411,15 +1467,13 @@ dependencies = [
 [[package]]
 name = "hpke-rs"
 version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6ad6a58eb3e0ee30be8bfc7a9770ae98adcfa1d9bc820a5847732ce84f70837"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "hpke-rs-crypto",
  "hpke-rs-libcrux",
  "hpke-rs-rust-crypto",
  "libcrux-sha3",
  "log",
- "rand_core 0.9.5",
  "serde",
  "subtle",
  "tls_codec",
@@ -1429,18 +1483,16 @@ dependencies = [
 [[package]]
 name = "hpke-rs-crypto"
 version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a73a99d9008010d73289f41335a3f6e14fb8c04eaf60e9111b450463b1bbc7f"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
- "rand_core 0.9.5",
+ "rand 0.10.1",
  "zeroize",
 ]
 
 [[package]]
 name = "hpke-rs-libcrux"
 version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0ce6b7e54aebe540faee869c67ee253bede44ea6cb67c6e72c7847d6c59f1df"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "hpke-rs-crypto",
  "libcrux-aead",
@@ -1457,12 +1509,11 @@ dependencies = [
 [[package]]
 name = "hpke-rs-rust-crypto"
 version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14b28be6cba9081c7feda2651d51c2a900029798e78b4c1e093e792f4571a870"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "aes-gcm",
  "chacha20poly1305",
- "hkdf 0.12.4",
+ "hkdf 0.13.0",
  "hpke-rs-crypto",
  "k256",
  "ml-kem",
@@ -1472,7 +1523,7 @@ dependencies = [
  "rand_chacha 0.3.1",
  "rand_core 0.10.1",
  "rand_core 0.6.4",
- "sha2 0.10.9",
+ "sha2 0.11.0",
  "subtle",
  "x-wing",
  "x25519-dalek 2.0.1",
@@ -1931,21 +1982,19 @@ checksum = "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66"
 
 [[package]]
 name = "libcrux-aead"
-version = "0.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13297ce29869a5c0edab0378837b0fc5f88bf99a843712d9201c3b1150b3b476"
+version = "0.0.8"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
- "libcrux-aesgcm",
+ "libcrux-aes",
  "libcrux-chacha20poly1305",
  "libcrux-secrets",
  "libcrux-traits",
 ]
 
 [[package]]
-name = "libcrux-aesgcm"
-version = "0.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99f2a019dab4097585a7d4f5b9deebe46cd1e628b16a5bc4cb0ce35e1da334e6"
+name = "libcrux-aes"
+version = "0.0.8"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-intrinsics",
  "libcrux-platform",
@@ -1955,9 +2004,8 @@ dependencies = [
 
 [[package]]
 name = "libcrux-chacha20poly1305"
-version = "0.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc08d044676af21343b32b988411fa98dbb5cf65a03c9df478ced221bbdfdb1b"
+version = "0.0.8"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-hacl-rs",
  "libcrux-macros",
@@ -1968,9 +2016,8 @@ dependencies = [
 
 [[package]]
 name = "libcrux-curve25519"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb1e5fd8476a6ed609d24ef42aee5ab6f99f7c65d054f92412da9f499e423299"
+version = "0.0.7"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-hacl-rs",
  "libcrux-macros",
@@ -1980,41 +2027,37 @@ dependencies = [
 
 [[package]]
 name = "libcrux-ecdh"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b65f73ce79337c762eb38bbac91e4c9b9e60cf318e8501b812750c640814d45e"
+version = "0.0.7"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-curve25519",
  "libcrux-p256",
- "rand 0.9.4",
+ "rand 0.10.1",
 ]
 
 [[package]]
 name = "libcrux-ed25519"
-version = "0.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "835919315b7042fe9e03b6458efe0db94bf2aa7b873934dbee5b5463a8124b43"
+version = "0.0.8"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-hacl-rs",
  "libcrux-macros",
  "libcrux-sha2",
- "rand_core 0.9.5",
+ "rand_core 0.10.1",
 ]
 
 [[package]]
 name = "libcrux-hacl-rs"
-version = "0.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2637dc87d158e1f1b550fd9b226443e84153fded4de69028d897b534d16d22e6"
+version = "0.0.5"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-macros",
 ]
 
 [[package]]
 name = "libcrux-hkdf"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c1a89ca0c89be3a268a921e47105fb7873badf7267f5e3ebf4ea46baedd73ef"
+version = "0.0.7"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-hacl-rs",
  "libcrux-hmac",
@@ -2023,20 +2066,28 @@ dependencies = [
 
 [[package]]
 name = "libcrux-hmac"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a7a242707d65960770bd7e14e4f18a92bdf0b967777dd404887db8d087a643b"
+version = "0.0.7"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-hacl-rs",
  "libcrux-macros",
  "libcrux-sha2",
+ "libcrux-traits",
+]
+
+[[package]]
+name = "libcrux-hmac-drbg"
+version = "0.0.4"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
+dependencies = [
+ "libcrux-hmac",
+ "rand 0.10.1",
 ]
 
 [[package]]
 name = "libcrux-intrinsics"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1b5db005ff8001e026b73a6842ee81bbef8ec5ff0e1915a67ae65fd2a9fafa5"
+version = "0.0.7"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "core-models",
  "hax-lib",
@@ -2044,9 +2095,8 @@ dependencies = [
 
 [[package]]
 name = "libcrux-kem"
-version = "0.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12631592f491d22fd1a176d32b2c6edfb673998fd3987e9d95f8fa79ad2a737b"
+version = "0.0.8"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-curve25519",
  "libcrux-ecdh",
@@ -2054,14 +2104,13 @@ dependencies = [
  "libcrux-p256",
  "libcrux-sha3",
  "libcrux-traits",
- "rand 0.9.4",
+ "rand 0.10.1",
 ]
 
 [[package]]
 name = "libcrux-macros"
 version = "0.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ffd6aa2dcd5be681662001b81d493f1569c6d49a32361f470b0c955465cd0338"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "quote",
  "syn",
@@ -2069,9 +2118,8 @@ dependencies = [
 
 [[package]]
 name = "libcrux-ml-kem"
-version = "0.0.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a14ab3e477de9df6ee1273a114018ff62c4996ca9220070c4e5cb1743f94a67d"
+version = "0.0.9"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "hax-lib",
  "libcrux-intrinsics",
@@ -2079,15 +2127,14 @@ dependencies = [
  "libcrux-secrets",
  "libcrux-sha3",
  "libcrux-traits",
- "rand 0.9.4",
+ "rand 0.10.1",
  "tls_codec",
 ]
 
 [[package]]
 name = "libcrux-p256"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4778ba25cb08bb8a96bd100e19ed9aecf78337198fd176036e21042b2dd99bc"
+version = "0.0.7"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-hacl-rs",
  "libcrux-macros",
@@ -2099,17 +2146,15 @@ dependencies = [
 [[package]]
 name = "libcrux-platform"
 version = "0.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d9e21d7ed31a92ac539bd69a8c970b183ee883872d2d19ce27036e24cb8ecc4"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libc",
 ]
 
 [[package]]
 name = "libcrux-poly1305"
-version = "0.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02491808ee5b9db8cb65fad64ae0be812db64beef179d945c00c7787dc7dfcf9"
+version = "0.0.6"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-hacl-rs",
  "libcrux-macros",
@@ -2118,17 +2163,16 @@ dependencies = [
 [[package]]
 name = "libcrux-secrets"
 version = "0.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ce650f3041b44ba40d4263852347d007cd2cd9d1cc856a6f6c8b2e10c3fd40b"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
+ "crabgrind",
  "hax-lib",
 ]
 
 [[package]]
 name = "libcrux-sha2"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9d253473f259fc74a280c43f29c464f7e374abdf28b4942234dc707f529d4b7"
+version = "0.0.7"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-hacl-rs",
  "libcrux-macros",
@@ -2137,9 +2181,8 @@ dependencies = [
 
 [[package]]
 name = "libcrux-sha3"
-version = "0.0.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1ae0b7d0e1cc4793a609fd0ff2ca3b3a3fabae523770c619a3d4bc86417b0d7"
+version = "0.0.9"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "hax-lib",
  "libcrux-intrinsics",
@@ -2149,12 +2192,11 @@ dependencies = [
 
 [[package]]
 name = "libcrux-traits"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "812e4fa89f3f5e34b47f928b22b1b78395a0d4ec23b1f583db635f128159d65f"
+version = "0.0.7"
+source = "git+https://github.com/celabshq/libcrux?branch=franziskus%2Ftls_codec-bump#980d2685c3179045e6f0f10a11f4ac3e1c33a24b"
 dependencies = [
  "libcrux-secrets",
- "rand 0.9.4",
+ "rand 0.10.1",
 ]
 
 [[package]]
@@ -2165,6 +2207,16 @@ checksum = "a9fd2f41a1cba099f79a0b6b6c35656cf7c03351a7bae8ff0f28f25270f929d2"
 dependencies = [
  "arbitrary",
  "cc",
+]
+
+[[package]]
+name = "libloading"
+version = "0.8.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7c4b02199fee7c5d21a5ae7d8cfa79a6ef5bb2fc834d6e9058e89c825efdc55"
+dependencies = [
+ "cfg-if",
+ "windows-link",
 ]
 
 [[package]]
@@ -2253,6 +2305,12 @@ dependencies = [
  "cc",
  "walkdir",
 ]
+
+[[package]]
+name = "minimal-lexical"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 
 [[package]]
 name = "miniz_oxide"
@@ -2351,6 +2409,16 @@ name = "multimap"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d87ecb2933e8aeadb3e3a02b828fed80a7528047e68b4f424523a0981a3a084"
+
+[[package]]
+name = "nom"
+version = "7.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
+dependencies = [
+ "memchr",
+ "minimal-lexical",
+]
 
 [[package]]
 name = "nu-ansi-term"
@@ -2529,12 +2597,12 @@ dependencies = [
  "libcrux-ed25519",
  "libcrux-hkdf",
  "libcrux-hmac",
+ "libcrux-hmac-drbg",
  "libcrux-sha2",
  "libcrux-traits",
  "openmls_memory_storage",
  "openmls_traits",
- "rand 0.9.4",
- "rand_chacha 0.9.0",
+ "rand 0.10.1",
  "tls_codec",
 ]
 
@@ -3653,6 +3721,12 @@ dependencies = [
 
 [[package]]
 name = "shlex"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
+
+[[package]]
+name = "shlex"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
@@ -3962,20 +4036,21 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tls_codec"
-version = "0.4.2"
+version = "0.4.3-pre.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0de2e01245e2bb89d6f05801c564fa27624dbd7b1846859876c7dad82e90bf6b"
+checksum = "d7670762594e6c35137bd4c12f1d38b5efd6a9d705800a75bb2e710663d3f5d9"
 dependencies = [
  "serde",
+ "serde_bytes",
  "tls_codec_derive",
  "zeroize",
 ]
 
 [[package]]
 name = "tls_codec_derive"
-version = "0.4.2"
+version = "0.4.3-pre.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d2e76690929402faae40aebdda620a2c0e25dd6d3b9afe48867dfd95991f4bd"
+checksum = "412747df483d059b8d61cbf467e42bcaf96cb0d207f97c2eb5171c7de2c88f8d"
 dependencies = [
  "proc-macro2",
  "quote",

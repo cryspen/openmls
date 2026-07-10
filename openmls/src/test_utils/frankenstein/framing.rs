@@ -23,18 +23,14 @@ use super::{
     sign_with_label, FrankenKeyPackage, FrankenProposal,
 };
 
-#[derive(
-    Debug, Clone, PartialEq, Eq, TlsSerialize, TlsDeserialize, TlsDeserializeBytes, TlsSize,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, TlsSerialize, TlsDeserialize, TlsSize)]
 pub struct FrankenMlsMessage {
     pub version: u16,
     pub body: FrankenMlsMessageBody,
 }
 
 #[allow(clippy::large_enum_variant)]
-#[derive(
-    Debug, Clone, PartialEq, Eq, TlsSerialize, TlsDeserialize, TlsDeserializeBytes, TlsSize,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, TlsSerialize, TlsDeserialize, TlsSize)]
 #[repr(u16)]
 pub enum FrankenMlsMessageBody {
     #[tls_codec(discriminant = 1)]
@@ -130,7 +126,7 @@ impl Serialize for FrankenPublicMessage {
         written += self.content.tls_serialize(writer)?;
         written += self.auth.tls_serialize(writer)?;
         if let Some(tag) = &self.membership_tag {
-            written += tag.tls_serialize(writer)?;
+            written += tls_codec::Serialize::tls_serialize(&tag, writer)?;
         }
 
         Ok(written)
@@ -320,9 +316,9 @@ impl tls_codec::Size for FrankenFramedContentAuthData {
 impl Serialize for FrankenFramedContentAuthData {
     fn tls_serialize<W: std::io::prelude::Write>(&self, writer: &mut W) -> Result<usize, Error> {
         let mut written = 0;
-        written += self.signature.tls_serialize(writer)?;
+        written += tls_codec::Serialize::tls_serialize(&self.signature, writer)?;
         if let Some(confirmation_tag) = &self.confirmation_tag {
-            written += confirmation_tag.tls_serialize(writer)?;
+            written += tls_codec::Serialize::tls_serialize(&confirmation_tag, writer)?;
         }
         Ok(written)
     }

@@ -101,7 +101,7 @@ impl Serialize for FrankenProposal {
             FrankenProposal::AppEphemeral(p) => p.tls_serialize(writer),
             #[cfg(feature = "extensions-draft")]
             FrankenProposal::AppDataUpdate(p) => p.tls_serialize(writer),
-            FrankenProposal::Custom(p) => p.payload.tls_serialize(writer),
+            FrankenProposal::Custom(p) => tls_codec::Serialize::tls_serialize(&p.payload, writer),
         }
         .map(|l| written + l)
     }
