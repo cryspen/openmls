@@ -49,6 +49,25 @@ theorem binary_tree.array_representation.treemath.right.spec.proof
   := by sorry
 
 @[spec]
+theorem binary_tree.array_representation.treemath.parent.spec.proof
+  (x : binary_tree.array_representation.treemath.TreeNodeIndex) :
+  binary_tree.array_representation.treemath.parent.spec x
+  := by sorry
+
+@[spec]
+theorem binary_tree.array_representation.treemath.sibling.spec.proof
+  (index : binary_tree.array_representation.treemath.TreeNodeIndex) :
+  binary_tree.array_representation.treemath.sibling.spec index
+  := by sorry
+
+@[spec]
+theorem binary_tree.array_representation.treemath.direct_path.spec.proof
+   (node_index : binary_tree.array_representation.treemath.LeafNodeIndex)
+  (size : binary_tree.array_representation.treemath.TreeSize) :
+  binary_tree.array_representation.treemath.direct_path.spec node_index size
+  := by sorry
+
+@[spec]
 theorem binary_tree.array_representation.treemath.copath.spec.proof
   (leaf_index : binary_tree.array_representation.treemath.LeafNodeIndex)
   (size : binary_tree.array_representation.treemath.TreeSize) :
@@ -89,6 +108,14 @@ theorem
 
 @[spec]
 theorem
+  binary_tree.array_representation.treemath.LeafNodeIndex.from_tree_index.spec.proof
+   (node_index : Std.U32) :
+  binary_tree.array_representation.treemath.LeafNodeIndex.from_tree_index.spec
+  node_index
+  := by sorry
+
+@[spec]
+theorem
   binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index.spec.proof
    (self : binary_tree.array_representation.treemath.ParentNodeIndex) :
   binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index.spec
@@ -107,6 +134,12 @@ theorem
 theorem binary_tree.array_representation.treemath.TreeNodeIndex.u32.spec.proof
    (self : binary_tree.array_representation.treemath.TreeNodeIndex) :
   binary_tree.array_representation.treemath.TreeNodeIndex.u32.spec self
+  := by sorry
+
+@[spec]
+theorem binary_tree.array_representation.treemath.TreeSize.new.spec.proof
+   (nodes : Std.U32) :
+  binary_tree.array_representation.treemath.TreeSize.new.spec nodes
   := by sorry
 
 @[spec]

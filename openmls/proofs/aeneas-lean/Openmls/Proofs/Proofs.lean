@@ -39,6 +39,8 @@ set_option mvcgen.warning false
 set_option hax_mvcgen.warnings false
 
 attribute [spec]
+  pure
+  --
   MAX_TREE_SIZE MIN_TREE_SIZE MAX_INDEX
   --
   log2
@@ -49,17 +51,22 @@ attribute [spec]
   --
   TreeNodeIndex.new
   TreeNodeIndex.u32
+  TreeNodeIndex.valid
   --
   LeafNodeIndex.new
   LeafNodeIndex.u32
   LeafNodeIndex.to_tree_index
   LeafNodeIndex.from_tree_index
+  LeafNodeIndex.valid
   --
   ParentNodeIndex.new
   ParentNodeIndex.u32
   ParentNodeIndex.to_tree_index
   ParentNodeIndex.from_tree_index
+  ParentNodeIndex.valid
 
+
+-- ------------------------------------------------------------------------------
 
 /-- The `level` trailing-ones loop is panic-free and returns a result `≤ 31` and `≠ 0`, given the
     input's low bit is set (so it runs ≥ 1 step). Proved via the generic `loop_spec_measure`. -/

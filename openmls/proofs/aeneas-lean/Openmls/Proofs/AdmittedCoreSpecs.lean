@@ -97,6 +97,16 @@ theorem u32_cmp_spec (a b : Std.U32) :
     ⦃ ⌜ True ⌝ ⦄ core.U32.Insts.CoreCmpOrd.cmp a b ⦃ ⇓ _ => ⌜ True ⌝ ⦄ := by
   sorry
 
+/-- `u32::div_ceil x y = ⌈x/y⌉`, computed as `(x + y - 1) / y`, panic-free exactly when the
+    divisor is nonzero (Rust panics on division by zero). Trusted: `div_ceil` is a bare `axiom`
+    in `FunsExternal.lean` (Charon could not extract its body). -/
+@[spec]
+theorem u32_div_ceil_spec (x y : Std.U32) :
+    ⦃ ⌜ 0 < (↑y : Nat) ⌝ ⦄
+    core.num.U32.div_ceil x y
+    ⦃ ⇓ r => ⌜ (↑r : Nat) = (↑x + ↑y - 1) / ↑y ⌝ ⦄ := by
+  sorry
+
 /-! ### Trusted `@[spec]` contracts for iterator combinators
 
    The iterator combinators (`into_iter`/`next`/`map`/`collect`) and `Vec::is_empty`/`pop` are
