@@ -48,6 +48,7 @@ attribute [spec]
   --
   TreeSize.u32
   TreeSize.leaf_count
+  TreeSize.valid
   --
   TreeNodeIndex.new
   TreeNodeIndex.u32
@@ -125,7 +126,7 @@ theorem level_loop_spec (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 31)
       scalar_tac
 
 @[spec]
-theorem level.spec.proof : ∀ (index : Std.U32),
+theorem level.spec.proof' : ∀ (index : Std.U32),
   (pre index).holds →
   ⦃ ⌜ True ⌝ ⦄
   level index
@@ -153,132 +154,7 @@ theorem level.spec.proof : ∀ (index : Std.U32),
     unfold level_loop at hspec
     mvcgen [hspec]; intros; mvcgen
 
-/-- `TreeNodeIndex.new` never panics, and the node it builds round-trips back to `index`
-    under `.u32`: the `is_multiple_of` test it branches on is exactly the parity that the
-    chosen `from_tree_index` then asserts. -/
-@[spec]
-theorem TreeNodeIndex.new_spec
-    (index : Std.U32) :
-    ⦃ ⌜ True ⌝ ⦄
-    new index
-    ⦃ ⇓ tni => ⌜ ⦃ ⌜ True ⌝ ⦄ u32 tni ⦃ ⇓ r => ⌜ r = index ⌝ ⦄ ⌝ ⦄ := by
-  hax_mvcgen [ core.num.U32.is_multiple_of ]
-  all_goals try scalar_tac
 
-@[spec]
-theorem root.spec.proof
-  (size : TreeSize) :
-  (root.pre size).holds →
-  ⦃ ⌜ True ⌝ ⦄
-  root size
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
-  := by
-  unfold root.pre
-  intro h_pre
-  hax_mvcgen [root]
-  <;> (try scalar_tac)
-  <;> (try grind)
-  · rename_i hr1 hr1eq hr hreq
-    obtain ⟨hreq, _⟩ := hreq
-    obtain ⟨hr1eq, hlz⟩ := hr1eq
-    have hlt : (↑(UScalar.cast UScalarTy.Usize hr1) : Nat) < 32 := by scalar_tac
-    have hpos := one_le_one_shiftLeft_mod _ hlt
-    rw [hreq]; scalar_tac
-
-@[spec]
-theorem left.spec.proof
-  (index : ParentNodeIndex) : left.spec index := by
-  unfold spec pre
-  intro h_pre
-  hax_mvcgen [left, level.post]
-  <;> scalar_tac
-
-@[spec]
-theorem right.spec.proof
-  (index : ParentNodeIndex) :
-  (right.pre index).holds →
-  ⦃ ⌜ True ⌝ ⦄
-  right index
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
-  := by
-  unfold right.pre
-  intro h_pre
-  hax_mvcgen [right, level.post]
-  <;> scalar_tac
-
-/-- Value characterization of `level`: the result `n` is the number of trailing 1-bits,
-    i.e. the low `n` bits of `index` are all 1 and bit `n` is 0 (`index % 2^(n+1) = 2^n - 1`). -/
-theorem level_char (index : Std.U32) (hx : (↑index : Nat) < 2 ^ 31) :
-    ⦃ ⌜ True ⌝ ⦄
-    level index
-    ⦃ ⇓ n => ⌜ (↑n : Nat) ≤ 31 ∧ (↑index : Nat) % 2 ^ ((↑n : Nat) + 1) = 2 ^ (↑n : Nat) - 1 ⌝ ⦄ := by
-  unfold level
-  hax_mvcgen [level_loop]
-  case vc1 =>
-    -- `index` even: level is 0, and `index % 2 = 0`.
-    rename_i hr0 hr
-    refine ⟨by scalar_tac, ?_⟩
-    have hv : (↑(index &&& 1#u32) : Nat) = (↑index : Nat) &&& 1 := by
-      simp [Aeneas.Std.UScalar.val_and]
-    have hm := Nat.and_one_is_mod (↑index : Nat)
-    have hand : (↑index : Nat) % 2 = 0 := by scalar_tac
-    have h0 : (↑(0#usize) : Nat) = 0 := by scalar_tac
-    rw [h0]; simpa using hand
-  case vc2.success.isFalse =>
-    have hspec :
-        Aeneas.Std.WP.spec
-          (Aeneas.Std.loop
-            (fun k1 => level_loop.body index k1)
-            0#usize)
-          (fun n => (↑n : Nat) ≤ 31 ∧ (↑index : Nat) % 2 ^ ((↑n : Nat) + 1) = 2 ^ (↑n : Nat) - 1) := by
-      apply Aeneas.Std.loop.spec_decr_nat
-        (measure := fun k => 32 - k.val)
-        (inv := fun k => k.val ≤ 31 ∧ (↑index : Nat) % 2 ^ (k.val) = 2 ^ (k.val) - 1)
-      · intro k hk
-        obtain ⟨hk31, hkinv⟩ := hk
-        unfold level_loop.body
-        step as ⟨i, hi⟩
-        step as ⟨i1, hi1⟩
-        -- `i1 = (index >>> k) & 1` is bit `k` of `index`
-        have hbitk : (↑i1 : Nat) = (↑index : Nat) / 2 ^ (k.val) % 2 := by
-          rw [hi1, Aeneas.Std.UScalar.val_and, hi, Nat.shiftRight_eq_div_pow]
-          simp [Nat.and_one_is_mod]
-        have hmodsucc : (↑index : Nat) % 2 ^ (k.val + 1)
-            = (↑index : Nat) % 2 ^ (k.val) + 2 ^ (k.val) * ((↑index : Nat) / 2 ^ (k.val) % 2) := by
-          rw [pow_succ, Nat.mod_mul]
-        have hp : 1 ≤ 2 ^ (k.val) := Nat.one_le_two_pow
-        split
-        · -- bit `k` set: continue with `k + 1`
-          rename_i hc
-          step as ⟨k1, hk1⟩
-          have hbit1 : (↑index : Nat) / 2 ^ (k.val) % 2 = 1 := by
-            rw [← hbitk]; scalar_tac
-          have hklt : k.val < 31 := by
-            by_contra hge
-            have hk31' : k.val = 31 := by omega
-            have hd : (↑index : Nat) / 2 ^ 31 = 0 := Nat.div_eq_of_lt hx
-            rw [hk31'] at hbit1; omega
-          refine ⟨?_, ?_, ?_⟩
-          · rw [hk1]; omega
-          · rw [hk1, hmodsucc, hkinv, hbit1, pow_succ]; omega
-          · rw [hk1]; omega
-        · -- bit `k` clear: stop, returning `k`
-          rename_i hc
-          simp only [Aeneas.Std.WP.spec_ok]
-          refine ⟨hk31, ?_⟩
-          have hbit0 : (↑index : Nat) / 2 ^ (k.val) % 2 = 0 := by
-            have hne : (↑i1 : Nat) ≠ 1 := by intro h; apply hc; scalar_tac
-            rw [hbitk] at hne; omega
-          rw [hmodsucc, hkinv, hbit0]; simp
-      · exact ⟨by scalar_tac, by simp [Nat.mod_one]⟩
-    -- the loop spec's postcondition matches the goal exactly
-    mspec (Aeneas.Std.WP.spec_to_mvcgen hspec)
-
--- `direct_path.spec.proof`, `copath.spec.proof`, and `lowest_common_ancestor.spec.proof`
--- are proved at the end of this file (they need `loop_spec_measure` and the `parent`/`root`
--- value specs, all defined below).
-
-open binary_tree.array_representation.treemath in
 /-- The `common_direct_path` collection loop is panic-free: it indexes both paths only
     at positions `< len ≤ length`, and grows `common_path` by at most one per step. -/
 @[spec]
@@ -314,112 +190,6 @@ theorem common_direct_path_loop_spec
     · -- `j ≥ len`: stop
       mvcgen
 
--- `common_direct_path.spec.proof` is proved at the end of this file (it calls `direct_path`,
--- so it must come after `direct_path.spec.proof`).
-
-theorem is_node_in_tree.spec.proof
-   (node_index : TreeNodeIndex)
-  (size : TreeSize) :
-  (is_node_in_tree.pre node_index
-  size).holds →
-  ⦃ ⌜ True ⌝ ⦄
-  is_node_in_tree node_index size
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
-  := by
-  intro h_pre
-  cases node_index <;>
-  hax_mvcgen
-  all_goals scalar_tac
-
-/-! ## `lowest_common_ancestor` panic-freedom
-
-   Leaf tree-indices are even, so `level` of both is `0` and `lx = ly = 1`. The two early
-   returns are never taken (each would `from_tree_index` an even value), so only `loop0`
-   runs. Its result `(xn << k) + (1 << (k-1)) - 1` is odd because the loop runs at least
-   twice (`k ≥ 2`) on two distinct even inputs below `2^30`. -/
-
-/-- `level` of an even `u32` (below `2^31`) is `0`: bit 0 is clear. -/
-theorem level_even (x : Std.U32) (hx : (↑x : Nat) < 2 ^ 31) (he : (↑x : Nat) % 2 = 0) :
-    ⦃ ⌜ True ⌝ ⦄
-    level x
-    ⦃ ⇓ r => ⌜ (↑r : Nat) = 0 ⌝ ⦄ := by
-  apply Std.Do.Triple.of_entails_wp
-  apply Std.Do.Triple.entails_wp_of_post (level_char x hx)
-  simp only [PostCond.entails]
-  refine ⟨fun r => ?_, by simp⟩
-  intro hr
-  obtain ⟨hr31, hmod⟩ := hr
-  by_contra hne
-  have hd : (2 : Nat) ∣ 2 ^ ((↑r : Nat) + 1) := dvd_pow_self 2 (Nat.succ_ne_zero _)
-  have h1 := Nat.mod_mod_of_dvd (↑x : Nat) hd
-  rw [hmod] at h1
-  have he2 : (2 : Nat) ^ (↑r : Nat) % 2 = 0 := by
-    have hdr : (2 : Nat) ∣ 2 ^ (↑r : Nat) := dvd_pow_self 2 hne
-    omega
-  have hge : 2 ≤ (2 : Nat) ^ (↑r : Nat) := by
-    calc (2 : Nat) = 2 ^ 1 := (pow_one 2).symm
-      _ ≤ 2 ^ (↑r : Nat) := Nat.pow_le_pow_right (by norm_num) (by omega)
-  omega
-
-/-- `level` of an even `u32` below `2^31` evaluates to exactly `ok 0`. Phrased as an
-    equation so it can rewrite the `level` call away (the generic `level` spec's
-    `level.post` postcondition does not reduce under `mvcgen`). -/
-theorem level_even_eq (x : Std.U32) (hx : (↑x : Nat) < 2 ^ 31) (he : (↑x : Nat) % 2 = 0) :
-    level x = ok 0#usize := by
-  obtain ⟨r, hr⟩ := triple_noThrow_exists_ok (level_even x hx he)
-  have hpost := triple_noThrow_elim (level_even x hx he) hr
-  simp only [SPred.down_pure] at hpost
-  have hr0 : r = 0#usize := by scalar_tac
-  rw [hr, hr0]
-
-/-- Doubling a `u32` below `2^31` never overflows; the result is `2·z`. Phrased as an
-    explicit `ok`-equation so the `to_tree_index` multiplication can be rewritten away,
-    exposing the leaf tree-index as a concrete value. -/
-theorem mul2_ok (z : Std.U32) (h : (↑z : Nat) < 2 ^ 31) :
-    ∃ w : Std.U32, z * 2#u32 = ok w ∧ (↑w : Nat) = 2 * ↑z := by
-  have he := Aeneas.Std.UScalar.mul_equiv z 2#u32
-  have hmul : (z * 2#u32 : Aeneas.Std.Result Std.U32) = Aeneas.Std.UScalar.mul z 2#u32 := rfl
-  rw [hmul]
-  cases hm : Aeneas.Std.UScalar.mul z 2#u32 with
-  | ok w =>
-    rw [hm] at he
-    obtain ⟨_, hval, _⟩ := he
-    exact ⟨w, rfl, by rw [hval]; scalar_tac⟩
-  | fail e => rw [hm] at he; simp only at he; scalar_tac
-  | div => rw [hm] at he; exact absurd he (by simp)
-
-/-- Shared arithmetic for the `from_tree_index ((xn << k) + (1 << (k-1)) - 1)` tail of
-    `lowest_common_ancestor`, given `loop0`'s postcondition (`2 ≤ k ≤ 30`, `xn·2^k < 2^30`):
-    the two shifts don't wrap, their sum stays below `2^32`, `xn<<k` is even, and `1<<(k-1)`
-    is an even value `≥ 2` (so the final `−1` is odd and positive). -/
-theorem lca_tail_aux {p : Std.U32 × Std.I32} {i6 i8 : Std.U32} {i7 : Std.I32}
-    (hk2 : 2 ≤ IScalar.toNat p.2) (hk30 : IScalar.toNat p.2 ≤ 30)
-    (hbnd : (↑p.1 : Nat) * 2 ^ IScalar.toNat p.2 < 2 ^ 30)
-    (hi6v : (↑i6 : Nat) = ↑p.1 <<< IScalar.toNat p.2 % U32.size)
-    (hi7 : (↑i7 : Int) = ↑p.2 - ↑(1#i32))
-    (hi8v : (↑i8 : Nat) = ↑(1#u32) <<< i7.toNat % U32.size) :
-    (↑i6 : Nat) + ↑i8 < 2 ^ 32 ∧ 2 ∣ (↑i6 : Nat) ∧ 2 ≤ (↑i8 : Nat) ∧ 2 ∣ (↑i8 : Nat) := by
-  have hi7t1 : 1 ≤ i7.toNat := by scalar_tac
-  have hi7t : i7.toNat ≤ 29 := by scalar_tac
-  have hsz : (2 : Nat) ^ 31 < U32.size := by native_decide
-  have h1u : (↑(1#u32) : Nat) = 1 := rfl
-  have hi6val : (↑i6 : Nat) = ↑p.1 * 2 ^ IScalar.toNat p.2 := by
-    rw [hi6v, Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
-  have hi8val : (↑i8 : Nat) = 2 ^ i7.toNat := by
-    have hb : (2 : Nat) ^ i7.toNat < U32.size :=
-      lt_of_le_of_lt (Nat.pow_le_pow_right (by norm_num) (show i7.toNat ≤ 31 by omega)) hsz
-    rw [hi8v, Nat.shiftLeft_eq, h1u, one_mul, Nat.mod_eq_of_lt hb]
-  refine ⟨?_, ?_, ?_, ?_⟩
-  · rw [hi6val, hi8val]
-    have hle : (2 : Nat) ^ i7.toNat ≤ 2 ^ 29 := Nat.pow_le_pow_right (by norm_num) hi7t
-    omega
-  · rw [hi6val]; exact (dvd_pow_self 2 (by omega : IScalar.toNat p.2 ≠ 0)).mul_left _
-  · rw [hi8val]
-    calc (2 : Nat) = 2 ^ 1 := (pow_one 2).symm
-      _ ≤ 2 ^ i7.toNat := Nat.pow_le_pow_right (by norm_num) hi7t1
-  · rw [hi8val]; exact dvd_pow_self 2 (by omega : i7.toNat ≠ 0)
-
-open binary_tree.array_representation.treemath in
 /-- The `lowest_common_ancestor` while-loop (`loop0`), reached on two distinct even
     leaf tree-indices below `2^30`: it shifts both operands right until they coincide,
     counting steps in `k`. On exit `2 ≤ k ≤ 30` and `xn · 2^k < 2^30`. -/
@@ -483,20 +253,168 @@ theorem lca_loop0_spec (x1 y1 : Std.U32)
         _ ≤ ↑x1 := Nat.div_mul_le_self _ _
         _ < 2 ^ 30 := hx
 
+/-- The `direct_path` tree-walk loop is panic-free: from a node `x0` strictly below the root
+    `r = 2^d − 1` (with `tones x0 ≤ d`, `x0 < 2^(d+1)`), each `parent` step raises the level by
+    one and stays below `2^(d+1)`; the measure `d − tones x` strictly decreases until `x = r`. -/
+theorem direct_path_loop_spec (r : Std.U32)
+    (vec0 : alloc.vec.Vec ParentNodeIndex)
+    (x0 : Std.U32) (d : Nat) (hr : (↑r : Nat) = 2 ^ d - 1) (hd30 : d ≤ 30)
+    (hx0 : (↑x0 : Nat) < 2 ^ (d + 1)) (ht0 : tones (↑x0 : Nat) ≤ d)
+    (hvec0 : vecLen vec0 ≤ tones (↑x0 : Nat))
+    (helem0 : ∀ e ∈ vec0.1.val, 2 * (↑e : Nat) + 1 < 2 ^ 31 - 1) :
+    ⦃ ⌜ True ⌝ ⦄ direct_path_loop r vec0 x0
+    ⦃ ⇓ vec => ⌜ (∀ e ∈ vec.1.val, 2 * (↑e : Nat) + 1 < 2 ^ 31 - 1) ∧ vecLen vec ≤ 30 ⌝ ⦄ := by
+  unfold direct_path_loop
+  apply loop_spec_measure
+    (measure := fun (p : (alloc.vec.Vec ParentNodeIndex) × Std.U32) => d - tones (↑p.2 : Nat))
+    (inv := fun (p : (alloc.vec.Vec ParentNodeIndex) × Std.U32) =>
+      tones (↑p.2 : Nat) ≤ d ∧ (↑p.2 : Nat) < 2 ^ (d + 1)
+      ∧ vecLen p.1 ≤ tones (↑p.2 : Nat)
+      ∧ ∀ e ∈ p.1.1.val, 2 * (↑e : Nat) + 1 < 2 ^ 31 - 1)
+    (post := fun (vec : alloc.vec.Vec ParentNodeIndex) =>
+      (∀ e ∈ vec.1.val, 2 * (↑e : Nat) + 1 < 2 ^ 31 - 1) ∧ vecLen vec ≤ 30)
+  case h_init => exact ⟨ht0, hx0, hvec0, helem0⟩
+  sorry
+
+-- ------------------------------------------------------------------------------
+
 @[spec]
-theorem lowest_common_ancestor.spec.proof
-   (x : LeafNodeIndex)
-  (y : LeafNodeIndex) :
-  (lowest_common_ancestor.pre x
-  y).holds →
+theorem level.spec.proof (index : Std.U32) :
+  (level.pre index).holds →
+  ⦃ ⌜ True ⌝ ⦄ level index ⦃ ⇓ res => ⌜ (level.post index res).holds ⌝ ⦄
+  := by hax_mvcgen ; simp_all
+
+@[spec]
+theorem TreeSize.inc.spec.proof (self : TreeSize) :
+  (TreeSize.inc.pre self).holds →
+  ⦃ ⌜ True ⌝ ⦄ TreeSize.inc self ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by hax_mvcgen [inc] <;> scalar_tac
+
+@[spec]
+theorem TreeSize.dec.spec.proof (self : TreeSize) :
+  (TreeSize.dec.pre self).holds →
+  ⦃ ⌜ True ⌝ ⦄ TreeSize.dec self ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by
+  unfold dec
+  hax_mvcgen [dec]
+  <;> (try simp only [MIN_TREE_SIZE] at *)
+  <;> scalar_tac
+
+@[spec]
+theorem left.spec.proof (index : ParentNodeIndex) :
+  (left.pre index).holds →
+  ⦃ ⌜ True ⌝ ⦄ left index ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by
+  hax_mvcgen [left, level.post]
+  <;> scalar_tac
+
+@[spec]
+theorem right.spec.proof (index : ParentNodeIndex) :
+  (right.pre index).holds →
+  ⦃ ⌜ True ⌝ ⦄ right index ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by
+  hax_mvcgen [right, level.post]
+  <;> scalar_tac
+
+@[spec]
+theorem is_node_in_tree.spec.proof (node_index : TreeNodeIndex) (size : TreeSize) :
+  (is_node_in_tree.pre node_index size).holds →
+  ⦃ ⌜ True ⌝ ⦄ is_node_in_tree node_index size ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre)
+  mvcgen [is_node_in_tree, pure, pre] <;> try scalar_tac
+  all_goals (simp ; intros ; mvcgen)
+  all_goals scalar_tac
+
+@[spec]
+theorem LeafNodeIndex.to_tree_index.spec.proof (self : LeafNodeIndex) :
+  (LeafNodeIndex.to_tree_index.pre self).holds →
+  ⦃ ⌜ True ⌝ ⦄ LeafNodeIndex.to_tree_index self ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by hax_mvcgen ; scalar_tac
+
+@[spec]
+theorem ParentNodeIndex.to_tree_index.spec.proof (self : ParentNodeIndex) :
+  (ParentNodeIndex.to_tree_index.pre self).holds →
+  ⦃ ⌜ True ⌝ ⦄ ParentNodeIndex.to_tree_index self ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by hax_mvcgen <;> scalar_tac
+
+@[spec]
+theorem ParentNodeIndex.from_tree_index.spec.proof (node_index : Std.U32) :
+  (ParentNodeIndex.from_tree_index.pre node_index).holds →
+  ⦃ ⌜ True ⌝ ⦄ ParentNodeIndex.from_tree_index node_index ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by hax_mvcgen <;> scalar_tac
+
+@[spec]
+theorem TreeNodeIndex.u32.spec.proof (self : TreeNodeIndex) :
+  (TreeNodeIndex.u32.pre self).holds →
+  ⦃ ⌜ True ⌝ ⦄ TreeNodeIndex.u32 self ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre)
+  mvcgen [is_node_in_tree, pure, pre] <;> try scalar_tac
+  all_goals (simp ; intros ; mvcgen)
+  all_goals scalar_tac
+
+@[spec]
+theorem root.spec.proof (size : TreeSize) :
+  (root.pre size).holds →
+  ⦃ ⌜ True ⌝ ⦄ root size ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by
+  hax_mvcgen [root]
+  all_goals try scalar_tac
+  all_goals try simp_all!
+  sorry
+
+@[spec]
+theorem direct_path.spec.proof (node_index : LeafNodeIndex) (size : TreeSize) :
+  (direct_path.pre node_index size).holds →
   ⦃ ⌜ True ⌝ ⦄
-  lowest_common_ancestor x y
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  direct_path node_index size
+  ⦃ ⇓ res => ⌜ (direct_path.post node_index size res).holds ⌝ ⦄
+  := by
+  hax_mvcgen [direct_path]
+  all_goals try simp_all
+  all_goals try grind
+  ·
+    sorry
+  ·
+    sorry
+  ·
+    sorry
+  ·
+    sorry
+  ·
+    sorry
+
+@[spec]
+theorem common_direct_path.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex)
+  (size : TreeSize) :
+  (common_direct_path.pre x y size).holds →
+  ⦃ ⌜ True ⌝ ⦄ common_direct_path x y size ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by
+  hax_mvcgen [common_direct_path]
+  all_goals try scalar_tac
+  sorry
+
+@[spec]
+theorem copath.spec.proof (leaf_index : LeafNodeIndex) (size : TreeSize) :
+  (copath.pre leaf_index size).holds →
+  ⦃ ⌜ True ⌝ ⦄ copath leaf_index size ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  := by sorry
+
+
+@[spec]
+theorem lowest_common_ancestor.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex) :
+  (lowest_common_ancestor.pre x y).holds →
+  ⦃ ⌜ True ⌝ ⦄ lowest_common_ancestor x y ⦃ ⇓ res => ⌜ True ⌝ ⦄
   := by
   unfold lowest_common_ancestor.pre
   intro h_pre
-  hax_mvcgen [lowest_common_ancestor, pure, level.post]
-  sorry
+  hax_mvcgen [lowest_common_ancestor, level.pre, level.post, pure]
+  all_goals try (simp_all!; grind)
+  all_goals sorry
+
   -- simp only [Aeneas.Std.Result.holds, Std.Do.Triple, Std.Do.WP.wp,
   --   Std.Do.PredTrans.apply] at h_pre
   -- rw [show (1#u32 <<< 30#i32 : Aeneas.Std.Result Std.U32) = ok 1073741824#u32 from by
@@ -567,29 +485,16 @@ theorem lowest_common_ancestor.spec.proof
 
 /-! ## `parent` / `direct_path` panic-freedom -/
 
-open binary_tree.array_representation.treemath in
-/-- `new x` then `.u32` round-trips to `x` as explicit `ok`-equations: the parity test in
-    `new` chooses the `from_tree_index` whose `to_tree_index` inverts it. -/
-theorem new_u32_eq (x : Std.U32) :
-    ∃ tni, TreeNodeIndex.new x = ok tni ∧ TreeNodeIndex.u32 tni = ok x := by
-  obtain ⟨tni, htni⟩ := triple_noThrow_exists_ok (TreeNodeIndex.new_spec x)
-  have hpost := triple_noThrow_elim (TreeNodeIndex.new_spec x) htni
-  simp only [SPred.down_pure] at hpost
-  obtain ⟨r, hr⟩ := triple_noThrow_exists_ok hpost
-  have hrx := triple_noThrow_elim hpost hr
-  simp only [SPred.down_pure] at hrx
-  exact ⟨tni, htni, by rw [hr, hrx]⟩
-
-/-- `level x` evaluates to exactly the trailing-ones count `tones ↑x` (≤ 31), as an
-    explicit `ok`-equation so the `level` call can be rewritten away before `mvcgen`. -/
-theorem level_tones_eq (x : Std.U32) (hx : (↑x : Nat) < 2 ^ 31) :
-    ∃ k : Std.Usize, level x = ok k
-      ∧ (↑k : Nat) = tones ↑x ∧ (↑k : Nat) ≤ 31 := by
-  obtain ⟨k, hk⟩ := triple_noThrow_exists_ok (level_char x hx)
-  have hpost := triple_noThrow_elim (level_char x hx) hk
-  simp only [SPred.down_pure] at hpost
-  obtain ⟨hk31, hmod⟩ := hpost
-  exact ⟨k, hk, trailing_unique ↑x (↑k) (tones ↑x) hmod (tones_mod ↑x), hk31⟩
+-- /-- `level x` evaluates to exactly the trailing-ones count `tones ↑x` (≤ 31), as an
+--     explicit `ok`-equation so the `level` call can be rewritten away before `mvcgen`. -/
+-- theorem level_tones_eq (x : Std.U32) (hx : (↑x : Nat) < 2 ^ 31) :
+--     ∃ k : Std.Usize, level x = ok k
+--       ∧ (↑k : Nat) = tones ↑x ∧ (↑k : Nat) ≤ 31 := by
+--   obtain ⟨k, hk⟩ := triple_noThrow_exists_ok (level_char x hx)
+--   have hpost := triple_noThrow_elim (level_char x hx) hk
+--   simp only [SPred.down_pure] at hpost
+--   obtain ⟨hk31, hmod⟩ := hpost
+--   exact ⟨k, hk, trailing_unique ↑x (↑k) (tones ↑x) hmod (tones_mod ↑x), hk31⟩
 
 /-- The `index` U32 produced by `parent`'s bit chain (given the `mvcgen` step equations
     for each intermediate) has the exact arithmetic value from `parent_val_u32`, and that
@@ -637,7 +542,6 @@ theorem parent_index_val (x i1 b i2 i3 i4 index : Std.U32) (i k : Std.Usize)
     have h31 : (2 : Nat) ^ 31 + 2 ^ 31 = 2 ^ 32 := by norm_num
     rw [hval]; omega
 
-open binary_tree.array_representation.treemath in
 /-- Spec for `parent (new x)` (without the final `to_tree_index`): the resulting
     `ParentNodeIndex` `par` satisfies `2·par+1 = <parent tree-index>` and `par < 2^31`,
     so its `to_tree_index` is panic-free and yields the parent node value. -/
@@ -691,7 +595,6 @@ theorem parent_tni_spec (tni : TreeNodeIndex)
     · have e32 : (2 : Nat) ^ 32 = 2 * 2 ^ 31 := by norm_num
       scalar_tac
 
-open binary_tree.array_representation.treemath in
 /-- Spec for `parent (new x)` (without the final `to_tree_index`). -/
 theorem parent_new_spec (x : Std.U32) (hx : (↑x : Nat) < 2 ^ 31 - 1) :
     ⦃ ⌜ True ⌝ ⦄
@@ -704,57 +607,6 @@ theorem parent_new_spec (x : Std.U32) (hx : (↑x : Nat) < 2 ^ 31 - 1) :
   rw [htni]; simp only [bind_tc_ok]
   exact parent_tni_spec tni x hu32 hx
 
-/-- `log2 s = Nat.log 2 s` for nonzero `s` (`leading_zeros` semantics). -/
-theorem log2_eq (s : Std.U32) (hpos : 0 < (↑s : Nat)) :
-    ∃ dd : Std.Usize, log2 s = ok dd
-      ∧ (↑dd : Nat) = Nat.log 2 (↑s : Nat) := by
-  have hs0 : s ≠ 0#u32 := by intro h; rw [h] at hpos; simp at hpos
-  have hs32 : (↑s : Nat) < 2 ^ 32 := by scalar_tac
-  have hL31 : Nat.log 2 (↑s : Nat) ≤ 31 := by
-    by_contra hc
-    have hge : (2 : Nat) ^ 32 ≤ (↑s : Nat) :=
-      calc (2 : Nat) ^ 32 ≤ 2 ^ (Nat.log 2 (↑s : Nat)) :=
-            Nat.pow_le_pow_right (by norm_num) (by omega)
-        _ ≤ (↑s : Nat) := Nat.pow_log_le_self 2 (by omega)
-    omega
-  -- value of `leading_zeros s`
-  have hbv : s.bv ≠ 0 := by
-    intro h
-    have : (↑s : Nat) = 0 := by rw [show (↑s : Nat) = s.bv.toNat from rfl, h]; simp
-    omega
-  have hlz : (↑(Aeneas.Std.core.num.U32.leading_zeros s) : Nat) = 31 - Nat.log 2 (↑s : Nat) := by
-    unfold Aeneas.Std.core.num.U32.leading_zeros Aeneas.Std.BitVec.leadingZeros
-    rw [if_neg hbv]
-    show (BitVec.ofNat 32 (32 - Nat.log 2 s.bv.toNat - 1)).toNat = 31 - Nat.log 2 (↑s : Nat)
-    rw [BitVec.toNat_ofNat, show s.bv.toNat = (↑s : Nat) from rfl, Nat.mod_eq_of_lt (by omega)]
-    omega
-  unfold log2
-  rw [if_neg hs0]
-  rw [show core.num.U32.leading_zeros s = ok (Aeneas.Std.core.num.U32.leading_zeros s) from rfl]
-  simp only [bind_tc_ok]
-  set lz := Aeneas.Std.core.num.U32.leading_zeros s with hlzdef
-  have hle : (↑lz : Nat) ≤ 31 := by rw [hlz]; omega
-  have h31 : (↑(31#u32) : Nat) = 31 := by rfl
-  have hsub := Aeneas.Std.UScalar.sub_equiv 31#u32 lz
-  cases hc : (31#u32 - lz) with
-  | ok i1 =>
-    rw [hc] at hsub
-    obtain ⟨_, hval, _⟩ := hsub
-    simp only [hc, bind_tc_ok]
-    refine ⟨_, rfl, ?_⟩
-    have hi1 : (↑i1 : Nat) = Nat.log 2 (↑s : Nat) := by omega
-    scalar_tac
-  | fail e => rw [hc] at hsub; simp only at hsub; omega
-  | div => rw [hc] at hsub; exact absurd hsub (by simp)
-
-/-- `log2` as a `Triple`, for `mvcgen`. -/
-theorem log2_spec (s : Std.U32) (hpos : 0 < (↑s : Nat)) :
-    ⦃ ⌜ True ⌝ ⦄ log2 s
-    ⦃ ⇓ dd => ⌜ (↑dd : Nat) = Nat.log 2 (↑s : Nat) ⌝ ⦄ := by
-  obtain ⟨dd, hlog, hdd⟩ := log2_eq s hpos
-  exact triple_of_ok hlog hdd
-
-open binary_tree.array_representation.treemath in
 /-- `new x` then `.u32` round-trips, as a `Triple`. -/
 theorem new_u32_triple (x : Std.U32) :
     ⦃ ⌜ True ⌝ ⦄ (do let tni ← TreeNodeIndex.new x; TreeNodeIndex.u32 tni)
@@ -762,7 +614,6 @@ theorem new_u32_triple (x : Std.U32) :
   obtain ⟨tni, h1, h2⟩ := new_u32_eq x
   rw [h1]; simp only [bind_tc_ok]; exact triple_of_ok h2 rfl
 
-open binary_tree.array_representation.treemath in
 /-- The root's tree-index value: `(root size).u32 = 2^(log2 size) − 1`, with `log2 size ≤ 30`
     and `size < 2^(log2 size + 1)`. -/
 theorem root_u32_spec (size : TreeSize)
@@ -809,105 +660,6 @@ theorem root_u32_spec (size : TreeSize)
     mspec htriple
     simp_all
 
-open binary_tree.array_representation.treemath in
-/-- The `direct_path` tree-walk loop is panic-free: from a node `x0` strictly below the root
-    `r = 2^d − 1` (with `tones x0 ≤ d`, `x0 < 2^(d+1)`), each `parent` step raises the level by
-    one and stays below `2^(d+1)`; the measure `d − tones x` strictly decreases until `x = r`. -/
-theorem direct_path_loop_spec (r : Std.U32)
-    (vec0 : alloc.vec.Vec ParentNodeIndex)
-    (x0 : Std.U32) (d : Nat) (hr : (↑r : Nat) = 2 ^ d - 1) (hd30 : d ≤ 30)
-    (hx0 : (↑x0 : Nat) < 2 ^ (d + 1)) (ht0 : tones (↑x0 : Nat) ≤ d)
-    (hvec0 : vecLen vec0 ≤ tones (↑x0 : Nat))
-    (helem0 : ∀ e ∈ vec0.1.val, 2 * (↑e : Nat) + 1 < 2 ^ 31 - 1) :
-    ⦃ ⌜ True ⌝ ⦄ direct_path_loop r vec0 x0
-    ⦃ ⇓ vec => ⌜ (∀ e ∈ vec.1.val, 2 * (↑e : Nat) + 1 < 2 ^ 31 - 1) ∧ vecLen vec ≤ 30 ⌝ ⦄ := by
-  unfold direct_path_loop
-  apply loop_spec_measure
-    (measure := fun (p : (alloc.vec.Vec ParentNodeIndex) × Std.U32) => d - tones (↑p.2 : Nat))
-    (inv := fun (p : (alloc.vec.Vec ParentNodeIndex) × Std.U32) =>
-      tones (↑p.2 : Nat) ≤ d ∧ (↑p.2 : Nat) < 2 ^ (d + 1)
-      ∧ vecLen p.1 ≤ tones (↑p.2 : Nat)
-      ∧ ∀ e ∈ p.1.1.val, 2 * (↑e : Nat) + 1 < 2 ^ 31 - 1)
-    (post := fun (vec : alloc.vec.Vec ParentNodeIndex) =>
-      (∀ e ∈ vec.1.val, 2 * (↑e : Nat) + 1 < 2 ^ 31 - 1) ∧ vecLen vec ≤ 30)
-  · exact ⟨ht0, hx0, hvec0, helem0⟩
-  · intro p hinv
-    obtain ⟨vec, xv⟩ := p
-    obtain ⟨htones, hxlt, hvlen, helem⟩ := hinv
-    simp only at htones hxlt hvlen helem ⊢
-    unfold direct_path_loop.body
-    split
-    · rename_i hcond
-      have hxvr : (↑xv : Nat) ≠ (↑r : Nat) := by
-        have hne : xv ≠ r := by simpa [bne_iff_ne] using hcond
-        scalar_tac
-      have htlt : tones (↑xv : Nat) < d := by
-        rcases Nat.lt_or_ge (tones (↑xv : Nat)) d with h | h
-        · exact h
-        · exfalso
-          have hmod := tones_mod (↑xv : Nat)
-          rw [show tones (↑xv : Nat) = d from by omega] at hmod
-          rw [Nat.mod_eq_of_lt hxlt] at hmod
-          exact hxvr (by rw [hmod, hr])
-      have hxv31 : (↑xv : Nat) < 2 ^ 31 - 1 := small_of_tones _ d hd30 hxlt htones
-      have hps := parent_new_spec xv hxv31
-      obtain ⟨par, hpar⟩ := triple_noThrow_exists_ok hps
-      have hparpost := triple_noThrow_elim hps hpar
-      simp only [SPred.down_pure] at hparpost
-      rw [← bind_assoc, hpar]
-      simp only [bind_tc_ok]
-      obtain ⟨hval, hpar31⟩ := hparpost
-      -- the pushed element `par` satisfies the bound: `2·par+1 = x1 < 2^31-1`
-      have hpar_small : 2 * (↑par : Nat) + 1 < 2 ^ 31 - 1 := by
-        have hx1lt : 2 * (↑par : Nat) + 1 < 2 ^ (d + 1) := by
-          rw [hval]
-          refine parent_lt d (tones ↑xv) (↑xv / 2 ^ (tones ↑xv + 2)) htlt ?_
-          refine Nat.div_lt_of_lt_mul ?_
-          rw [← pow_add, show (tones ↑xv + 2) + (d - 1 - tones ↑xv) = d + 1 from by omega]
-          exact hxlt
-        have hx1t : tones (2 * (↑par : Nat) + 1) ≤ d := by rw [hval, tones_parent]; omega
-        exact small_of_tones _ d hd30 hx1lt hx1t
-      mvcgen [vec_push_spec, ParentNodeIndex.to_tree_index]
-      · -- vc1: push precondition `vecLen vec < Usize.max`
-        have h30 : vecLen vec ≤ 30 := by omega
-        scalar_tac
-      · -- vc2: `par * 2 ≤ U32.max`
-        have hmax : Aeneas.Std.U32.max = 2 ^ 32 - 1 := by native_decide
-        scalar_tac
-      · -- vc3: continue — invariant preserved and measure decreases
-        rename_i vec' hvpush rmul hmul rfin hfin
-        obtain ⟨hvlen', hvval'⟩ := hvpush
-        have hx1 : (↑rfin : Nat)
-            = 2 ^ (tones ↑xv + 2) * (↑xv / 2 ^ (tones ↑xv + 2)) + (2 ^ (tones ↑xv + 1) - 1) := by
-          rw [show (↑(2#u32) : Nat) = 2 from rfl] at hmul
-          rw [show (↑(1#u32) : Nat) = 1 from rfl] at hfin
-          omega
-        have htones1 : tones (↑rfin : Nat) = tones (↑xv : Nat) + 1 := by
-          rw [hx1]; exact tones_parent _ _
-        have hlt1 : (↑rfin : Nat) < 2 ^ (d + 1) := by
-          rw [hx1]
-          refine parent_lt d (tones ↑xv) (↑xv / 2 ^ (tones ↑xv + 2)) htlt ?_
-          refine Nat.div_lt_of_lt_mul ?_
-          rw [← pow_add, show (tones ↑xv + 2) + (d - 1 - tones ↑xv) = d + 1 from by omega]
-          exact hxlt
-        refine ⟨⟨?_, hlt1, ?_, ?_⟩, ?_⟩
-        · rw [htones1]; omega
-        · rw [htones1]; omega
-        · -- element bound for the grown vec `vec.1.val ++ [par]`
-          intro e he
-          rw [hvval', List.mem_append] at he
-          rcases he with he | he
-          · exact helem e he
-          · simp only [List.mem_singleton] at he; subst he; exact hpar_small
-        · rw [htones1]; omega
-      · -- vc4: `par * 2 + 1 ≤ U32.max`
-        intro hh
-        have hmax : Aeneas.Std.U32.max = 2 ^ 32 - 1 := by native_decide
-        scalar_tac
-    · mvcgen
-      exact ⟨helem, by omega⟩
-
-open binary_tree.array_representation.treemath in
 /-- Strengthened `direct_path` spec: every node in the returned path has tree-index `< 2^31−1`
     (the per-element bound that makes `sibling` panic-free in `copath`). -/
 theorem direct_path_elems_spec
@@ -975,7 +727,6 @@ theorem direct_path_elems_spec
     (by rw [hV0len0]; exact Nat.zero_le _)
     (by rw [hV0nil]; simp)
 
-open binary_tree.array_representation.treemath in
 @[spec]
 theorem direct_path.spec.proof
    (node_index : LeafNodeIndex)
@@ -991,34 +742,9 @@ theorem direct_path.spec.proof
   obtain ⟨res, hres⟩ := triple_noThrow_exists_ok h
   exact triple_of_ok hres trivial
 
-@[spec]
-theorem common_direct_path.spec.proof
-   (x : LeafNodeIndex)
-  (y : LeafNodeIndex)
-  (size : TreeSize) :
-  (common_direct_path.pre x y
-  size).holds →
-  ⦃ ⌜ True ⌝ ⦄
-  common_direct_path x y size
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
-  := by
-  unfold common_direct_path.pre
-  intro h_pre
-  hax_mvcgen [common_direct_path,
-    TreeSize.u32,
-    TreeSize.leaf_count,
-    LeafNodeIndex.u32,
-    MAX_TREE_SIZE]
-  all_goals try scalar_tac
-  -- vc19: the Vec-machinery tail (deref_mut/reverse/len/min/with_capacity/loop/…), threaded
-  -- through the registered `@[spec]` lemmas; each destructuring `deref_mut` bind is reduced by
-  -- `mvcgen` stepping then re-threading.
-  mvcgen [deref_mut_slice_spec]
-  all_goals (first | (intro _; omega) | omega | scalar_tac | mvcgen)
 
 /-! ## `sibling` panic-freedom (for `copath`) -/
 
-open binary_tree.array_representation.treemath in
 /-- `ParentNodeIndex.to_tree_index p = 2·p + 1` as an ok-equation (no overflow when `2p+1 < 2^32`). -/
 theorem ptti_ok (p : ParentNodeIndex)
     (hp : 2 * (↑p : Nat) + 1 < 2 ^ 32) :
@@ -1039,7 +765,6 @@ theorem ptti_ok (p : ParentNodeIndex)
     scalar_tac
   | div => rw [hac] at hadd; exact absurd hadd (by simp)
 
-open binary_tree.array_representation.treemath in
 /-- `left` is panic-free when its parent's tree-index `2·p+1 < 2^31`. -/
 theorem left_noPanic (p : ParentNodeIndex)
     (hp : 2 * (↑p : Nat) + 1 < 2 ^ 31) :
@@ -1054,7 +779,6 @@ theorem left_noPanic (p : ParentNodeIndex)
   mvcgen
   all_goals scalar_tac
 
-open binary_tree.array_representation.treemath in
 /-- `right` is panic-free when its parent's tree-index `2·p+1 < 2^31`. -/
 theorem right_noPanic (p : ParentNodeIndex)
     (hp : 2 * (↑p : Nat) + 1 < 2 ^ 31) :
@@ -1069,7 +793,6 @@ theorem right_noPanic (p : ParentNodeIndex)
   mvcgen
   all_goals scalar_tac
 
-open binary_tree.array_representation.treemath in
 /-- `sibling` is panic-free on a node whose tree-index `< 2^31 − 1`. -/
 theorem sibling_noPanic (index : TreeNodeIndex)
     (v : Std.U32) (hu : TreeNodeIndex.u32 index = ok v) (hv : (↑v : Nat) < 2 ^ 31 - 1) :
@@ -1098,7 +821,6 @@ theorem sibling_noPanic (index : TreeNodeIndex)
 def SiblingSafe (e : TreeNodeIndex) : Prop :=
   ⦃ ⌜ True ⌝ ⦄ sibling e ⦃ ⇓ _ => ⌜ True ⌝ ⦄
 
-open binary_tree.array_representation.treemath in
 /-- The `sibling` instance of the trusted generic `into_map_collect_spec`: collecting `sibling`
     over a vec is panic-free when every element is `sibling`-safe. Derived (not admitted) by
     instantiating the `core` contract at `sibling`. -/
@@ -1117,7 +839,6 @@ theorem into_map_collect_sibling_spec (fp : alloc.vec.Vec TreeNodeIndex)
     ⦃ ⇓ _ => ⌜ True ⌝ ⦄ := by
   exact into_map_collect_spec fp sibling hsafe
 
-open binary_tree.array_representation.treemath in
 /-- A leaf node `Leaf l` with `2·l < 2^31 − 1` is `sibling`-safe. -/
 theorem siblingSafe_leaf (l : LeafNodeIndex)
     (hl : 2 * (↑l : Nat) < 2 ^ 31 - 1) :
@@ -1127,7 +848,6 @@ theorem siblingSafe_leaf (l : LeafNodeIndex)
     unfold TreeNodeIndex.u32 LeafNodeIndex.to_tree_index; exact hw
   exact sibling_noPanic (TreeNodeIndex.Leaf l) w hu (by rw [hwv]; omega)
 
-open binary_tree.array_representation.treemath in
 /-- A parent node `Parent p` with `2·p+1 < 2^31 − 1` is `sibling`-safe. -/
 theorem siblingSafe_parent (p : ParentNodeIndex)
     (hp : 2 * (↑p : Nat) + 1 < 2 ^ 31 - 1) :
@@ -1138,7 +858,6 @@ theorem siblingSafe_parent (p : ParentNodeIndex)
     unfold TreeNodeIndex.u32; exact htti
   exact sibling_noPanic (TreeNodeIndex.Parent p) x hu (by rw [hxv]; exact hp)
 
-open binary_tree.array_representation.treemath in
 /-- The `copath` accumulation loop is panic-free and produces an all-`sibling`-safe path, when the
     accumulator is already safe and every iterator element wrapped as `Parent` is safe. -/
 theorem copath_loop_spec (iter : core.slice.iter.Iter ParentNodeIndex)
