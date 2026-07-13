@@ -53,4 +53,39 @@ theorem vec_with_capacity_spec (T : Type) (c : Std.Usize) :
     alloc.vec.VecTGlobal.new vecLen
   mvcgen
 
+/-- `u32::is_multiple_of` returns exactly the divisibility test `x % y == 0`.
+    Total (the `FunsExternal` model is a pure `ok`), so this is proved, not admitted. -/
+@[spec]
+theorem is_multiple_of_spec (x y : Std.U32) :
+    ⦃ ⌜ True ⌝ ⦄
+    core.num.U32.is_multiple_of x y
+    ⦃ ⇓ b => ⌜ b = (x.val % y.val = 0) ⌝ ⦄ := by
+  unfold core.num.U32.is_multiple_of
+  mvcgen
+  grind
+
+/-- `u32::leading_zeros` returns the number of leading zero bits: `32` for `0`,
+    else `31 - ⌊log₂ x⌋`. Total (the `CoreModels` model is a pure `ok`), so proved here. -/
+@[spec]
+theorem leading_zeros_spec (x : Std.U32) :
+    ⦃ ⌜ True ⌝ ⦄
+    core.num.U32.leading_zeros x
+    ⦃ ⇓ r => ⌜ (↑r : Nat) = if x.val = 0 then 32 else 31 - Nat.log 2 x.val ⌝ ⦄ := by
+  unfold CoreModels.core.num.U32.leading_zeros
+    CoreModels.rust_primitives.arithmetic.leading_zeros_u32
+  mvcgen
+  unfold Aeneas.Std.core.num.U32.leading_zeros Aeneas.Std.BitVec.leadingZeros
+  simp only [Aeneas.Std.UScalar.val]
+  have hbv : (x.bv = 0) ↔ (x.bv.toNat = 0) := by
+    rw [BitVec.toNat_eq]; rfl
+  rcases eq_or_ne x.bv.toNat 0 with h | h
+  · rw [if_pos (hbv.mpr h), if_pos h]
+    show (BitVec.ofNat 32 32).toNat = 32
+    rw [BitVec.toNat_ofNat]
+  · rw [if_neg (fun hc => h (hbv.mp hc)), if_neg h]
+    show (BitVec.ofNat 32 (32 - Nat.log 2 x.bv.toNat - 1)).toNat = 31 - Nat.log 2 x.bv.toNat
+    rw [BitVec.toNat_ofNat]
+    omega
+
+
 end openmls
