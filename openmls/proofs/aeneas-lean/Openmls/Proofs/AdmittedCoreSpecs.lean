@@ -43,16 +43,22 @@ opaque sliceIterElems {T : Type} : core.slice.iter.Iter T → List T
    exposes a `Vec`'s contents as a slice with an identity write-back; `reverse` reverses the slice;
    indexing is safe within bounds; `min` returns a value bounded by both arguments. -/
 
-/-- `<Vec<T> as DerefMut>::deref_mut` never fails (opaque write-back closure).
+/-- `<Vec<T> as DerefMut>::deref_mut` never fails and returns the slice view together with a
+    write-back closure. A `&mut [T]` view can reorder/overwrite elements but *cannot resize*, so
+    writing back **any** resulting slice yields a vec of the original length: `vecLen (back s') =
+    vecLen v` for all `s'`. (The slice itself is opaque here — `core.slice.Slice T` reduces to `T`
+    in `CoreModels` — so the usable content lives in the write-back.) Trusted: `deref_mut` is a bare
+    `axiom` in `FunsExternal.lean`.
     Not `@[spec]`: it's stepped explicitly via `mvcgen [deref_mut_slice_spec]`, because the
     extracted `let (s, back) ← deref_mut …` is a *tuple-destructuring* bind. `mvcgen` introduces
     the result as one opaque variable and leaves `let (s, back) := r` (the bind's `match` on the
     result) unreduced — independent of this postcondition's shape — so the caller turns `r` into a
     constructor (`casesm* _ × _`) and `simp`s to reduce it. -/
+@[spec]
 theorem deref_mut_slice_spec {T : Type} (v : alloc.vec.Vec T) :
     ⦃ ⌜ True ⌝ ⦄
     alloc.vec.Vec.Insts.CoreOpsDerefDerefMutSlice.deref_mut v
-    ⦃ ⇓ ⟨s, _⟩ => ⌜ True ⌝ ⦄ := by
+    ⦃ ⇓ ⟨_, back⟩ => ⌜ ∀ s', vecLen (back s') = vecLen v ⌝ ⦄ := by
   sorry
 
 /-- `<[T]>::reverse` never fails. -/
