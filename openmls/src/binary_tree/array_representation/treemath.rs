@@ -333,7 +333,7 @@ fn log2(x: u32) -> usize {
 }
 
 #[requires(index < MAX_TREE_SIZE)]
-#[ensures(|r| r <= 31 && (!(r == 0) || index % 2 == 0))]
+#[ensures(|r| r <= 30 && index % (1u32 << (r + 1)) == (1u32 << r) - 1)]
 pub fn level(index: u32) -> usize {
     let x = index;
     if (x & 0x01) == 0 {

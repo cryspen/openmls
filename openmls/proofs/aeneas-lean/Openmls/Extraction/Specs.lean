@@ -34,15 +34,18 @@ def binary_tree.array_representation.treemath.level.pre
   ok (index < i)
 
 /-- [openmls::binary_tree::array_representation::treemath::level::post]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 336:0-336:56 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 336:0-336:71 -/
 @[reducible]
 def binary_tree.array_representation.treemath.level.post
   (index : Std.U32) (r : Std.Usize) : Result Bool := do
-  if r <= 31#usize
-  then if r = 0#usize
-       then let i ← index % 2#u32
-            ok (i = 0#u32)
-       else ok true
+  if r <= 30#usize
+  then
+    let i ← r + 1#usize
+    let i1 ← 1#u32 <<< i
+    let i2 ← index % i1
+    let i3 ← 1#u32 <<< r
+    let i4 ← i3 - 1#u32
+    ok (i2 = i4)
   else ok false
 
 def binary_tree.array_representation.treemath.level.spec (index : Std.U32)
