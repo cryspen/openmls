@@ -5,9 +5,16 @@
 --   * `BitMath`          — pure-`Nat` `tones` / `parent` bit lemmas
 --   * `MissingCoreSpecs` — PROVED `@[spec]` contracts for `core`/`alloc` ops
 --   * `AdmittedCoreSpecs`— the TRUSTED audit surface (11 admitted `@[spec]` contracts)
--- STATUS (WIP): 4 obligations still contain `sorry` (see the `TODO(sorry)` comments below):
---   direct_path, common_direct_path, copath, lowest_common_ancestor.
--- (`root` is proved; `direct_path`'s loop still wants a `direct_path_loop_spec` helper — currently removed.)
+-- STATUS (WIP):
+-- * `level_loop_spec` STRENGTHENED to the trailing-ones characterization
+--     (`res ≤ 30 ∧ index % 2^(res+1) = 2^res − 1`), matching the re-extracted `level.post`.
+--   New `@[scalar_tac]` helper `level_ge_one` for the `level x > 0` massert.
+-- * The re-extraction (new characterization-shaped `level.post`) currently leaves the `level.post`
+--     consumers RED: level.spec.proof, left, right, parent (their original bodies are intact; they
+--     need re-adapting to the richer post — NOT yet done).
+-- * Pre-existing `sorry`s: sibling, direct_path, copath.
+-- (proved: root, lowest_common_ancestor, common_direct_path, is_node_in_tree,
+--  both to_tree_index, both from_tree_index, TreeNodeIndex.u32, TreeSize.{new,inc,dec}.)
 import Aeneas
 import CoreModels
 import Openmls.Extraction.Types
@@ -71,58 +78,100 @@ attribute [spec]
 
 -- ------------------------------------------------------------------------------
 
-/-- The `level` trailing-ones loop is panic-free and returns a result `≤ 31` and `≠ 0`, given the
-    input's low bit is set (so it runs ≥ 1 step). Proved via the generic `loop_spec_measure`. -/
-theorem level_loop_spec (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 31)
-    (hbit : index &&& 1#u32 = 1#u32) :
+/-- `1 <<< k` doesn't wrap in `U32` for `k < 32`, so `1 <<< k % U32.size = 2^k`. -/
+private theorem one_shiftLeft_mod_eq (k : Nat) (h : k < 32) :
+    1 <<< k % Aeneas.Std.U32.size = 2 ^ k := by
+  have e : 1 <<< k = 2 ^ k := by simp [Nat.shiftLeft_eq]
+  have h2 : (2:Nat) ^ k < Aeneas.Std.U32.size := by
+    have : (2:Nat)^k ≤ 2^31 := Nat.pow_le_pow_right (by norm_num) (by omega)
+    have : (2:Nat)^31 < Aeneas.Std.U32.size := by native_decide
+    omega
+  rw [e, Nat.mod_eq_of_lt h2]
+
+/-- The low-bit test `v & 1 == 0` is exactly the parity of `v`: bit 0 clear ⇔ `v` even.
+    Registered `@[simp]` so `simp_all!` rewrites the extracted `v &&& 1#u32 = 0#u32` low-bit
+    guards into the `Nat` fact `↑v % 2 = 0` (the shape `scalar_tac` can use). -/
+@[simp] theorem u32_and_one_eq_zero (v : Std.U32) :
+    (v &&& 1#u32 = 0#u32) ↔ (↑v : Nat) % 2 = 0 := by
+  have hval : (↑(v &&& 1#u32) : Nat) = (↑v : Nat) % 2 := by
+    rw [Aeneas.Std.UScalar.val_and, show (↑(1#u32) : Nat) = 1 from rfl, Nat.and_one_is_mod]
+  constructor
+  · intro h; rw [h] at hval; simpa using hval.symm
+  · intro h
+    have hz : (↑(v &&& 1#u32) : Nat) = 0 := by rw [hval, h]
+    scalar_tac
+
+/-- For the trailing-ones characterization `x % 2^(k+1) = 2^k − 1` (what `level` / `level_loop_spec`
+    / the extracted `level.post` deliver), either `k ≥ 1` or `x` is even. Registered `@[scalar_tac]`
+    — it fires on the characterization hypothesis, so `scalar_tac` discharges the `level x > 0`
+    massert in `left`/`right`/`sibling` directly from the oddness of the tree-index `x = 2·p + 1`
+    (the even disjunct is then killed by `x % 2 = 1` in context). -/
+@[scalar_tac x % 2 ^ (k + 1) = 2 ^ k - 1]
+theorem level_ge_one (x k : Nat) (hchar : x % 2 ^ (k + 1) = 2 ^ k - 1) :
+    1 ≤ k ∨ x % 2 = 0 := by
+  rcases Nat.eq_zero_or_pos k with hk | hk
+  · right; subst hk; simpa using hchar
+  · left; omega
+
+/-- The `level` trailing-ones loop computes the trailing-ones count: on exit `res ≤ 30` and the low
+    `res` bits of `index` are all 1 with bit `res` clear, i.e. `index % 2^(res+1) = 2^res − 1`.
+    Loop invariant: the low `k` bits are all 1 (`index % 2^k = 2^k − 1`). Via `loop_spec_measure`. -/
+theorem level_loop_spec (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 30) :
     ⦃ ⌜ True ⌝ ⦄
     level_loop index 0#usize
-    ⦃ ⇓ res => ⌜ res ≤ 31#usize ∧ res ≠ 0#usize ⌝ ⦄ := by
+    ⦃ ⇓ res => ⌜ (↑res : Nat) ≤ 30
+        ∧ (↑index : Nat) % 2 ^ ((↑res : Nat) + 1) = 2 ^ (↑res : Nat) - 1 ⌝ ⦄ := by
   unfold level_loop
   apply loop_spec_measure
-    (measure := fun k => 32 - k.val)
-    (inv := fun k => k.val ≤ 31 ∧ (k.val = 0 → index &&& 1#u32 = 1#u32))
-    (post := fun res => res ≤ 31#usize ∧ res ≠ 0#usize)
-  · exact ⟨by scalar_tac, fun _ => hbit⟩
-  · rintro k ⟨hk31, hk0⟩
+    (measure := fun (k : Std.Usize) => 32 - k.val)
+    (inv := fun (k : Std.Usize) => (↑k : Nat) ≤ 30 ∧ (↑index : Nat) % 2 ^ (↑k : Nat) = 2 ^ (↑k : Nat) - 1)
+    (post := fun (res : Std.Usize) => (↑res : Nat) ≤ 30
+        ∧ (↑index : Nat) % 2 ^ ((↑res : Nat) + 1) = 2 ^ (↑res : Nat) - 1)
+  · exact ⟨by scalar_tac, by simp [Nat.mod_one]⟩
+  · rintro k ⟨hk30, hkinv⟩
     unfold level_loop.body
     mvcgen <;> try scalar_tac
     case vc3 =>
-      -- bit `k` is set ⇒ continue with `k + 1`; that node lives below `2^31`, so `k < 31`.
+      -- bit `k` is set ⇒ continue with `k + 1`; the low `k+1` bits become all 1.
       rename_i i hi_conj bit hbiteq hbit_conj add hadd
       obtain ⟨hi, _⟩ := hi_conj
       obtain ⟨hi1, _⟩ := hbit_conj
-      refine ⟨⟨?_, ?_⟩, ?_⟩
-      · have hand : (↑i : Nat) &&& 1 = 1 := by
-          rw [hbiteq] at hi1
-          simpa [Aeneas.Std.UScalar.val_and] using hi1.symm
-        have hipos : 1 ≤ (↑i : Nat) := by
-          have hmod := Nat.and_one_is_mod (↑i : Nat); omega
-        have hge : 2 ^ (↑k : Nat) ≤ (↑index : Nat) := by
-          rw [hi, Nat.shiftRight_eq_div_pow] at hipos
-          exact (Nat.one_le_div_iff (by positivity)).mp hipos
-        have hklt : (↑k : Nat) < 31 :=
-          (Nat.pow_lt_pow_iff_right (by norm_num)).mp (lt_of_le_of_lt hge hidx)
-        scalar_tac
-      · intro h; exfalso; scalar_tac
-      · scalar_tac
+      have hand : (↑i : Nat) &&& 1 = 1 := by
+        rw [hbiteq] at hi1
+        simpa [Aeneas.Std.UScalar.val_and] using hi1.symm
+      have hbitk : (↑index : Nat) / 2 ^ (↑k : Nat) % 2 = 1 := by
+        have h := hand; rw [hi, Nat.shiftRight_eq_div_pow] at h
+        simpa [Nat.and_one_is_mod] using h
+      have hmodsucc : (↑index : Nat) % 2 ^ ((↑k : Nat) + 1)
+          = (↑index : Nat) % 2 ^ (↑k : Nat)
+            + 2 ^ (↑k : Nat) * ((↑index : Nat) / 2 ^ (↑k : Nat) % 2) := by
+        rw [pow_succ, Nat.mod_mul]
+      have hklt : (↑k : Nat) < 30 := by
+        by_contra hge
+        have hk30' : (↑k : Nat) = 30 := by omega
+        have hd : (↑index : Nat) / 2 ^ 30 = 0 := Nat.div_eq_of_lt hidx
+        rw [hk30'] at hbitk; omega
+      have haddv : (↑add : Nat) = (↑k : Nat) + 1 := by scalar_tac
+      have hp : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
+      refine ⟨⟨by scalar_tac, ?_⟩, by scalar_tac⟩
+      rw [haddv, hmodsucc, hkinv, hbitk, pow_succ]; omega
     case vc4 =>
-      -- bit `k` is clear ⇒ stop, returning `k`. `k = 0` would force the low bit set.
+      -- bit `k` is clear ⇒ stop; the low `k+1` bits are `2^k − 1` (bit `k` = 0).
       rename_i i hi_conj bit hbitne hbit_conj
       obtain ⟨hi, _⟩ := hi_conj
       obtain ⟨hi1, _⟩ := hbit_conj
+      have hbv : (↑bit : Nat) = (↑index : Nat) / 2 ^ (↑k : Nat) % 2 := by
+        rw [hi1, Aeneas.Std.UScalar.val_and, hi, Nat.shiftRight_eq_div_pow]
+        simp [Nat.and_one_is_mod]
+      have hbne : (↑bit : Nat) ≠ 1 := by intro h; apply hbitne; scalar_tac
+      have hlt2 : (↑index : Nat) / 2 ^ (↑k : Nat) % 2 < 2 := Nat.mod_lt _ (by norm_num)
+      have hbitk : (↑index : Nat) / 2 ^ (↑k : Nat) % 2 = 0 := by omega
+      have hmodsucc : (↑index : Nat) % 2 ^ ((↑k : Nat) + 1)
+          = (↑index : Nat) % 2 ^ (↑k : Nat)
+            + 2 ^ (↑k : Nat) * ((↑index : Nat) / 2 ^ (↑k : Nat) % 2) := by
+        rw [pow_succ, Nat.mod_mul]
       refine ⟨by scalar_tac, ?_⟩
-      intro hk0'
-      apply hbitne
-      have hkv : (↑k : Nat) = 0 := by scalar_tac
-      have hb := hk0 hkv
-      have key : (↑bit : Nat) = 1 := by
-        rw [hi1, Aeneas.Std.UScalar.val_and, hi, hkv, Nat.shiftRight_zero]
-        have heq : (↑(index &&& 1#u32) : Nat) = (↑index : Nat) &&& (↑1#u32 : Nat) := by
-          simp [Aeneas.Std.UScalar.val_and]
-        have hone : (↑(1#u32) : Nat) = 1 := by scalar_tac
-        rw [hb] at heq; omega
-      scalar_tac
+      rw [hmodsucc, hkinv, hbitk]; simp
 
 /-- The `common_direct_path` collection loop is panic-free: it indexes both paths only
     at positions `< len ≤ length`, and grows `common_path` by at most one per step. -/
@@ -232,8 +281,12 @@ theorem level.spec.proof (index : Std.U32) :
   unfold pre post
   hax_mvcgen [level, level_loop_spec]
   all_goals try scalar_tac
-  all_goals try simp_all!
-  all_goals try grind
+  -- The remaining VCs come from the post's shift do-block. `simp_all!` reduces the
+  -- `decide`/UScalar goals to `Nat`; `grind` then closes them using `one_shiftLeft_mod_eq`
+  -- (`1 <<< k % U32.size = 2^k` for `k < 32`) to eliminate the wrap-around mod and match
+  -- the characterization `level_loop_spec` delivers.
+  all_goals (simp_all!; try simp (disch := scalar_tac) only [one_shiftLeft_mod_eq] at *)
+  all_goals scalar_tac
 
 @[spec]
 theorem root.spec.proof (size : TreeSize) :
@@ -365,15 +418,142 @@ theorem copath.spec.proof (leaf_index : LeafNodeIndex) (size : TreeSize) :
   · -- TODO(sorry): non-empty branch (after `pop` drops the root) — same `sibling`-collect tail on the popped path.
     sorry
 
+/-- `level v = 0` for an even `v`: the low-bit test in `level` short-circuits before the loop. -/
+private theorem level_even_eq (v : Std.U32) (hv : (↑v : Nat) % 2 = 0) :
+    level v = ok 0#usize := by
+  unfold level
+  have hbit : v &&& 1#u32 = 0#u32 := by
+    have : (↑(v &&& 1#u32) : Nat) = 0 := by
+      rw [Aeneas.Std.UScalar.val_and]
+      have : (↑v : Nat) &&& (↑(1#u32) : Nat) = (↑v:Nat) % 2 := by
+        rw [show (↑(1#u32):Nat) = 1 from rfl, Nat.and_one_is_mod]
+      rw [this, hv]
+    scalar_tac
+  simp only [hbit, Aeneas.Std.lift]
+  rfl
+
+/-- `LeafNodeIndex.to_tree_index w = 2·w` (no overflow when `w < 2^31`). -/
+private theorem mul2_ok (w : Std.U32) (hw : (↑w : Nat) < 2 ^ 31) :
+    ∃ v : Std.U32, LeafNodeIndex.to_tree_index w = ok v ∧ (↑v : Nat) = 2 * (↑w : Nat) := by
+  unfold LeafNodeIndex.to_tree_index
+  rw [show (w * 2#u32 : Aeneas.Std.Result Std.U32) = Aeneas.Std.UScalar.mul w 2#u32 from rfl]
+  have hspec := Aeneas.Std.UScalar.mul_equiv w 2#u32
+  have hmax : (↑w : Nat) * (↑(2#u32) : Nat) ≤ Aeneas.Std.UScalar.max .U32 := by
+    have h2 : (↑(2#u32) : Nat) = 2 := rfl
+    have hm : Aeneas.Std.UScalar.max .U32 = 2 ^ 32 - 1 := by native_decide
+    rw [h2, hm]; omega
+  cases hm : (Aeneas.Std.UScalar.mul w 2#u32) with
+  | ok v =>
+    rw [hm] at hspec
+    obtain ⟨_, hv, _⟩ := hspec
+    exact ⟨v, rfl, by rw [hv]; scalar_tac⟩
+  | fail e =>
+    rw [hm] at hspec; exfalso; omega
+  | div => rw [hm] at hspec; exact hspec.elim
+
+/-- Shared arithmetic for the `from_tree_index ((xn << k) + (1 << (k-1)) - 1)` tail of
+    `lowest_common_ancestor`, given `loop0`'s postcondition (`2 ≤ k ≤ 30`, `xn·2^k < 2^30`):
+    the two shifts don't wrap, their sum stays below `2^32`, `xn<<k` is even, and `1<<(k-1)`
+    is an even value `≥ 2` (so the final `−1` is odd and positive). -/
+private theorem lca_tail_aux {p : Std.U32 × Std.I32} {i6 i8 : Std.U32} {i7 : Std.I32}
+    (hk2 : 2 ≤ IScalar.toNat p.2) (hk30 : IScalar.toNat p.2 ≤ 30)
+    (hbnd : (↑p.1 : Nat) * 2 ^ IScalar.toNat p.2 < 2 ^ 30)
+    (hi6v : (↑i6 : Nat) = ↑p.1 <<< IScalar.toNat p.2 % U32.size)
+    (hi7 : (↑i7 : Int) = ↑p.2 - ↑(1#i32))
+    (hi8v : (↑i8 : Nat) = ↑(1#u32) <<< i7.toNat % U32.size) :
+    (↑i6 : Nat) + ↑i8 < 2 ^ 32 ∧ 2 ∣ (↑i6 : Nat) ∧ 2 ≤ (↑i8 : Nat) ∧ 2 ∣ (↑i8 : Nat) := by
+  have hi7t1 : 1 ≤ i7.toNat := by scalar_tac
+  have hi7t : i7.toNat ≤ 29 := by scalar_tac
+  have hsz : (2 : Nat) ^ 31 < U32.size := by native_decide
+  have h1u : (↑(1#u32) : Nat) = 1 := rfl
+  have hi6val : (↑i6 : Nat) = ↑p.1 * 2 ^ IScalar.toNat p.2 := by
+    rw [hi6v, Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
+  have hi8val : (↑i8 : Nat) = 2 ^ i7.toNat := by
+    have hb : (2 : Nat) ^ i7.toNat < U32.size :=
+      lt_of_le_of_lt (Nat.pow_le_pow_right (by norm_num) (show i7.toNat ≤ 31 by omega)) hsz
+    rw [hi8v, Nat.shiftLeft_eq, h1u, one_mul, Nat.mod_eq_of_lt hb]
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · rw [hi6val, hi8val]
+    have hle : (2 : Nat) ^ i7.toNat ≤ 2 ^ 29 := Nat.pow_le_pow_right (by norm_num) hi7t
+    omega
+  · rw [hi6val]; exact (dvd_pow_self 2 (by omega : IScalar.toNat p.2 ≠ 0)).mul_left _
+  · rw [hi8val]
+    calc (2 : Nat) = 2 ^ 1 := (pow_one 2).symm
+      _ ≤ 2 ^ i7.toNat := Nat.pow_le_pow_right (by norm_num) hi7t1
+  · rw [hi8val]; exact dvd_pow_self 2 (by omega : i7.toNat ≠ 0)
+
 @[spec]
 theorem lowest_common_ancestor.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex) :
   (lowest_common_ancestor.pre x y).holds →
   ⦃ ⌜ True ⌝ ⦄ lowest_common_ancestor x y ⦃ ⇓ res => ⌜ True ⌝ ⦄
   := by
-  unfold lowest_common_ancestor.pre
+  -- The precondition forces two distinct valid (`< 2^29`) leaves. Their tree-indices are even,
+  -- so `level` returns `0` and both early-return branches are unreachable (their `x>>1 = y>>1`
+  -- tests fail). Only the shift-loop runs; close its `from_tree_index` tail via `lca_tail_aux`.
+  unfold lowest_common_ancestor.pre LeafNodeIndex.valid LeafNodeIndex.u32 MAX_INDEX MAX_TREE_SIZE
   intro h_pre
-  -- TODO(sorry): whole proof — the two early-return branches are unreachable for distinct even leaves (`x >> ly == y >> ly` fails at level 0), so only the shift-loop runs; close it with `lca_loop0_spec` (gives 2 ≤ k ≤ 30, `xn·2^k < 2^30`) then the final `from_tree_index` (odd) at `(xn << k) + (1 << (k−1)) − 1`.
-  sorry
+  simp only [Aeneas.Std.Result.holds, Std.Do.Triple, Std.Do.WP.wp,
+    Std.Do.PredTrans.apply] at h_pre
+  rw [show (1#u32 <<< 30#i32 : Aeneas.Std.Result Std.U32) = ok 1073741824#u32 from by rfl] at h_pre
+  simp only [bind_tc_ok, pure] at h_pre
+  rw [show (1073741824#u32 / 2#u32 : Aeneas.Std.Result Std.U32) = ok 536870912#u32 from by rfl] at h_pre
+  simp only [bind_tc_ok, decide_eq_true_eq] at h_pre
+  have hx29 : (x : Std.U32) < 536870912#u32 := by
+    by_contra h; rw [if_neg h] at h_pre; simp_all
+  have hy29 : (y : Std.U32) < 536870912#u32 := by
+    by_contra h; rw [if_pos hx29, if_neg h] at h_pre; simp_all
+  have hxy : x ≠ y := by
+    rw [if_pos hx29, if_pos hy29] at h_pre; simp_all
+  have hxn : (↑x : Nat) < 2 ^ 29 := by scalar_tac
+  have hyn : (↑y : Nat) < 2 ^ 29 := by scalar_tac
+  have hxyn : (↑x : Nat) ≠ (↑y : Nat) := by scalar_tac
+  obtain ⟨x1, hx1eq, hx1v⟩ := mul2_ok x (by omega)
+  obtain ⟨y1, hy1eq, hy1v⟩ := mul2_ok y (by omega)
+  unfold lowest_common_ancestor
+  rw [hx1eq, hy1eq]
+  simp only [bind_tc_ok]
+  rw [level_even_eq x1 (by rw [hx1v]; omega), level_even_eq y1 (by rw [hy1v]; omega)]
+  simp only [bind_tc_ok]
+  mvcgen [lca_loop0_spec, ParentNodeIndex.from_tree_index]
+  all_goals try scalar_tac
+  case vc30.hmax =>
+    rename_i p hpost i6 hi6 i7 hi7 i8 hi8
+    obtain ⟨hk2, hk30, hbnd⟩ := hpost
+    obtain ⟨hi6v, -⟩ := hi6
+    obtain ⟨hi8v, -⟩ := hi8
+    rw [show p.2.toNat = IScalar.toNat p.2 from rfl] at hk2 hk30 hbnd
+    obtain ⟨hsum, -, -, -⟩ := lca_tail_aux hk2 hk30 hbnd hi6v hi7 hi8v
+    have hmax : UScalar.max UScalarTy.U32 = 2 ^ 32 - 1 := by native_decide
+    omega
+  case vc31.h =>
+    rename_i p hpost i6 hi6 i7 hi7 i8 hi8 i9 hi9
+    obtain ⟨hk2, hk30, hbnd⟩ := hpost
+    obtain ⟨hi6v, -⟩ := hi6
+    obtain ⟨hi8v, -⟩ := hi8
+    rw [show p.2.toNat = IScalar.toNat p.2 from rfl] at hk2 hk30 hbnd
+    obtain ⟨-, -, hi8ge, -⟩ := lca_tail_aux hk2 hk30 hbnd hi6v hi7 hi8v
+    scalar_tac
+  case vc32.h =>
+    rename_i p hpost i6 hi6 i7 hi7 i8 hi8 i9 hi9 i10 hi10
+    obtain ⟨hk2, hk30, hbnd⟩ := hpost
+    obtain ⟨hi6v, -⟩ := hi6
+    obtain ⟨hi8v, -⟩ := hi8
+    obtain ⟨hi10v, -⟩ := hi10
+    rw [show p.2.toNat = IScalar.toNat p.2 from rfl] at hk2 hk30 hbnd
+    obtain ⟨-, -, hi8ge, -⟩ := lca_tail_aux hk2 hk30 hbnd hi6v hi7 hi8v
+    scalar_tac
+  case vc34.h =>
+    rename_i p hpost i6 hi6 i7 hi7 i8 hi8 i9 hi9 i10 hi10 u hu rmod hmod
+    obtain ⟨hk2, hk30, hbnd⟩ := hpost
+    obtain ⟨hi6v, -⟩ := hi6
+    obtain ⟨hi8v, -⟩ := hi8
+    obtain ⟨hi10v, hi9ge⟩ := hi10
+    rw [show p.2.toNat = IScalar.toNat p.2 from rfl] at hk2 hk30 hbnd
+    obtain ⟨-, hi6dvd, hi8ge, hi8dvd⟩ := lca_tail_aux hk2 hk30 hbnd hi6v hi7 hi8v
+    rw [show (↑(1#u32) : Nat) = 1 from rfl] at hi10v
+    rw [show (↑(2#u32) : Nat) = 2 from rfl] at hmod
+    have : (↑rmod : Nat) = 1 := by omega
+    scalar_tac
 
 @[spec]
 theorem common_direct_path.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex)
@@ -442,11 +622,28 @@ theorem TreeSize.new.spec.proof
   ⦃ ⇓ res =>
   ⌜ (TreeSize.new.post nodes res).holds ⌝ ⦄
   := by
+  -- `new nodes = 2^(log2 nodes + 1) − 1`. From `nodes < 2^30` we get `log2 nodes ≤ 29`, which
+  -- discharges the shift bound (`< 32`), the `1 ≤ …` underflow guard, and `res ≤ 2^30` (via `<`).
   hax_mvcgen [new] <;> try scalar_tac
   all_goals simp_all!
-  · sorry
-  · sorry
-  · sorry
+  all_goals
+    (have hnodes : (↑nodes:Nat) < 2 ^ 30 := by
+      have h30 : (1:Nat) <<< 30#i32.toNat % Aeneas.Std.U32.size = 2 ^ 30 :=
+        one_shiftLeft_mod_eq 30#i32.toNat (by decide)
+      have ha : (↑nodes:Nat) < 1 <<< 30#i32.toNat % Aeneas.Std.U32.size := by assumption
+      rw [h30] at ha; exact ha
+     have hlog : Nat.log 2 (↑nodes:Nat) ≤ 29 := by
+      have := Nat.log_lt_of_lt_pow (by assumption) hnodes; omega)
+  · omega
+  · exact one_le_one_shiftLeft_mod _ (by omega)
+  · exfalso
+    have hshow : (30#i32).toNat = 30 := by decide
+    simp only [hshow,
+      one_shiftLeft_mod_eq 30 (by decide),
+      one_shiftLeft_mod_eq (31 - (31 - Nat.log 2 (↑nodes:Nat)) + 1) (by omega)] at *
+    have hle : (2:Nat) ^ (31 - (31 - Nat.log 2 (↑nodes:Nat)) + 1) ≤ 2 ^ 30 :=
+      Nat.pow_le_pow_right (by norm_num) (by omega)
+    omega
 
 @[spec]
 theorem TreeSize.inc.spec.proof (self : TreeSize) :

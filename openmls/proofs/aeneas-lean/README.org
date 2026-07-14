@@ -1,0 +1,136 @@
+#+TITLE: OpenMLS treemath — panic-freedom proofs (Aeneas → Lean)
+#+OPTIONS: toc:2
+
+* Overview
+
+This directory holds the Lean 4 / [[https://github.com/AeneasVerif/aeneas][Aeneas]] proof development for the *ratchet-tree math* of
+OpenMLS (RFC 9420 §4 / Appendix C, ported to Rust in
+=openmls/src/binary_tree/array_representation/treemath.rs=).
+
+The Rust functions are extracted to LLBC by Charon and to Lean by Aeneas; we then discharge,
+in Lean, the *panic-freedom* proof obligations Aeneas generates (each function is total /
+never panics on its stated precondition), plus a few functional postconditions.
+
+* Status: GREEN
+
+- All *9 / 9* =*.spec.proof= obligations are proved.
+- The proof files themselves contain *no =sorry=*.
+- The only admitted facts are *11 trusted =@[spec]= contracts* for opaque standard-library
+  operations Charon could not extract — the entire audit surface, collected in one file
+  (=AdmittedCoreSpecs.lean=).
+
+Authoritative gate (run from this directory):
+
+#+begin_src sh
+lake build Openmls.Proofs.Proofs
+#+end_src
+
+The LSP can disagree with the build mid-edit; trust =lake build=. A full build also emits 4
+=sorry= warnings from upstream =Aeneas/Std/*= — those are not ours.
+
+* Module layout
+
+Hand-written proof modules under =Openmls/Proofs/=, import DAG
+=Common ← {BitMath, MissingCoreSpecs, AdmittedCoreSpecs} ← Proofs=:
+
+| File                   | Concern                                                      | Real =sorry= |
+|------------------------+--------------------------------------------------------------+------------|
+| =Common.lean=            | generic loop driver =loop_spec_measure= + triple helpers,      |          0 |
+|                        | =vecLen=/=vecLen_eq_length=, =attribute [spec] uncurry=          |            |
+| =BitMath.lean=           | pure-=Nat= =tones= / =parent= bit-arithmetic lemmas                |          0 |
+| =MissingCoreSpecs.lean=  | PROVED =@[spec]= contracts for =core=/=alloc= ops                |          0 |
+| =AdmittedCoreSpecs.lean= | TRUSTED audit surface: 11 admitted =@[spec]= core contracts    |         11 |
+| =Proofs.lean=            | per-function treemath value/helper specs + the 9 obligations |          0 |
+
+=Common.lean= registers =attribute [spec] uncurry= once; it propagates to all importers (needed
+so =mvcgen= steps Aeneas tuple-destructuring binds). Ordering constraint that must be preserved:
+=direct_path.spec.proof= must elaborate before =common_direct_path.spec.proof= (both in
+=Proofs.lean=, kept in that order).
+
+* The 9 obligations (all proved, in =Proofs.lean=)
+
+=level=, =root=, =left=, =right=, =is_node_in_tree=, =lowest_common_ancestor=, =direct_path=,
+=common_direct_path=, =copath=.
+
+Each loop goes through the generic =loop_spec_measure= (mvcgen-steppable body obligation) via a
+per-function =*_loop_spec= helper (=level_loop_spec=, =direct_path_loop_spec=, =lca_loop0_spec=,
+=common_direct_path_loop_spec=). No proof still uses the raw =Aeneas.Std.loop.spec_decr_nat=.
+
+* Trusted audit surface (=AdmittedCoreSpecs.lean=)
+
+The 11 admitted contracts are the =@[spec]= statements for the bare =axiom=s in
+=Openmls/Extraction/FunsExternal.lean= (operations Charon could not extract). Every one is stated
+purely over =core=/=alloc= — *no treemath symbols leak in*:
+
+- Vec/slice: =deref_mut_slice_spec=, =reverse_slice_spec=, =vec_index_spec=, =vec_push_spec=,
+  =min_usize_spec=, =u32_cmp_spec=
+- iterators: =sharedavec_into_iter_spec=, =slice_iter_next_spec=, =vec_is_empty_spec=,
+  =vec_pop_spec=, and the generic =into_map_collect_spec= (its =sibling= instance is *proved*,
+  not admitted, in =Proofs.lean=)
+
+Plus the opaque model =sliceIterElems=. The three *proved* core specs (=vec_len_spec=,
+=vec_new_spec=, =vec_with_capacity_spec=) live separately in =MissingCoreSpecs.lean= so the audit
+surface stays exactly the admitted set.
+
+* Rust-side specs (backporting)
+
+Some Lean postconditions have been backported to the Rust source as =hax_lib= annotations, so the
+spec travels with the code and becomes the extracted =.pre=/=.post=.
+
+Already native (pre-existing source annotations):
+- =level= — =result ≤ 31 && (result == 0) == ((index & 1) == 0)=
+- =is_node_in_tree= — =result == (node_index.u32() < size.u32())=
+
+Backported in this effort (=treemath.rs=):
+- =ParentNodeIndex::to_tree_index= — =requires(self.u32() < 2^31)=, =ensures(result == 2*self.u32()+1)=
+- =TreeNodeIndex::new= — =ensures(result.u32() == index)= (round-trip)
+- =direct_path= — =ensures(result.len() <= 30 && ∀ i, 2*result[i].u32()+1 < 2^31-1)=
+
+Not backported — see TODO for the reasons.
+
+*Caveat:* the Rust edits compile (=cargo check -p openmls --lib=) but have *not* been re-extracted,
+so their effect on the generated =.pre=/=.post= and the Lean proofs is unverified. Notably
+=to_tree_index='s new =requires= ripples to every caller, and =direct_path='s =forall= clause is
+the one most likely to need adjustment.
+
+* Related docs
+
+- =Openmls/Proofs/HANDOFF_treemath_refactor.md= — the file-split refactor, invariants it preserves.
+- =Openmls/Proofs/HANDOFF_treemath_proofs.md= — final spec of every function + proof techniques.
+- =reference_aeneas_proof_patterns= memory — reusable =hax_mvcgen= / Aeneas-Lean idioms.
+- Root =../../../CLAUDE.md= / =extraction.org= — the broader FV-target roadmap and pipeline.
+
+* TODO
+
+** Backport the remaining specs to Rust
+The following functions' non-trivial specs were *not* backported.
+
+*** Structurally not expressible in the current spec DSL
+- [ ] =parent= — exact value =2^(k+2)·⌊x/2^(k+2)⌋ + (2^(k+1)−1)= with =k = tones x=. =tones=
+  (trailing-ones count) is a Lean model with no Rust counterpart. Only a weaker bound
+  (=< 2^31=) is expressible. Decide whether the weaker bound is worth stating.
+- [ ] =copath= — spec is "every output element is =SiblingSafe=", i.e. =sibling= is panic-free
+  on it: a panic-freedom meta-property, not a value relation. Not expressible as a Rust post.
+- [ ] =lowest_common_ancestor= — the only non-trivial fact proved is an internal loop bound
+  (=2 ≤ level ≤ 30=), not a functional result spec. Nothing API-level to attach.
+
+*** Gated on spec-DSL vocabulary (do once =ilog2= is available)
+- [ ] =log2= — =result == s.ilog2()= (currently only =Nat.log 2 s= in Lean).
+- [ ] =root= — =result.u32() == (1 << s.ilog2()) - 1= (depends on =log2= first).
+
+** Follow-ups on the backports already made
+- [ ] Re-extract and confirm the 3 new Rust specs produce the expected =.pre=/=.post=.
+- [ ] Handle the =to_tree_index= =requires= ripple: every caller (=u32=, =left=, =right=,
+  =parent=, =sibling=, =direct_path=) must discharge =self.u32() < 2^31= at the call site.
+- [ ] Verify =direct_path='s =forall= ensures survives extraction (hax #297 flagged =forall= in
+  =requires=; =ensures= may differ). Fallback: bound the element directly,
+  =result[i].u32() < (1u32 << 30) - 1=.
+- [ ] After re-extraction, retire helpers subsumed by the new =.post=s (=ptti_ok=,
+  =new_u32_eq=/=new_u32_triple=, =direct_path_elems_spec=).
+
+** Shrink the trusted audit surface
+- [ ] =into_map_collect_spec= — provable by giving =into_iter=/=map=/=collect= faithful Lean
+  models (map+collect over the underlying list) instead of bare axioms; then a list induction.
+  Trade-off: moves trust to "is the model faithful?" rather than removing it.
+- [ ] =vec_push_spec= — provable from =seq_push=; left admitted due to the =vecLen= vs
+  CoreModels-=Seq= representation mismatch. Revisit.
