@@ -311,7 +311,7 @@ hax-parenthash:
 
 aeneas-parenthash:
 	@echo "==> aeneas-parenthash (log: $(PARENTHASH_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::treesync::diff' \
@@ -339,7 +339,7 @@ hax-valid:
 
 aeneas-valid:
 	@echo "==> aeneas-valid (log: $(VALID_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::group::public_group::validation' \
@@ -366,7 +366,7 @@ hax-welcome:
 
 aeneas-welcome:
 	@echo "==> aeneas-welcome (log: $(WELCOME_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::group::mls_group::creation' \
@@ -390,7 +390,7 @@ hax-skipval:
 
 aeneas-skipval:
 	@echo "==> aeneas-skipval (log: $(SKIPVAL_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::skip_validation' \
@@ -415,7 +415,7 @@ hax-extcommit:
 
 aeneas-extcommit:
 	@echo "==> aeneas-extcommit (log: $(EXTCOMMIT_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::group::public_group::validation' \
@@ -442,7 +442,7 @@ hax-tbs:
 
 aeneas-tbs:
 	@echo "==> aeneas-tbs (log: $(TBS_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::framing::mls_content' \
@@ -467,7 +467,7 @@ hax-mutatomic:
 
 aeneas-mutatomic:
 	@echo "==> aeneas-mutatomic (log: $(MUTATOMIC_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::treesync::diff' \
@@ -492,7 +492,7 @@ hax-zeroize:
 
 aeneas-zeroize:
 	@echo "==> aeneas-zeroize (log: $(ZEROIZE_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::ciphersuite::aead' \
@@ -519,7 +519,7 @@ hax-reinit:
 
 aeneas-reinit:
 	@echo "==> aeneas-reinit (log: $(REINIT_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::group::mls_group::proposal_store' \
@@ -545,7 +545,7 @@ hax-sigkey:
 
 aeneas-sigkey:
 	@echo "==> aeneas-sigkey (log: $(SIGKEY_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::group::mls_group::commit_builder' \
@@ -570,7 +570,7 @@ hax-kpsig:
 
 aeneas-kpsig:
 	@echo "==> aeneas-kpsig (log: $(KPSIG_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::group::mls_group::commit_builder' \
@@ -594,7 +594,7 @@ hax-respsk:
 
 aeneas-respsk:
 	@echo "==> aeneas-respsk (log: $(RESPSK_AENEAS))"
-	@cd $(CRATE_DIR) && cargo hax into aeneas-lean \
+	@cd $(CRATE_DIR) && cargo hax into lean \
 		--lakefile \
 		--charon-args=" \
 			--start-from 'openmls::schedule::psk' \
