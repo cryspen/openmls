@@ -57,6 +57,7 @@ attribute [spec]
   --
   TreeSize.u32
   TreeSize.leaf_count
+  TreeSize.parent_count
   TreeSize.valid
   --
   TreeNodeIndex.new
@@ -77,37 +78,6 @@ attribute [spec]
 
 
 -- ------------------------------------------------------------------------------
-
-/-- `1 <<< k % U32.size = 2^k` for `k < 32` (the shift doesn't wrap). -/
-private theorem one_shiftLeft_mod_eq (k : Nat) (h : k < 32) :
-    1 <<< k % Aeneas.Std.U32.size = 2 ^ k := by
-  simp only [Nat.one_shiftLeft]; simp_scalar
-
-/-- Bit 0 clear ⇔ even. `@[simp]` so `simp_all!` turns the extracted `v &&& 1#u32 = 0#u32`
-    low-bit guards into `↑v % 2 = 0`. -/
-@[simp] theorem u32_and_one_eq_zero (v : Std.U32) :
-    (v &&& 1#u32 = 0#u32) ↔ (↑v : Nat) % 2 = 0 := by
-  have hval : (↑(v &&& 1#u32) : Nat) = (↑v : Nat) % 2 := by
-    rw [Aeneas.Std.UScalar.val_and, show (↑(1#u32) : Nat) = 1 from rfl, Nat.and_one_is_mod]
-  constructor
-  · intro h; rw [h] at hval; simpa using hval.symm
-  · intro h
-    have hz : (↑(v &&& 1#u32) : Nat) = 0 := by rw [hval, h]
-    scalar_tac
-
-/-- From the trailing-ones characterization, `k ≥ 1` or `x` even. `@[scalar_tac]` so it fires on the
-    char hypothesis: with `x` odd it discharges the `level x > 0` massert in `left`/`right`. -/
-@[scalar_tac x % 2 ^ (k + 1) = 2 ^ k - 1]
-theorem level_ge_one (x k : Nat) (hchar : x % 2 ^ (k + 1) = 2 ^ k - 1) :
-    1 ≤ k ∨ x % 2 = 0 := by
-  rcases Nat.eq_zero_or_pos k with hk | hk
-  · right; subst hk; simpa using hchar
-  · left; omega
-
-/-- `level_ge_one` for the `simp`-flipped orientation (`2^k − 1` on the left). -/
-@[scalar_tac 2 ^ k - 1 = x % 2 ^ (k + 1)]
-theorem level_ge_one' (x k : Nat) (hchar : 2 ^ k - 1 = x % 2 ^ (k + 1)) :
-    1 ≤ k ∨ x % 2 = 0 := level_ge_one x k hchar.symm
 
 /-- The `level` trailing-ones loop computes the trailing-ones count: on exit `res ≤ 30` and the low
     `res` bits of `index` are all 1 with bit `res` clear, i.e. `index % 2^(res+1) = 2^res − 1`.

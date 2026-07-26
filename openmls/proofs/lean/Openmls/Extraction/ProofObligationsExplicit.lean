@@ -1,12 +1,18 @@
 -- Derived by hand from `Openmls.Extraction.ProofObligations` (AENEAS-generated).
 -- [openmls]: proof obligations — EXPLICIT form.
--- Same 19 obligations as `ProofObligations.lean`, but each theorem's statement has its
+-- Same 21 obligations as `ProofObligations.lean`, but each theorem's statement has its
 -- `<fn>.spec <args>` reference inlined to the explicit Hoare-triple it unfolds to (the body of
 -- the corresponding `<fn>.spec` in `Specs.lean`): the precondition `(<fn>.pre <args>).holds →`
+-- (absent for the two unconditional specs `TreeNodeIndex::new` and `TreeSize::leaf_count`)
 -- followed by `⦃⌜True⌝⦄ <fn> <args> ⦃⇓ res => …⦄`. The `.pre`/`.post` components are left as named
 -- references (they are themselves defined explicitly in `Specs.lean`). Proofs remain `sorry`.
--- Functions carrying a nontrivial postcondition: `level`, `parent`, `direct_path`, `TreeSize::new`.
--- This file is a reference view; it is not imported by `Proofs.lean`.
+-- Functions carrying a nontrivial postcondition (14): `level`, `root`, `left`, `right`, `parent`,
+-- `direct_path`, `LeafNodeIndex::to_tree_index`, `ParentNodeIndex::to_tree_index`,
+-- `TreeNodeIndex::{new, u32}`, `TreeSize::{new, leaf_count, inc, dec}`. True posts (7): `sibling`,
+-- `copath`, `lowest_common_ancestor`, `common_direct_path`, `is_node_in_tree`,
+-- `LeafNodeIndex::from_tree_index`, `ParentNodeIndex::from_tree_index`.
+-- This file is a reference view; it is not imported by `Proofs.lean` — but `Proofs.lean`'s
+-- theorem statements must correspond 1:1 to the statements below (same names, same triples).
 import Aeneas
 import CoreModels
 import Openmls.Extraction.Types
@@ -47,7 +53,8 @@ theorem binary_tree.array_representation.treemath.root.spec.proof
   (binary_tree.array_representation.treemath.root.pre size).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.root size
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.root.post size res).holds ⌝ ⦄
   := by sorry
 
 @[spec]
@@ -56,7 +63,8 @@ theorem binary_tree.array_representation.treemath.left.spec.proof
   (binary_tree.array_representation.treemath.left.pre index).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.left index
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.left.post index res).holds ⌝ ⦄
   := by sorry
 
 @[spec]
@@ -65,7 +73,8 @@ theorem binary_tree.array_representation.treemath.right.spec.proof
   (binary_tree.array_representation.treemath.right.pre index).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.right index
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.right.post index res).holds ⌝ ⦄
   := by sorry
 
 @[spec]
@@ -154,7 +163,10 @@ theorem
   self).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.LeafNodeIndex.to_tree_index self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜
+  (binary_tree.array_representation.treemath.LeafNodeIndex.to_tree_index.post
+  self res).holds ⌝ ⦄
   := by sorry
 
 @[spec]
@@ -177,7 +189,10 @@ theorem
   self).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜
+  (binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index.post
+  self res).holds ⌝ ⦄
   := by sorry
 
 @[spec]
@@ -193,12 +208,24 @@ theorem
   := by sorry
 
 @[spec]
+theorem binary_tree.array_representation.treemath.TreeNodeIndex.new.spec.proof
+   (index : Std.U32) :
+  ⦃ ⌜ True ⌝ ⦄
+  binary_tree.array_representation.treemath.TreeNodeIndex.new index
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.TreeNodeIndex.new.post index
+  res).holds ⌝ ⦄
+  := by sorry
+
+@[spec]
 theorem binary_tree.array_representation.treemath.TreeNodeIndex.u32.spec.proof
    (self : binary_tree.array_representation.treemath.TreeNodeIndex) :
   (binary_tree.array_representation.treemath.TreeNodeIndex.u32.pre self).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.TreeNodeIndex.u32 self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.TreeNodeIndex.u32.post self
+  res).holds ⌝ ⦄
   := by sorry
 
 @[spec]
@@ -212,12 +239,25 @@ theorem binary_tree.array_representation.treemath.TreeSize.new.spec.proof
   := by sorry
 
 @[spec]
+theorem
+  binary_tree.array_representation.treemath.TreeSize.leaf_count.spec.proof
+   (self : binary_tree.array_representation.treemath.TreeSize) :
+  ⦃ ⌜ True ⌝ ⦄
+  binary_tree.array_representation.treemath.TreeSize.leaf_count self
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.TreeSize.leaf_count.post self
+  res).holds ⌝ ⦄
+  := by sorry
+
+@[spec]
 theorem binary_tree.array_representation.treemath.TreeSize.inc.spec.proof
    (self : binary_tree.array_representation.treemath.TreeSize) :
   (binary_tree.array_representation.treemath.TreeSize.inc.pre self).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.TreeSize.inc self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.TreeSize.inc.post self
+  res).holds ⌝ ⦄
   := by sorry
 
 @[spec]
@@ -226,7 +266,9 @@ theorem binary_tree.array_representation.treemath.TreeSize.dec.spec.proof
   (binary_tree.array_representation.treemath.TreeSize.dec.pre self).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.TreeSize.dec self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.TreeSize.dec.post self
+  res).holds ⌝ ⦄
   := by sorry
 
 end openmls

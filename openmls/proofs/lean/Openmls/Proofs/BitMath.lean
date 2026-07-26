@@ -259,4 +259,43 @@ theorem parent_val_lt (v : Nat) (hv : v < 2 ^ 31) (hk : tones v ≤ 30) :
     have h1 : 1 ≤ (2 : Nat) ^ (30 + 1) := Nat.one_le_two_pow
     omega
 
+/-! ### `U32`-level shift/mask helpers (moved from `Proofs.lean`, WP0 scaffolding) -/
+
+/-- Powers of two up to `2^31` fit in a `u32` (the `u32::pow` side condition shape). -/
+theorem two_pow_le_u32_max (m : Nat) (h : m ≤ 31) : 2 ^ m ≤ Aeneas.Std.U32.max := by
+  have h1 : (2 : Nat) ^ m ≤ 2 ^ 31 := Nat.pow_le_pow_right (by norm_num) h
+  have h2 : (2 : Nat) ^ 31 ≤ Aeneas.Std.U32.max := by native_decide
+  omega
+
+/-- `1 <<< k % U32.size = 2^k` for `k < 32` (the shift doesn't wrap). -/
+theorem one_shiftLeft_mod_eq (k : Nat) (h : k < 32) :
+    1 <<< k % Aeneas.Std.U32.size = 2 ^ k := by
+  simp only [Nat.one_shiftLeft]; simp_scalar
+
+/-- Bit 0 clear ⇔ even. `@[simp]` so `simp_all!` turns the extracted `v &&& 1#u32 = 0#u32`
+    low-bit guards into `↑v % 2 = 0`. -/
+@[simp] theorem u32_and_one_eq_zero (v : Std.U32) :
+    (v &&& 1#u32 = 0#u32) ↔ (↑v : Nat) % 2 = 0 := by
+  have hval : (↑(v &&& 1#u32) : Nat) = (↑v : Nat) % 2 := by
+    rw [Aeneas.Std.UScalar.val_and, show (↑(1#u32) : Nat) = 1 from rfl, Nat.and_one_is_mod]
+  constructor
+  · intro h; rw [h] at hval; simpa using hval.symm
+  · intro h
+    have hz : (↑(v &&& 1#u32) : Nat) = 0 := by rw [hval, h]
+    scalar_tac
+
+/-- From the trailing-ones characterization, `k ≥ 1` or `x` even. `@[scalar_tac]` so it fires on the
+    char hypothesis: with `x` odd it discharges the `level x > 0` massert in `left`/`right`. -/
+@[scalar_tac x % 2 ^ (k + 1) = 2 ^ k - 1]
+theorem level_ge_one (x k : Nat) (hchar : x % 2 ^ (k + 1) = 2 ^ k - 1) :
+    1 ≤ k ∨ x % 2 = 0 := by
+  rcases Nat.eq_zero_or_pos k with hk | hk
+  · right; subst hk; simpa using hchar
+  · left; omega
+
+/-- `level_ge_one` for the `simp`-flipped orientation (`2^k − 1` on the left). -/
+@[scalar_tac 2 ^ k - 1 = x % 2 ^ (k + 1)]
+theorem level_ge_one' (x k : Nat) (hchar : 2 ^ k - 1 = x % 2 ^ (k + 1)) :
+    1 ≤ k ∨ x % 2 = 0 := level_ge_one x k hchar.symm
+
 end openmls
