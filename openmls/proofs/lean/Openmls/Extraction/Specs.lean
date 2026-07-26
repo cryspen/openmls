@@ -265,7 +265,7 @@ def binary_tree.array_representation.treemath.direct_path.pre
   else ok false
 
 /-- [openmls::binary_tree::array_representation::treemath::direct_path::post]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 412:0-414:30 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 430:0-434:30 -/
 @[reducible]
 def binary_tree.array_representation.treemath.direct_path.post
   (node_index : binary_tree.array_representation.treemath.LeafNodeIndex)
@@ -281,6 +281,15 @@ def binary_tree.array_representation.treemath.direct_path.post
         (core.Usize.Insts.CoreSliceIndexSliceIndexSliceT
         binary_tree.array_representation.treemath.ParentNodeIndex) result i
     x.valid
+  ).holds) ∧ (∀ i < len, (do
+    let x ←
+      alloc.vec.Vec.Insts.CoreOpsIndexIndex.index
+        (core.Usize.Insts.CoreSliceIndexSliceIndexSliceT
+        binary_tree.array_representation.treemath.ParentNodeIndex) result i
+    let xi ← binary_tree.array_representation.treemath.ParentNodeIndex.u32 x
+    let pc ←
+      binary_tree.array_representation.treemath.TreeSize.parent_count size
+    ok (xi < pc)
   ).holds)
 
 def binary_tree.array_representation.treemath.direct_path.spec
@@ -537,13 +546,11 @@ def
 def binary_tree.array_representation.treemath.TreeNodeIndex.new.post
   (index : Std.U32)
   (r : binary_tree.array_representation.treemath.TreeNodeIndex) :
-  Result hax_lib.prop.Prop
+  Result Prop
   := do
   let i ← binary_tree.array_representation.treemath.MAX_TREE_SIZE
   let b ← binary_tree.array_representation.treemath.TreeNodeIndex.valid r
-  hax_lib.prop.implies (core.convert.Into.Blanket
-    hax_lib.prop.Prop.Insts.CoreConvertFromBool) (core.convert.Into.Blanket
-    hax_lib.prop.Prop.Insts.CoreConvertFromBool) (index < i) b
+  pure <| index < i → b
 
 def binary_tree.array_representation.treemath.TreeNodeIndex.new.spec
   (index : Std.U32) : Prop :=

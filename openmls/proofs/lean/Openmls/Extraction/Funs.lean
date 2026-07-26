@@ -809,23 +809,18 @@ def binary_tree.array_representation.treemath.TreeSize.Insts.CoreCmpOrd :
     binary_tree.array_representation.treemath.TreeSize.Insts.CoreCmpOrd.cmp
 }
 
-/-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeSize}::valid]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 230:4-232:5 -/
-def binary_tree.array_representation.treemath.TreeSize.valid
-  (self : binary_tree.array_representation.treemath.TreeSize) :
-  Result Bool
-  := do
-  if binary_tree.array_representation.treemath.MIN_TREE_SIZE <= self
-  then
-    let i ← binary_tree.array_representation.treemath.MAX_TREE_SIZE
-    if self <= i
-    then let i1 ← self % 2#u32
-         ok (i1 = 1#u32)
-    else ok false
-  else ok false
+/-- [openmls::binary_tree::array_representation::treemath::_#6]
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 228:61-228:70 -/
+@[global_simps, irreducible]
+def binary_tree.array_representation.treemath.__6 : Unit := ()
+
+/-- [openmls::binary_tree::array_representation::treemath::_#7]
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 228:72-228:83 -/
+@[global_simps, irreducible]
+def binary_tree.array_representation.treemath.__7 : Unit := ()
 
 /-- [openmls::binary_tree::array_representation::treemath::log2]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 328:0-333:1 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 339:0-344:1 -/
 def binary_tree.array_representation.treemath.log2
   (x : Std.U32) : Result Std.Usize := do
   if x = 0#u32
@@ -835,8 +830,28 @@ def binary_tree.array_representation.treemath.log2
     let i1 ← 31#u32 - i
     ok (UScalar.cast .Usize i1)
 
+/-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeSize}::valid]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 236:4-240:5 -/
+def binary_tree.array_representation.treemath.TreeSize.valid
+  (self : binary_tree.array_representation.treemath.TreeSize) :
+  Result Bool
+  := do
+  if binary_tree.array_representation.treemath.MIN_TREE_SIZE <= self
+  then
+    let i ← binary_tree.array_representation.treemath.MAX_TREE_SIZE
+    if self <= i
+    then
+      let i1 ← binary_tree.array_representation.treemath.log2 self
+      let i2 ← lift (UScalar.cast .U32 i1)
+      let i3 ← i2 + 1#u32
+      let i4 ← core.num.U32.pow 2#u32 i3
+      let i5 ← i4 - 1#u32
+      ok (self = i5)
+    else ok false
+  else ok false
+
 /-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeSize}::new]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 242:4-245:5 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 250:4-253:5 -/
 def binary_tree.array_representation.treemath.TreeSize.new
   (nodes : Std.U32) :
   Result binary_tree.array_representation.treemath.TreeSize
@@ -1025,7 +1040,7 @@ def binary_tree.array_representation.treemath.sibling
     binary_tree.array_representation.treemath.left p
 
 /-- [openmls::binary_tree::array_representation::treemath::direct_path]: loop body 0:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 420:4-424:5 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 440:4-444:5 -/
 @[rust_loop_body]
 def binary_tree.array_representation.treemath.direct_path_loop.body
   (r : Std.U32)

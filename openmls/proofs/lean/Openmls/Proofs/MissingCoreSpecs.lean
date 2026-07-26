@@ -87,5 +87,18 @@ theorem leading_zeros_spec (x : Std.U32) :
     rw [BitVec.toNat_ofNat]
     omega
 
+/-- `u32::pow` computes `x ^ exp` exactly, as long as the result fits in a `u32`. -/
+@[spec]
+theorem u32_pow_spec (x exp : Std.U32) :
+    ⦃ ⌜ (↑x : Nat) ^ (↑exp : Nat) ≤ Std.UScalar.max .U32 ⌝ ⦄
+    core.num.U32.pow x exp
+    ⦃ ⇓ r => ⌜ (↑r : Nat) = (↑x : Nat) ^ (↑exp : Nat) ⌝ ⦄ := by
+  unfold CoreModels.core.num.U32.pow CoreModels.rust_primitives.arithmetic.pow_u32
+  mvcgen
+  intro h
+  have heq := Std.UScalar.tryMk_eq Std.UScalarTy.U32 ((↑x : Nat) ^ (↑exp : Nat))
+  cases hc : Std.UScalar.tryMk Std.UScalarTy.U32 ((↑x : Nat) ^ (↑exp : Nat)) <;>
+    simp_all [Std.UScalar.inBounds, _root_.Std.Do.WP.wp, PredTrans.apply]
+  scalar_tac
 
 end openmls
