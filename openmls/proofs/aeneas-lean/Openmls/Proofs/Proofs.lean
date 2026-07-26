@@ -78,15 +78,12 @@ attribute [spec]
 
 -- ------------------------------------------------------------------------------
 
-/-- `1 <<< k` doesn't wrap in `U32` for `k < 32`, so `1 <<< k % U32.size = 2^k`. -/
+/-- `1 <<< k` doesn't wrap in `U32` for `k < 32`, so `1 <<< k % U32.size = 2^k`. `Nat.one_shiftLeft`
+    turns the shift into `2^k`; Aeneas's `simp_scalar` then drops the wrap-around mod (it knows
+    `U32.size` and discharges `2^k < 2^32` from `k < 32` via `Nat.pow_mod_pow_eq_self'`). -/
 private theorem one_shiftLeft_mod_eq (k : Nat) (h : k < 32) :
     1 <<< k % Aeneas.Std.U32.size = 2 ^ k := by
-  have e : 1 <<< k = 2 ^ k := by simp [Nat.shiftLeft_eq]
-  have h2 : (2:Nat) ^ k < Aeneas.Std.U32.size := by
-    have : (2:Nat)^k ≤ 2^31 := Nat.pow_le_pow_right (by norm_num) (by omega)
-    have : (2:Nat)^31 < Aeneas.Std.U32.size := by native_decide
-    omega
-  rw [e, Nat.mod_eq_of_lt h2]
+  simp only [Nat.one_shiftLeft]; simp_scalar
 
 /-- The low-bit test `v & 1 == 0` is exactly the parity of `v`: bit 0 clear ⇔ `v` even.
     Registered `@[simp]` so `simp_all!` rewrites the extracted `v &&& 1#u32 = 0#u32` low-bit
