@@ -280,7 +280,7 @@ hax-treemath:
 aeneas-treemath:
 	@echo "==> aeneas-treemath (log: $(TREEMATH_AENEAS))"
 	@cd $(CRATE_DIR) && \
-		cargo hax into -v aeneas-lean \
+		cargo hax into -v lean \
 		--charon-args=" \
 			--start-from 'openmls::binary_tree::array_representation::treemath' \
 			$(AENEAS_EXCLUDES) \

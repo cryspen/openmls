@@ -333,20 +333,48 @@ theorem parent.spec.proof
   intro h_pre
   apply triple_in_hypothesis (h := h_pre)
   clear h_pre
-  mvcgen <;> try scalar_tac
-  · intro
-    hax_mvcgen [level.post]
-    all_goals try scalar_tac
-    · sorry
-    · sorry
-    · sorry
-    · sorry
-    · sorry
-    · sorry
-    · sorry
-    · sorry
-  · sorry
+  hax_mvcgen [level.post, pure] <;> try scalar_tac
+  · expose_names
+    apply triple_in_hypothesis (h := h_5) ; clear h_5
+    unfold level.post
+    mvcgen (stepLimit := .some 5) [level.post] <;> try scalar_tac
+    intro
+    mvcgen (stepLimit := .some 4) [level.post] <;> try scalar_tac
 
+    sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
 
 @[spec]
 theorem sibling.spec.proof
