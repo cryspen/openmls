@@ -131,6 +131,12 @@ theorem
   := by sorry
 
 @[spec]
+theorem binary_tree.array_representation.treemath.TreeNodeIndex.new.spec.proof
+   (index : Std.U32) :
+  binary_tree.array_representation.treemath.TreeNodeIndex.new.spec index
+  := by sorry
+
+@[spec]
 theorem binary_tree.array_representation.treemath.TreeNodeIndex.u32.spec.proof
    (self : binary_tree.array_representation.treemath.TreeNodeIndex) :
   binary_tree.array_representation.treemath.TreeNodeIndex.u32.spec self
@@ -140,6 +146,13 @@ theorem binary_tree.array_representation.treemath.TreeNodeIndex.u32.spec.proof
 theorem binary_tree.array_representation.treemath.TreeSize.new.spec.proof
    (nodes : Std.U32) :
   binary_tree.array_representation.treemath.TreeSize.new.spec nodes
+  := by sorry
+
+@[spec]
+theorem
+  binary_tree.array_representation.treemath.TreeSize.leaf_count.spec.proof
+   (self : binary_tree.array_representation.treemath.TreeSize) :
+  binary_tree.array_representation.treemath.TreeSize.leaf_count.spec self
   := by sorry
 
 @[spec]

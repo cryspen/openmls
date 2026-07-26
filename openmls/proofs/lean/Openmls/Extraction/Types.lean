@@ -26,13 +26,13 @@ namespace openmls
 def binary_tree.array_representation.treemath.LeafNodeIndex := Std.U32
 
 /-- [openmls::binary_tree::array_representation::treemath::ParentNodeIndex]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 80:0-80:32
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 81:0-81:32
     Visibility: public -/
 @[reducible]
 def binary_tree.array_representation.treemath.ParentNodeIndex := Std.U32
 
 /-- [openmls::binary_tree::array_representation::treemath::TreeNodeIndex]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 151:0-154:1
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 153:0-156:1
     Visibility: public -/
 @[discriminant isize]
 inductive binary_tree.array_representation.treemath.TreeNodeIndex where
@@ -44,14 +44,20 @@ inductive binary_tree.array_representation.treemath.TreeNodeIndex where
   binary_tree.array_representation.treemath.TreeNodeIndex
 
 /-- [openmls::binary_tree::array_representation::treemath::TreeSize]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 225:0-225:32 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 229:0-229:32 -/
 @[reducible]
 def binary_tree.array_representation.treemath.TreeSize := Std.U32
 
-/-- [openmls::binary_tree::array_representation::treemath::_#17::ensures::closure]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 413:11-413:66 -/
+/-- [openmls::binary_tree::array_representation::treemath::_#20::ensures::closure#1]
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 432:16-433:46 -/
+def binary_tree.array_representation.treemath.__20.ensures.closure_1 :=
+  alloc.vec.Vec binary_tree.array_representation.treemath.ParentNodeIndex ×
+  binary_tree.array_representation.treemath.TreeSize
+
+/-- [openmls::binary_tree::array_representation::treemath::_#20::ensures::closure]
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 431:11-431:66 -/
 @[reducible]
-def binary_tree.array_representation.treemath.__17.ensures.closure :=
+def binary_tree.array_representation.treemath.__20.ensures.closure :=
   alloc.vec.Vec binary_tree.array_representation.treemath.ParentNodeIndex
 
 end openmls

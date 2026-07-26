@@ -259,7 +259,7 @@ impl TreeSize {
     }
 
     /// Return the number of leaf nodes in the tree.
-    #[ensures(|r| r == self.0 / 2 + 1 && implies(self.valid(), r <= MAX_INDEX))]
+    #[ensures(|r| r == self.0 / 2 + 1 && (!self.valid() || r <= MAX_INDEX))]
     pub(crate) fn leaf_count(&self) -> u32 {
         (self.0 / 2) + 1
     }
@@ -391,7 +391,7 @@ pub(crate) fn right(index: ParentNodeIndex) -> TreeNodeIndex {
 // The result is valid except for the parent of the root of the maximum tree
 // (x == MAX_INDEX - 1), which reaches exactly MAX_INDEX - 1.
 #[ensures(|r| r.u32() < MAX_INDEX
-    && implies(x.u32() != MAX_INDEX - 1, r.valid())
+    && (x.u32() == MAX_INDEX - 1 || r.valid())
     && level(2 * r.u32() + 1) == level(x.u32()) + 1)]
 fn parent(x: TreeNodeIndex) -> ParentNodeIndex {
     let x = x.u32();
@@ -428,8 +428,9 @@ pub(crate) fn test_sibling(index: TreeNodeIndex) -> TreeNodeIndex {
 /// Does not include the node itself.
 #[requires(size.valid() && node_index.u32() < size.leaf_count())]
 #[ensures(|result|
-    forall(|i: usize| implies(i < result.len(),
-        result[i].valid() && result[i].u32() < size.parent_count()))
+    forall(|i: usize| implies(i < result.len(), result[i].valid()))
+    .and(forall(|i: usize| implies(i < result.len(),
+        result[i].u32() < size.parent_count())))
     .and(result.len() <= 30))]
 pub(crate) fn direct_path(node_index: LeafNodeIndex, size: TreeSize) -> Vec<ParentNodeIndex> {
     let r = root(size).u32();

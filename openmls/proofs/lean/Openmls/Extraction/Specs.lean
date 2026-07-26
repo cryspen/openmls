@@ -26,7 +26,7 @@ namespace openmls
 
 
 /-- [openmls::binary_tree::array_representation::treemath::level::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 335:0-335:34 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 346:0-346:34 -/
 @[reducible]
 def binary_tree.array_representation.treemath.level.pre
   (index : Std.U32) : Result Bool := do
@@ -34,7 +34,7 @@ def binary_tree.array_representation.treemath.level.pre
   ok (index < i)
 
 /-- [openmls::binary_tree::array_representation::treemath::level::post]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 336:0-336:71 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 347:0-347:71 -/
 @[reducible]
 def binary_tree.array_representation.treemath.level.post
   (index : Std.U32) (r : Std.Usize) : Result Bool := do
@@ -59,7 +59,7 @@ def binary_tree.array_representation.treemath.level.spec (index : Std.U32)
 
 
 /-- [openmls::binary_tree::array_representation::treemath::root::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 349:0-349:25 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 360:0-360:25 -/
 @[reducible]
 def binary_tree.array_representation.treemath.root.pre
   (size : binary_tree.array_representation.treemath.TreeSize) :
@@ -67,16 +67,34 @@ def binary_tree.array_representation.treemath.root.pre
   := do
   binary_tree.array_representation.treemath.TreeSize.valid size
 
+/-- [openmls::binary_tree::array_representation::treemath::root::post]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 361:0-361:49 -/
+@[reducible]
+def binary_tree.array_representation.treemath.root.post
+  (size : binary_tree.array_representation.treemath.TreeSize)
+  (r : binary_tree.array_representation.treemath.TreeNodeIndex) :
+  Result Bool
+  := do
+  let b ← binary_tree.array_representation.treemath.TreeNodeIndex.valid r
+  if b
+  then
+    let i ← binary_tree.array_representation.treemath.TreeNodeIndex.u32 r
+    let i1 ← binary_tree.array_representation.treemath.TreeSize.u32 size
+    ok (i < i1)
+  else ok false
+
 def binary_tree.array_representation.treemath.root.spec
   (size : binary_tree.array_representation.treemath.TreeSize) : Prop :=
   (binary_tree.array_representation.treemath.root.pre size).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.root size
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.root.post size res).holds ⌝
+  ⦄
 
 
 /-- [openmls::binary_tree::array_representation::treemath::left::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 356:0-356:26 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 368:0-368:26 -/
 @[reducible]
 def binary_tree.array_representation.treemath.left.pre
   (index : binary_tree.array_representation.treemath.ParentNodeIndex) :
@@ -84,16 +102,36 @@ def binary_tree.array_representation.treemath.left.pre
   := do
   binary_tree.array_representation.treemath.ParentNodeIndex.valid index
 
+/-- [openmls::binary_tree::array_representation::treemath::left::post]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 369:0-369:60 -/
+@[reducible]
+def binary_tree.array_representation.treemath.left.post
+  (index : binary_tree.array_representation.treemath.ParentNodeIndex)
+  (r : binary_tree.array_representation.treemath.TreeNodeIndex) :
+  Result Bool
+  := do
+  let b ← binary_tree.array_representation.treemath.TreeNodeIndex.valid r
+  if b
+  then
+    let i ← binary_tree.array_representation.treemath.TreeNodeIndex.u32 r
+    let i1 ←
+      binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index
+        index
+    ok (i < i1)
+  else ok false
+
 def binary_tree.array_representation.treemath.left.spec
   (index : binary_tree.array_representation.treemath.ParentNodeIndex) : Prop :=
   (binary_tree.array_representation.treemath.left.pre index).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.left index
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.left.post index res).holds ⌝
+  ⦄
 
 
 /-- [openmls::binary_tree::array_representation::treemath::right::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 365:0-365:26 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 378:0-378:26 -/
 @[reducible]
 def binary_tree.array_representation.treemath.right.pre
   (index : binary_tree.array_representation.treemath.ParentNodeIndex) :
@@ -101,16 +139,36 @@ def binary_tree.array_representation.treemath.right.pre
   := do
   binary_tree.array_representation.treemath.ParentNodeIndex.valid index
 
+/-- [openmls::binary_tree::array_representation::treemath::right::post]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 379:0-379:60 -/
+@[reducible]
+def binary_tree.array_representation.treemath.right.post
+  (index : binary_tree.array_representation.treemath.ParentNodeIndex)
+  (r : binary_tree.array_representation.treemath.TreeNodeIndex) :
+  Result Bool
+  := do
+  let b ← binary_tree.array_representation.treemath.TreeNodeIndex.valid r
+  if b
+  then
+    let i ← binary_tree.array_representation.treemath.TreeNodeIndex.u32 r
+    let i1 ←
+      binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index
+        index
+    ok (i > i1)
+  else ok false
+
 def binary_tree.array_representation.treemath.right.spec
   (index : binary_tree.array_representation.treemath.ParentNodeIndex) : Prop :=
   (binary_tree.array_representation.treemath.right.pre index).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.right index
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜ (binary_tree.array_representation.treemath.right.post index res).holds
+  ⌝ ⦄
 
 
 /-- [openmls::binary_tree::array_representation::treemath::parent::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 376:0-376:22 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 390:0-390:22 -/
 @[reducible]
 def binary_tree.array_representation.treemath.parent.pre
   (x : binary_tree.array_representation.treemath.TreeNodeIndex) :
@@ -119,7 +177,7 @@ def binary_tree.array_representation.treemath.parent.pre
   binary_tree.array_representation.treemath.TreeNodeIndex.valid x
 
 /-- [openmls::binary_tree::array_representation::treemath::parent::post]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 377:0-377:35 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 393:0-395:53 -/
 @[reducible]
 def binary_tree.array_representation.treemath.parent.post
   (x : binary_tree.array_representation.treemath.TreeNodeIndex)
@@ -128,7 +186,31 @@ def binary_tree.array_representation.treemath.parent.post
   := do
   let i ← binary_tree.array_representation.treemath.ParentNodeIndex.u32 r
   let i1 ← binary_tree.array_representation.treemath.MAX_INDEX
-  ok (i < i1)
+  if i < i1
+  then
+    let i2 ← binary_tree.array_representation.treemath.TreeNodeIndex.u32 x
+    let i3 ← i1 - 1#u32
+    if i2 = i3
+    then
+      let i4 ← 2#u32 * i
+      let i5 ← i4 + 1#u32
+      let i6 ← binary_tree.array_representation.treemath.level i5
+      let i7 ← binary_tree.array_representation.treemath.level i2
+      let i8 ← i7 + 1#usize
+      ok (i6 = i8)
+    else
+      let b ←
+        binary_tree.array_representation.treemath.ParentNodeIndex.valid r
+      if b
+      then
+        let i4 ← 2#u32 * i
+        let i5 ← i4 + 1#u32
+        let i6 ← binary_tree.array_representation.treemath.level i5
+        let i7 ← binary_tree.array_representation.treemath.level i2
+        let i8 ← i7 + 1#usize
+        ok (i6 = i8)
+      else ok false
+  else ok false
 
 def binary_tree.array_representation.treemath.parent.spec
   (x : binary_tree.array_representation.treemath.TreeNodeIndex) : Prop :=
@@ -141,13 +223,20 @@ def binary_tree.array_representation.treemath.parent.spec
 
 
 /-- [openmls::binary_tree::array_representation::treemath::sibling::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 393:0-393:26 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 411:0-411:58 -/
 @[reducible]
 def binary_tree.array_representation.treemath.sibling.pre
   (index : binary_tree.array_representation.treemath.TreeNodeIndex) :
   Result Bool
   := do
-  binary_tree.array_representation.treemath.TreeNodeIndex.valid index
+  let b ← binary_tree.array_representation.treemath.TreeNodeIndex.valid index
+  if b
+  then
+    let i ← binary_tree.array_representation.treemath.TreeNodeIndex.u32 index
+    let i1 ← binary_tree.array_representation.treemath.MAX_INDEX
+    let i2 ← i1 - 1#u32
+    ok (i != i2)
+  else ok false
 
 def binary_tree.array_representation.treemath.sibling.spec
   (index : binary_tree.array_representation.treemath.TreeNodeIndex) : Prop :=
@@ -158,7 +247,7 @@ def binary_tree.array_representation.treemath.sibling.spec
 
 
 /-- [openmls::binary_tree::array_representation::treemath::direct_path::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 411:0-411:65 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 429:0-429:65 -/
 @[reducible]
 def binary_tree.array_representation.treemath.direct_path.pre
   (node_index : binary_tree.array_representation.treemath.LeafNodeIndex)
@@ -208,7 +297,7 @@ def binary_tree.array_representation.treemath.direct_path.spec
 
 
 /-- [openmls::binary_tree::array_representation::treemath::copath::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 429:0-429:65 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 449:0-449:65 -/
 @[reducible]
 def binary_tree.array_representation.treemath.copath.pre
   (leaf_index : binary_tree.array_representation.treemath.LeafNodeIndex)
@@ -236,7 +325,7 @@ def binary_tree.array_representation.treemath.copath.spec
 
 
 /-- [openmls::binary_tree::array_representation::treemath::lowest_common_ancestor::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 446:0-446:57 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 468:0-468:57 -/
 @[reducible]
 def binary_tree.array_representation.treemath.lowest_common_ancestor.pre
   (x : binary_tree.array_representation.treemath.LeafNodeIndex)
@@ -266,7 +355,7 @@ def binary_tree.array_representation.treemath.lowest_common_ancestor.spec
 
 
 /-- [openmls::binary_tree::array_representation::treemath::common_direct_path::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 469:0-469:88 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 491:0-491:88 -/
 @[reducible]
 def binary_tree.array_representation.treemath.common_direct_path.pre
   (x : binary_tree.array_representation.treemath.LeafNodeIndex)
@@ -299,7 +388,7 @@ def binary_tree.array_representation.treemath.common_direct_path.spec
 
 
 /-- [openmls::binary_tree::array_representation::treemath::is_node_in_tree::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 507:0-507:31 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 529:0-529:31 -/
 @[reducible]
 def binary_tree.array_representation.treemath.is_node_in_tree.pre
   (node_index : binary_tree.array_representation.treemath.TreeNodeIndex)
@@ -327,17 +416,40 @@ def binary_tree.array_representation.treemath.LeafNodeIndex.to_tree_index.pre
   := do
   binary_tree.array_representation.treemath.LeafNodeIndex.valid self_
 
+/-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::LeafNodeIndex}::to_tree_index::post]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 66:4-66:74 -/
+@[reducible]
+def binary_tree.array_representation.treemath.LeafNodeIndex.to_tree_index.post
+  (self_ : binary_tree.array_representation.treemath.LeafNodeIndex)
+  (r : Std.U32) :
+  Result Bool
+  := do
+  let i ← self_ * 2#u32
+  if r = i
+  then
+    let i1 ← r % 2#u32
+    if i1 = 0#u32
+    then
+      let i2 ← binary_tree.array_representation.treemath.MAX_TREE_SIZE
+      let i3 ← i2 - 1#u32
+      ok (r < i3)
+    else ok false
+  else ok false
+
 def binary_tree.array_representation.treemath.LeafNodeIndex.to_tree_index.spec
    (self : binary_tree.array_representation.treemath.LeafNodeIndex) : Prop :=
   (binary_tree.array_representation.treemath.LeafNodeIndex.to_tree_index.pre
   self).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.LeafNodeIndex.to_tree_index self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜
+  (binary_tree.array_representation.treemath.LeafNodeIndex.to_tree_index.post
+  self res).holds ⌝ ⦄
 
 
 /-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::LeafNodeIndex}::from_tree_index::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 71:4-71:36 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 72:4-72:36 -/
 @[reducible]
 def binary_tree.array_representation.treemath.LeafNodeIndex.from_tree_index.pre
   (node_index : Std.U32) : Result Bool := do
@@ -356,13 +468,35 @@ def
 
 
 /-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::ParentNodeIndex}::to_tree_index::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 107:4-107:29 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 108:4-108:29 -/
 @[reducible]
 def binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index.pre
   (self_ : binary_tree.array_representation.treemath.ParentNodeIndex) :
   Result Bool
   := do
   binary_tree.array_representation.treemath.ParentNodeIndex.valid self_
+
+/-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::ParentNodeIndex}::to_tree_index::post]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 109:4-109:78 -/
+@[reducible]
+def
+  binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index.post
+  (self_ : binary_tree.array_representation.treemath.ParentNodeIndex)
+  (r : Std.U32) :
+  Result Bool
+  := do
+  let i ← self_ * 2#u32
+  let i1 ← i + 1#u32
+  if r = i1
+  then
+    let i2 ← r % 2#u32
+    if i2 = 1#u32
+    then
+      let i3 ← binary_tree.array_representation.treemath.MAX_TREE_SIZE
+      let i4 ← i3 - 2#u32
+      ok (r < i4)
+    else ok false
+  else ok false
 
 def
   binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index.spec
@@ -371,11 +505,14 @@ def
   self).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜
+  (binary_tree.array_representation.treemath.ParentNodeIndex.to_tree_index.post
+  self res).holds ⌝ ⦄
 
 
 /-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::ParentNodeIndex}::from_tree_index::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 113:4-113:36 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 115:4-115:36 -/
 @[reducible]
 def
   binary_tree.array_representation.treemath.ParentNodeIndex.from_tree_index.pre
@@ -394,8 +531,32 @@ def
   ⦃ ⇓ res => ⌜ True ⌝ ⦄
 
 
+/-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeNodeIndex}::new::post]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 172:4-172:61 -/
+@[reducible]
+def binary_tree.array_representation.treemath.TreeNodeIndex.new.post
+  (index : Std.U32)
+  (r : binary_tree.array_representation.treemath.TreeNodeIndex) :
+  Result hax_lib.prop.Prop
+  := do
+  let i ← binary_tree.array_representation.treemath.MAX_TREE_SIZE
+  let b ← binary_tree.array_representation.treemath.TreeNodeIndex.valid r
+  hax_lib.prop.implies (core.convert.Into.Blanket
+    hax_lib.prop.Prop.Insts.CoreConvertFromBool) (core.convert.Into.Blanket
+    hax_lib.prop.Prop.Insts.CoreConvertFromBool) (index < i) b
+
+def binary_tree.array_representation.treemath.TreeNodeIndex.new.spec
+  (index : Std.U32) : Prop :=
+  ⦃ ⌜ True ⌝ ⦄
+  binary_tree.array_representation.treemath.TreeNodeIndex.new index
+  ⦃ ⇓ res =>
+  ⌜
+  (binary_tree.array_representation.treemath.TreeNodeIndex.new.post index
+  res).holds ⌝ ⦄
+
+
 /-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeNodeIndex}::u32::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 185:4-185:29 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 188:4-188:29 -/
 @[reducible]
 def binary_tree.array_representation.treemath.TreeNodeIndex.u32.pre
   (self_ : binary_tree.array_representation.treemath.TreeNodeIndex) :
@@ -403,17 +564,32 @@ def binary_tree.array_representation.treemath.TreeNodeIndex.u32.pre
   := do
   binary_tree.array_representation.treemath.TreeNodeIndex.valid self_
 
+/-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeNodeIndex}::u32::post]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 189:4-189:41 -/
+@[reducible]
+def binary_tree.array_representation.treemath.TreeNodeIndex.u32.post
+  (self_ : binary_tree.array_representation.treemath.TreeNodeIndex)
+  (r : Std.U32) :
+  Result Bool
+  := do
+  let i ← binary_tree.array_representation.treemath.MAX_TREE_SIZE
+  let i1 ← i - 1#u32
+  ok (r < i1)
+
 def binary_tree.array_representation.treemath.TreeNodeIndex.u32.spec
   (self : binary_tree.array_representation.treemath.TreeNodeIndex) : Prop :=
   (binary_tree.array_representation.treemath.TreeNodeIndex.u32.pre self).holds
   →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.TreeNodeIndex.u32 self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜
+  (binary_tree.array_representation.treemath.TreeNodeIndex.u32.post self
+  res).holds ⌝ ⦄
 
 
 /-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeSize}::new::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 240:4-240:38 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 248:4-248:38 -/
 @[reducible]
 def binary_tree.array_representation.treemath.TreeSize.new.pre
   (nodes : Std.U32) : Result Bool := do
@@ -421,7 +597,7 @@ def binary_tree.array_representation.treemath.TreeSize.new.pre
   ok (nodes < i)
 
 /-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeSize}::new::post]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 241:4-241:39 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 249:4-249:39 -/
 @[reducible]
 def binary_tree.array_representation.treemath.TreeSize.new.post
   (nodes : Std.U32)
@@ -441,39 +617,112 @@ def binary_tree.array_representation.treemath.TreeSize.new.spec
   ⌝ ⦄
 
 
+/-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeSize}::leaf_count::post]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 262:4-262:76 -/
+@[reducible]
+def binary_tree.array_representation.treemath.TreeSize.leaf_count.post
+  (self_ : binary_tree.array_representation.treemath.TreeSize) (r : Std.U32) :
+  Result Bool
+  := do
+  let i ← self_ / 2#u32
+  let i1 ← i + 1#u32
+  if r = i1
+  then
+    let b ← binary_tree.array_representation.treemath.TreeSize.valid self_
+    if b
+    then
+      let i2 ← binary_tree.array_representation.treemath.MAX_INDEX
+      ok (r <= i2)
+    else ok true
+  else ok false
+
+def binary_tree.array_representation.treemath.TreeSize.leaf_count.spec
+   (self : binary_tree.array_representation.treemath.TreeSize) : Prop :=
+  ⦃ ⌜ True ⌝ ⦄
+  binary_tree.array_representation.treemath.TreeSize.leaf_count self
+  ⦃ ⇓ res =>
+  ⌜
+  (binary_tree.array_representation.treemath.TreeSize.leaf_count.post self
+  res).holds ⌝ ⦄
+
+
 /-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeSize}::inc::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 275:4-275:43 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 284:4-284:59 -/
 @[reducible]
 def binary_tree.array_representation.treemath.TreeSize.inc.pre
   (self_ : binary_tree.array_representation.treemath.TreeSize) :
   Result Bool
   := do
-  let i ← binary_tree.array_representation.treemath.MAX_TREE_SIZE
-  let i1 ← i / 2#u32
-  ok (self_ < i1)
+  let b ← binary_tree.array_representation.treemath.TreeSize.valid self_
+  if b
+  then
+    let i ← binary_tree.array_representation.treemath.MAX_TREE_SIZE
+    let i1 ← i / 2#u32
+    ok (self_ < i1)
+  else ok false
+
+/-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeSize}::inc::post]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 285:4-285:76 -/
+@[reducible]
+def binary_tree.array_representation.treemath.TreeSize.inc.post
+  (self_ : binary_tree.array_representation.treemath.TreeSize)
+  (self__future : binary_tree.array_representation.treemath.TreeSize) :
+  Result Bool
+  := do
+  let b ←
+    binary_tree.array_representation.treemath.TreeSize.valid self__future
+  if b
+  then let i ← self_ * 2#u32
+       let i1 ← i + 1#u32
+       ok (self__future = i1)
+  else ok false
 
 def binary_tree.array_representation.treemath.TreeSize.inc.spec
   (self : binary_tree.array_representation.treemath.TreeSize) : Prop :=
   (binary_tree.array_representation.treemath.TreeSize.inc.pre self).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.TreeSize.inc self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜
+  (binary_tree.array_representation.treemath.TreeSize.inc.post self res).holds
+  ⌝ ⦄
 
 
 /-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeSize}::dec::pre]:
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 281:4-281:39 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 291:4-291:55 -/
 @[reducible]
 def binary_tree.array_representation.treemath.TreeSize.dec.pre
   (self_ : binary_tree.array_representation.treemath.TreeSize) :
   Result Bool
   := do
-  ok (binary_tree.array_representation.treemath.MIN_TREE_SIZE < self_)
+  let b ← binary_tree.array_representation.treemath.TreeSize.valid self_
+  if b
+  then ok (binary_tree.array_representation.treemath.MIN_TREE_SIZE < self_)
+  else ok false
+
+/-- [openmls::binary_tree::array_representation::treemath::{openmls::binary_tree::array_representation::treemath::TreeSize}::dec::post]:
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 292:4-292:72 -/
+@[reducible]
+def binary_tree.array_representation.treemath.TreeSize.dec.post
+  (self_ : binary_tree.array_representation.treemath.TreeSize)
+  (self__future : binary_tree.array_representation.treemath.TreeSize) :
+  Result Bool
+  := do
+  let b ←
+    binary_tree.array_representation.treemath.TreeSize.valid self__future
+  if b
+  then let i ← self_ / 2#u32
+       ok (self__future = i)
+  else ok false
 
 def binary_tree.array_representation.treemath.TreeSize.dec.spec
   (self : binary_tree.array_representation.treemath.TreeSize) : Prop :=
   (binary_tree.array_representation.treemath.TreeSize.dec.pre self).holds →
   ⦃ ⌜ True ⌝ ⦄
   binary_tree.array_representation.treemath.TreeSize.dec self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res =>
+  ⌜
+  (binary_tree.array_representation.treemath.TreeSize.dec.post self res).holds
+  ⌝ ⦄
 
 end openmls
