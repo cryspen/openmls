@@ -63,7 +63,7 @@ theorem deref_mut_slice_spec {T : Type} (v : alloc.vec.Vec T) :
 
 /-- `<[T]>::reverse` never fails. -/
 @[spec]
-theorem reverse_slice_spec {T : Type} (s : core.slice.Slice T) :
+theorem reverse_slice_spec {T : Type} (s : Slice T) :
     ⦃ ⌜ True ⌝ ⦄
     core.slice.Slice.reverse s
     ⦃ ⇓ _ => ⌜ True ⌝ ⦄ := by
@@ -73,7 +73,7 @@ theorem reverse_slice_spec {T : Type} (s : core.slice.Slice T) :
     index is within the vec's length. -/
 @[spec]
 theorem vec_index_spec {T Output : Type}
-    (inst : core.slice.index.SliceIndex Std.Usize (core.slice.Slice T) Output)
+    (inst : core.slice.index.SliceIndex Std.Usize (Slice T) Output)
     (v : alloc.vec.Vec T) (i : Std.Usize) :
     ⦃ ⌜ (↑i : Nat) < vecLen v ⌝ ⦄
     alloc.vec.Vec.Insts.CoreOpsIndexIndex.index inst v i
@@ -85,7 +85,7 @@ theorem vec_index_spec {T Output : Type}
 theorem vec_push_spec {T : Type} (v : alloc.vec.Vec T) (x : T) :
     ⦃ ⌜ vecLen v < Std.Usize.max ⌝ ⦄
     alloc.vec.Vec.push v x
-    ⦃ ⇓ v' => ⌜ vecLen v' = vecLen v + 1 ∧ v'.1.val = v.1.val ++ [x] ⌝ ⦄ := by
+    ⦃ ⇓ v' => ⌜ vecLen v' = vecLen v + 1 ∧ v'.1 = v.1 ++ [x] ⌝ ⦄ := by
   -- TODO: provable from the `seq_push` definition; admitted for now (mvcgen vs. dependent-`if`).
   sorry
 
@@ -125,7 +125,7 @@ theorem u32_div_ceil_spec (x y : Std.U32) :
 theorem sharedavec_into_iter_spec {T : Type} (v : alloc.vec.Vec T) :
     ⦃ ⌜ True ⌝ ⦄
     alloc.SharedAVec.Insts.CoreIterTraitsCollectIntoIteratorSharedATIter.into_iter v
-    ⦃ ⇓ iter => ⌜ sliceIterElems iter = v.1.val ⌝ ⦄ := by sorry
+    ⦃ ⇓ iter => ⌜ sliceIterElems iter = v.1 ⌝ ⦄ := by sorry
 
 /-- TRUSTED: `<slice::Iter as Iterator>::next` is panic-free; on `Some i`, `i` is a current
     element, the remaining elements are a sub-list, and their count strictly decreases. -/
@@ -149,13 +149,13 @@ theorem vec_is_empty_spec {T : Type} (v : alloc.vec.Vec T) :
 @[spec]
 theorem vec_pop_spec {T : Type} (v : alloc.vec.Vec T) :
     ⦃ ⌜ True ⌝ ⦄ alloc.vec.Vec.pop v
-    ⦃ ⇓ res => ⌜ (∀ e ∈ res.2.1.val, e ∈ v.1.val) ∧ vecLen res.2 ≤ vecLen v ⌝ ⦄ := by sorry
+    ⦃ ⇓ res => ⌜ (∀ e ∈ res.2.1, e ∈ v.1) ∧ vecLen res.2 ≤ vecLen v ⌝ ⦄ := by sorry
 
 /-- TRUSTED: collecting a closure `f` over a vec via `into_iter`/`map`/`collect` is panic-free when
     `f` is panic-free on every element. Generic over the element type and closure — purely a `core`
     contract. The `sibling` instance used by `copath` is *derived* (not admitted) in `Proofs.lean`. -/
 theorem into_map_collect_spec {T : Type} (v : alloc.vec.Vec T) (f : T → Result T)
-    (hsafe : ∀ e ∈ v.1.val, ⦃ ⌜ True ⌝ ⦄ f e ⦃ ⇓ _ => ⌜ True ⌝ ⦄) :
+    (hsafe : ∀ e ∈ v.1, ⦃ ⌜ True ⌝ ⦄ f e ⦃ ⇓ _ => ⌜ True ⌝ ⦄) :
     ⦃ ⌜ True ⌝ ⦄
     (do
       let ii ← alloc.vec.Vec.Insts.CoreIterTraitsCollectIntoIteratorTIntoIter.into_iter v

@@ -39,8 +39,8 @@ theorem vec_len_spec {T : Type} (v : alloc.vec.Vec T) :
 theorem vec_new_spec (T : Type) :
     ⦃ ⌜ True ⌝ ⦄
     alloc.vec.Vec.new T
-    ⦃ ⇓ v => ⌜ vecLen v = 0 ∧ v.1.val = [] ⌝ ⦄ := by
-  unfold alloc.vec.Vec.new alloc.vec.VecTGlobal.new vecLen
+    ⦃ ⇓ v => ⌜ vecLen v = 0 ∧ v.1 = [] ⌝ ⦄ := by
+  unfold alloc.vec.Vec.new rust_primitives.sequence.seq_empty vecLen
   mvcgen
 
 /-- `Vec::with_capacity` returns an empty vec. -/
@@ -49,8 +49,8 @@ theorem vec_with_capacity_spec (T : Type) (c : Std.Usize) :
     ⦃ ⌜ True ⌝ ⦄
     alloc.vec.Vec.with_capacity T c
     ⦃ ⇓ v => ⌜ vecLen v = 0 ⌝ ⦄ := by
-  unfold alloc.vec.Vec.with_capacity alloc.vec.VecTGlobal.with_capacity
-    alloc.vec.VecTGlobal.new vecLen
+  unfold alloc.vec.Vec.with_capacity alloc.vec.Vec.new
+    rust_primitives.sequence.seq_empty vecLen
   mvcgen
 
 /-- `u32::is_multiple_of` returns exactly the divisibility test `x % y == 0`.

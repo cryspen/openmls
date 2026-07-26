@@ -29,8 +29,9 @@ set_option hax_mvcgen.warnings false
    before any `Vec`/iterator-heavy `mvcgen`. -/
 attribute [spec] uncurry
 
-/-- Length of a `CoreModels` `Vec` (its underlying `Seq`/slice length, as a `Nat`). -/
-def vecLen {T : Type} (v : alloc.vec.Vec T) : Nat := Aeneas.Std.Slice.length v.1
+/-- Length of a `CoreModels` `Vec` (its underlying `Seq`/slice length, as a `Nat`).
+    `alloc.vec.Vec T` is reducibly `Seq T = Slice T`, so `v` is itself the slice. -/
+def vecLen {T : Type} (v : alloc.vec.Vec T) : Nat := Aeneas.Std.Slice.length v
 
 /-! ### Generic measure-decreasing loop spec (PostCond-flavoured body obligation)
 
@@ -96,6 +97,6 @@ theorem loop_spec_measure {α β : Type} (body : α → Result (ControlFlow α �
 end loop_measure_helpers
 
 /-- `vecLen v` is the length of `v`'s underlying list. -/
-theorem vecLen_eq_length {T : Type} (v : alloc.vec.Vec T) : vecLen v = v.1.val.length := rfl
+theorem vecLen_eq_length {T : Type} (v : alloc.vec.Vec T) : vecLen v = v.1.length := rfl
 
 end openmls

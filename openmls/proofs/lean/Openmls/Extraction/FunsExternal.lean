@@ -50,23 +50,30 @@ axiom core.slice.index.SliceIndex (Self : Type) (Container : Type) (Output : Typ
 
 /-- `<usize as SliceIndex<[T]>>` -/
 axiom core.Usize.Insts.CoreSliceIndexSliceIndexSliceT (T : Type) :
-  core.slice.index.SliceIndex Std.Usize (core.slice.Slice T) T
+  core.slice.index.SliceIndex Std.Usize (Slice T) T
 
 /-- `<Vec<T> as Index<I>>::index` (here `I = usize`, `Output = T`). -/
 axiom alloc.vec.Vec.Insts.CoreOpsIndexIndex.index
   {T : Type} {Output : Type}
-  (sliceIndexInst : core.slice.index.SliceIndex Std.Usize (core.slice.Slice T) Output)
+  (sliceIndexInst : core.slice.index.SliceIndex Std.Usize (Slice T) Output)
   (self : alloc.vec.Vec T) (index : Std.Usize) : Result Output
 
 /-- `<Vec<T> as DerefMut>::deref_mut` — returns the slice view together with the
     write-back closure (Aeneas mutable-borrow encoding). -/
 axiom alloc.vec.Vec.Insts.CoreOpsDerefDerefMutSlice.deref_mut
   {T : Type} (self : alloc.vec.Vec T) :
-  Result ((core.slice.Slice T) × ((core.slice.Slice T) → alloc.vec.Vec T))
+  Result ((Slice T) × ((Slice T) → alloc.vec.Vec T))
 
-/-- `<[T]>::reverse` -/
-axiom core.slice.Slice.reverse {T : Type} :
-  core.slice.Slice T → Result (core.slice.Slice T)
+/-- `<[T]>::reverse`. Aeneas' own `core.slice.Slice.reverse` is a total function
+    returning a bare `Slice T` (reversal never fails), but it lives in `Aeneas.Std` and
+    is shadowed here by `open Aeneas.Std hiding namespace core`; the call sites in
+    `Funs.lean` also bind it monadically (`←`), so the model must be `Result`-valued.
+    We reuse the real Aeneas definition wrapped in `ok` — a faithful total model, not a
+    new trusted axiom. The `_root_.` prefix is required so the name lands at top level
+    (otherwise the open captures the `core.slice.Slice` prefix as the `Slice` type's
+    namespace); `Funs.lean`'s `hiding namespace core` then resolves to this model. -/
+def _root_.core.slice.Slice.reverse {T : Type} (s : Slice T) : Result (Slice T) :=
+  ok (Aeneas.Std.core.slice.Slice.reverse s)
 
 /-- `<usize as Ord>` (instance witness, used by `core::cmp::min`). -/
 axiom core.Usize.Insts.CoreCmpOrd : core.cmp.Ord Std.Usize
@@ -110,4 +117,3 @@ axiom core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.collect
   (FnMutInst : Std.core.ops.function.FnMut F Item O)
   (FromIteratorInst : core.iter.traits.collect.FromIterator B O) :
   core.iter.adapters.map.Map I F → Result B
-
