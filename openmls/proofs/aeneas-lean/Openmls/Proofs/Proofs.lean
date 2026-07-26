@@ -78,16 +78,13 @@ attribute [spec]
 
 -- ------------------------------------------------------------------------------
 
-/-- `1 <<< k` doesn't wrap in `U32` for `k < 32`, so `1 <<< k % U32.size = 2^k`. `Nat.one_shiftLeft`
-    turns the shift into `2^k`; Aeneas's `simp_scalar` then drops the wrap-around mod (it knows
-    `U32.size` and discharges `2^k < 2^32` from `k < 32` via `Nat.pow_mod_pow_eq_self'`). -/
+/-- `1 <<< k % U32.size = 2^k` for `k < 32` (the shift doesn't wrap). -/
 private theorem one_shiftLeft_mod_eq (k : Nat) (h : k < 32) :
     1 <<< k % Aeneas.Std.U32.size = 2 ^ k := by
   simp only [Nat.one_shiftLeft]; simp_scalar
 
-/-- The low-bit test `v & 1 == 0` is exactly the parity of `v`: bit 0 clear ⇔ `v` even.
-    Registered `@[simp]` so `simp_all!` rewrites the extracted `v &&& 1#u32 = 0#u32` low-bit
-    guards into the `Nat` fact `↑v % 2 = 0` (the shape `scalar_tac` can use). -/
+/-- Bit 0 clear ⇔ even. `@[simp]` so `simp_all!` turns the extracted `v &&& 1#u32 = 0#u32`
+    low-bit guards into `↑v % 2 = 0`. -/
 @[simp] theorem u32_and_one_eq_zero (v : Std.U32) :
     (v &&& 1#u32 = 0#u32) ↔ (↑v : Nat) % 2 = 0 := by
   have hval : (↑(v &&& 1#u32) : Nat) = (↑v : Nat) % 2 := by
@@ -98,17 +95,19 @@ private theorem one_shiftLeft_mod_eq (k : Nat) (h : k < 32) :
     have hz : (↑(v &&& 1#u32) : Nat) = 0 := by rw [hval, h]
     scalar_tac
 
-/-- For the trailing-ones characterization `x % 2^(k+1) = 2^k − 1` (what `level` / `level_loop_spec`
-    / the extracted `level.post` deliver), either `k ≥ 1` or `x` is even. Registered `@[scalar_tac]`
-    — it fires on the characterization hypothesis, so `scalar_tac` discharges the `level x > 0`
-    massert in `left`/`right`/`sibling` directly from the oddness of the tree-index `x = 2·p + 1`
-    (the even disjunct is then killed by `x % 2 = 1` in context). -/
+/-- From the trailing-ones characterization, `k ≥ 1` or `x` even. `@[scalar_tac]` so it fires on the
+    char hypothesis: with `x` odd it discharges the `level x > 0` massert in `left`/`right`. -/
 @[scalar_tac x % 2 ^ (k + 1) = 2 ^ k - 1]
 theorem level_ge_one (x k : Nat) (hchar : x % 2 ^ (k + 1) = 2 ^ k - 1) :
     1 ≤ k ∨ x % 2 = 0 := by
   rcases Nat.eq_zero_or_pos k with hk | hk
   · right; subst hk; simpa using hchar
   · left; omega
+
+/-- `level_ge_one` for the `simp`-flipped orientation (`2^k − 1` on the left). -/
+@[scalar_tac 2 ^ k - 1 = x % 2 ^ (k + 1)]
+theorem level_ge_one' (x k : Nat) (hchar : 2 ^ k - 1 = x % 2 ^ (k + 1)) :
+    1 ≤ k ∨ x % 2 = 0 := level_ge_one x k hchar.symm
 
 /-- The `level` trailing-ones loop computes the trailing-ones count: on exit `res ≤ 30` and the low
     `res` bits of `index` are all 1 with bit `res` clear, i.e. `index % 2^(res+1) = 2^res − 1`.
@@ -278,10 +277,8 @@ theorem level.spec.proof (index : Std.U32) :
   unfold pre post
   hax_mvcgen [level, level_loop_spec]
   all_goals try scalar_tac
-  -- The remaining VCs come from the post's shift do-block. `simp_all!` reduces the
-  -- `decide`/UScalar goals to `Nat`; `grind` then closes them using `one_shiftLeft_mod_eq`
-  -- (`1 <<< k % U32.size = 2^k` for `k < 32`) to eliminate the wrap-around mod and match
-  -- the characterization `level_loop_spec` delivers.
+  -- `simp_all!` reduces the post's shift do-block to `Nat`; `one_shiftLeft_mod_eq` drops the
+  -- wrap-around mod, matching the char `level_loop_spec` delivers.
   all_goals (simp_all!; try simp (disch := scalar_tac) only [one_shiftLeft_mod_eq] at *)
   all_goals scalar_tac
 
@@ -306,8 +303,12 @@ theorem left.spec.proof (index : ParentNodeIndex) :
   (left.pre index).holds →
   ⦃ ⌜ True ⌝ ⦄ left index ⦃ ⇓ res => ⌜ True ⌝ ⦄
   := by
+  -- `x = 2·index+1` is odd, so `level x > 0`: reduce the shifts to expose the char, then
+  -- `level_ge_one` fires and `scalar_tac` discharges the massert; `simp_all` mops up `2^k > 0`.
   hax_mvcgen [left, level.post]
-  <;> scalar_tac
+  all_goals try scalar_tac
+  all_goals (simp_all!; try simp (disch := scalar_tac) only [one_shiftLeft_mod_eq] at *)
+  all_goals first | scalar_tac | simp_all
 
 @[spec]
 theorem right.spec.proof (index : ParentNodeIndex) :
@@ -315,7 +316,9 @@ theorem right.spec.proof (index : ParentNodeIndex) :
   ⦃ ⌜ True ⌝ ⦄ right index ⦃ ⇓ res => ⌜ True ⌝ ⦄
   := by
   hax_mvcgen [right, level.post]
-  <;> scalar_tac
+  all_goals try scalar_tac
+  all_goals (simp_all!; try simp (disch := scalar_tac) only [one_shiftLeft_mod_eq] at *)
+  all_goals first | scalar_tac | simp_all
 
 @[spec]
 theorem parent.spec.proof
