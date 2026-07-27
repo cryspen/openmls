@@ -305,4 +305,79 @@ theorem log2_two_pow_sub_one (k : Nat) : Nat.log 2 (2 ^ (k + 1) - 1) = k := by
   have hsucc : (2:Nat) ^ (k + 1) = 2 * 2 ^ k := by rw [pow_succ]; ring
   exact Nat.log_eq_of_pow_le_of_lt_pow (by omega) (by omega)
 
+/-! ### Registered forward rules for the `Nat.log` / shift residue
+
+Every `TreeSize`-flavoured obligation (`root`, `inc`, `dec`, `leaf_count`) ends in the same two
+residual shapes, because `TreeSize.valid` is `1 ≤ s ∧ s ≤ 2^30 ∧ s = 2^(log2 s + 1) − 1` and the
+extracted `log2` is `31 - leading_zeros`:
+
+* a `u32::pow` side condition `2 ^ (31 - (31 - Nat.log 2 s) + 1) ≤ u32::MAX`, and
+* a shift-nonzero obligation on `1 <<< (31 - m) % U32.size`.
+
+Both are *linear* once the nonlinear atoms `Nat.log 2 s` and `2 ^ e` are bounded, so we hand
+`scalar_tac` the bounds as UNCONDITIONAL disjunctions (the `level_ge_one` idiom): the rule fires on
+the pattern with no side goal, and `omega` kills the wrong disjunct from the surrounding linear
+facts.  This is what lets `scalar_tac` close such goals with no hand-written preamble. -/
+
+/-- `log₂ x ≤ 30` unless `x` exceeds `MAX_TREE_SIZE = 2^30`.  Registered on the `Nat.log` pattern:
+    with `s ≤ 2^30` in context (from `TreeSize.valid`) `scalar_tac` gets `Nat.log 2 s ≤ 30`, which
+    is the bound every `TreeSize` exponent computation needs. -/
+@[scalar_tac Nat.log 2 x]
+theorem log2_le_30_or (x : Nat) : Nat.log 2 x ≤ 30 ∨ 2 ^ 30 < x := by
+  by_cases h : x < 2 ^ 31
+  · left
+    rcases Nat.eq_zero_or_pos x with hx | hx
+    · simp [hx]
+    · have := Nat.log_lt_of_lt_pow (show x ≠ 0 by omega) h
+      omega
+  · right
+    have h31 : (2:Nat) ^ 30 < 2 ^ 31 := by norm_num
+    omega
+
+/-- A `u32` `1 <<< k` is zero exactly when the shift amount is out of range.  Unconditional `iff`, so
+    it is safe as `@[simp]`: it turns the `h_fail` obligations of `1#u32 <<< log2 size` into the
+    linear `32 ≤ k`, which `omega` then kills from `k = 31 - _`.  This is the registration that lets
+    such goals close without `scalar_tac` (unusable there: its `simp` preprocessing hits
+    `maxRecDepth` whenever a symbolic `↑r = 2 ^ ↑e` hypothesis is in context). -/
+@[simp] theorem one_shiftLeft_mod_eq_zero_iff (k : Nat) :
+    1 <<< k % Aeneas.Std.U32.size = 0 ↔ 32 ≤ k := by
+  have hsz : Aeneas.Std.U32.size = 2 ^ 32 := by native_decide
+  have e : 1 <<< k = 2 ^ k := by simp [Nat.shiftLeft_eq]
+  rw [e, hsz]
+  constructor
+  · intro h
+    by_contra hlt
+    have hb : (2:Nat) ^ k < 2 ^ 32 := Nat.pow_lt_pow_right (by norm_num) (by omega)
+    have h1 : (1:Nat) ≤ 2 ^ k := Nat.one_le_two_pow
+    rw [Nat.mod_eq_of_lt hb] at h
+    omega
+  · intro h
+    obtain ⟨j, hj⟩ : ∃ j, k = 32 + j := ⟨k - 32, by omega⟩
+    subst hj
+    rw [pow_add]
+    exact Nat.mul_mod_right _ _
+
+/-- Unconditional form of `one_le_one_shiftLeft_mod`, registered on the shift-mod pattern: a `u32`
+    `1 <<< k` is nonzero unless the shift amount is out of range.  Discharges the `h_fail` branches
+    of `1#u32 <<< log2 size` (where `k = 31 - m ≤ 31` holds by truncated subtraction alone). -/
+@[scalar_tac 1 <<< k % Aeneas.Std.U32.size]
+theorem one_le_one_shiftLeft_mod_or (k : Nat) :
+    1 ≤ 1 <<< k % Aeneas.Std.U32.size ∨ 32 ≤ k := by
+  by_cases h : k < 32
+  · exact Or.inl (one_le_one_shiftLeft_mod k h)
+  · exact Or.inr (by omega)
+
+/-- `2 ^ e ≤ u32::MAX` unless the exponent exceeds `31`.  Disjunctive (`scalar_tac`-shaped) form of
+    `two_pow_le_u32_max`, kept for manual use.
+
+    DELIBERATELY NOT REGISTERED: `@[scalar_tac 2 ^ e]` was tried and REVERTED.  The pattern `2 ^ e`
+    matches essentially every power in the development (including the `2 ^ (k+1)` of the trailing-ones
+    characterization), so the extra disjunction per occurrence blows up `omega`'s case split and
+    *regresses* previously-green goals — concretely it broke `left.spec.proof`'s
+    `hax_mvcgen [left] <;> scalar_tac`.  Apply it by hand instead. -/
+theorem two_pow_le_u32_max_or (e : Nat) : 2 ^ e ≤ Aeneas.Std.U32.max ∨ 31 < e := by
+  by_cases h : e ≤ 31
+  · exact Or.inl (two_pow_le_u32_max e h)
+  · exact Or.inr (by omega)
+
 end openmls

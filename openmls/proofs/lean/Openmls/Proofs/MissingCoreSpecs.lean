@@ -102,3 +102,242 @@ theorem u32_pow_spec (x exp : Std.U32) :
   scalar_tac
 
 end openmls
+
+/-! ### Partial-correctness contracts for stepping in hypothesis position
+
+The total (`⇓`) specs above are what `mvcgen` needs in *goal* position. But when
+`hax_mvcgen` steps a do-block in *hypothesis* position — a pre/post already known to have
+succeeded — a total spec forces its precondition to be discharged as a side goal, even
+though success is given. This section supplies contracts that avoid those side goals, in
+two different shapes depending on who owns the operation:
+
+* **`Aeneas.Std` subjects** (casts, shifts, `massert`) are stated with
+  `Aeneas.Std.WP.partialSpec` and marked `@[step]`, which is the upstream Aeneas
+  convention: the attribute derives both a `.step_spec` (total, side conditions as
+  hypotheses) and a `.mvcgen_spec` (generic over `PostCond`, serving `⇓` *and* `⇓?` goals
+  with no obligation in the partial case). Arithmetic (`+ - * / %`) already has such
+  theorems in `Aeneas/Std/Scalar/Ops/`; casts, shifts and `massert` do not, so the six
+  below are **candidates for an upstream Aeneas PR as-is**.
+
+* **`CoreModels` subjects** (the hax core-model `u32::{pow, leading_zeros,
+  is_multiple_of}` our extraction actually calls) are necessarily project-local, so rather
+  than registering more `@[step]` lemmas we state the `@[spec]` triple directly, in the
+  same shape `@[step]` would have derived: generic `Q : PostCond _ Result.postShape` with
+  one `willYield`/`willFail` hypothesis per outcome. Compare
+  `@Aeneas.Std.U8.add_spec.mvcgen_spec`. These do NOT replace the total specs above, which
+  existing proofs still depend on.
+-/
+
+namespace Aeneas.Std
+
+open Result Error WP
+
+/-- `UScalar.cast` (Rust `as` between unsigned integers) truncates or zero-extends, and
+`lift` wraps the result in `ok`, so it never fails and never diverges.
+
+Partial-correctness counterpart of `Aeneas.Std.UScalar.cast_inBounds_spec`
+(`Aeneas/Std/Scalar/Casts.lean`), which assumes `x.val ≤ UScalar.max tgt_ty`. That
+hypothesis becomes a spurious side goal whenever a cast is stepped in hypothesis position,
+where success is already given. Stating the truncating semantics directly removes it. -/
+@[step]
+theorem UScalar.cast_partialSpec {src_ty : UScalarTy} (tgt_ty : UScalarTy)
+    (x : UScalar src_ty) :
+    partialSpec (lift (UScalar.cast tgt_ty x))
+      (fun y => (↑y : Nat) = (↑x : Nat) % 2 ^ tgt_ty.numBits)
+      (fun _ => False)
+      False := by
+  simp only [lift, partialSpec_ok, UScalar.cast, UScalar.val, BitVec.truncate_eq_setWidth,
+    BitVec.toNat_setWidth]
+
+/-- `x <<< y` on unsigned integers with an unsigned shift amount: succeeds exactly when the
+shift amount is below the source width, and then truncates modulo `UScalar.size ty0`.
+
+Partial-correctness counterpart of `Aeneas.Std.UScalar.ShiftLeft_spec`
+(`Aeneas/Std/Scalar/Bitwise.lean`), whose `hy : y.val < ty0.numBits` hypothesis is a
+spurious side goal when the shift is stepped in hypothesis position. -/
+@[step]
+theorem UScalar.ShiftLeft_partialSpec {ty0 ty1} (x : UScalar ty0) (y : UScalar ty1) :
+    partialSpec (x <<< y)
+      (fun z => (↑z : Nat) = ((↑x : Nat) <<< (↑y : Nat)) % UScalar.size ty0)
+      (fun | .integerOverflow => ty0.numBits ≤ (↑y : Nat) | _ => False)
+      False := by
+  simp only [HShiftLeft.hShiftLeft, shiftLeft_UScalar, shiftLeft]
+  split <;> rename_i h
+  · simp only [partialSpec_ok, UScalar.val, UScalar.size, BitVec.shiftLeft_eq,
+      BitVec.toNat_shiftLeft]
+    rfl
+  · simp only [partialSpec_fail]; omega
+
+/-- `x >>> y` on unsigned integers with an unsigned shift amount: succeeds exactly when the
+shift amount is below the source width.
+
+Partial-correctness counterpart of `Aeneas.Std.UScalar.ShiftRight_spec`
+(`Aeneas/Std/Scalar/Bitwise.lean`); see `UScalar.ShiftLeft_partialSpec` for the motivation. -/
+@[step]
+theorem UScalar.ShiftRight_partialSpec {ty0 ty1} (x : UScalar ty0) (y : UScalar ty1) :
+    partialSpec (x >>> y)
+      (fun z => (↑z : Nat) = (↑x : Nat) >>> (↑y : Nat))
+      (fun | .integerOverflow => ty0.numBits ≤ (↑y : Nat) | _ => False)
+      False := by
+  simp only [HShiftRight.hShiftRight, shiftRight_UScalar, shiftRight]
+  split <;> rename_i h
+  · simp only [partialSpec_ok, UScalar.val, BitVec.ushiftRight_eq, BitVec.toNat_ushiftRight]
+    rfl
+  · simp only [partialSpec_fail]; omega
+
+/-- `x <<< y` where the shift amount is a *signed* integer (how `i32` shift amounts are
+extracted): fails on a negative amount or an amount at/above the source width. -/
+@[step]
+theorem UScalar.ShiftLeft_IScalar_partialSpec {ty0 ty1} (x : UScalar ty0) (y : IScalar ty1) :
+    partialSpec (x <<< y)
+      (fun z => (↑z : Nat) = ((↑x : Nat) <<< y.toNat) % UScalar.size ty0)
+      (fun | .integerOverflow => (↑y : Int) < 0 ∨ ty0.numBits ≤ y.toNat | _ => False)
+      False := by
+  simp only [HShiftLeft.hShiftLeft, shiftLeft_IScalar]
+  split <;> rename_i h
+  · simp only [shiftLeft]
+    split <;> rename_i h'
+    · simp only [partialSpec_ok, UScalar.val, UScalar.size, BitVec.shiftLeft_eq,
+        BitVec.toNat_shiftLeft]
+      rfl
+    · simp only [partialSpec_fail]; omega
+  · simp only [partialSpec_fail]; omega
+
+/-- `x >>> y` where the shift amount is a *signed* integer: fails on a negative amount or an
+amount at/above the source width. -/
+@[step]
+theorem UScalar.ShiftRight_IScalar_partialSpec {ty0 ty1} (x : UScalar ty0) (y : IScalar ty1) :
+    partialSpec (x >>> y)
+      (fun z => (↑z : Nat) = (↑x : Nat) >>> y.toNat)
+      (fun | .integerOverflow => (↑y : Int) < 0 ∨ ty0.numBits ≤ y.toNat | _ => False)
+      False := by
+  simp only [HShiftRight.hShiftRight, shiftRight_IScalar]
+  split <;> rename_i h
+  · simp only [shiftRight]
+    split <;> rename_i h'
+    · simp only [partialSpec_ok, UScalar.val, BitVec.ushiftRight_eq, BitVec.toNat_ushiftRight]
+      rfl
+    · simp only [partialSpec_fail]; omega
+  · simp only [partialSpec_fail]; omega
+
+/-- `massert b` succeeds iff `b` holds, and otherwise fails with `assertionFailure`.
+
+The total spec forces `b` to be proved; in hypothesis position the assertion has already
+gone through, so the partial form lets `b` be *recovered* instead of discharged. -/
+@[step]
+theorem massert_partialSpec (b : Prop) [Decidable b] :
+    partialSpec (massert b)
+      (fun _ => b)
+      (fun | .assertionFailure => ¬ b | _ => False)
+      False := by
+  simp only [massert]
+  split <;> rename_i h
+  · simp only [partialSpec_ok]; exact h
+  · simp only [partialSpec_fail]; exact h
+
+end Aeneas.Std
+
+namespace openmls
+
+/-- Bridge from a partial-correctness fact to the generic `mvcgen`-compatible triple. This is
+the same reduction `@[step]` performs when it derives a `.mvcgen_spec`; we do it by hand
+because the subjects below are `CoreModels` operations we do not want to register globally
+in the `step` set. -/
+private theorem triple_of_partialSpec {α} {x : Result α}
+    {p_ok : α → Prop} {p_fail : Aeneas.Std.Error → Prop} {p_div : Prop}
+    (h : Aeneas.Std.WP.partialSpec x p_ok p_fail p_div)
+    (Q : PostCond α Aeneas.Std.WP.Result.postShape)
+    (h_ok : ∀ r, p_ok r → Aeneas.Std.WP.willYield r Q)
+    (h_fail : ∀ e, p_fail e → Aeneas.Std.WP.willFail e Q)
+    (h_div : p_div → Aeneas.Std.WP.willDiverge Q) :
+    ⦃ ⌜ True ⌝ ⦄ x ⦃ Q ⦄ := by
+  cases x <;>
+    simp_all [Aeneas.Std.WP.partialSpec, Triple, _root_.Std.Do.WP.wp, PredTrans.apply,
+      Aeneas.Std.WP.willYield, Aeneas.Std.WP.willFail, Aeneas.Std.WP.willDiverge]
+
+/-- `u32::pow` (the `CoreModels` model our extraction calls, not `Aeneas.Std`'s): computes
+`x ^ exp` exactly, and fails with `integerOverflow` only when the result does not fit in a
+`u32`.
+
+Partial-correctness counterpart of `u32_pow_spec` above, whose
+`↑x ^ ↑exp ≤ UScalar.max .U32` precondition is the most costly spurious side goal in the
+treemath development when a `pow` is stepped in hypothesis position. Stated in the shape
+`@[step]` derives (cf. `@Aeneas.Std.U8.add_spec.mvcgen_spec`) so that the overflow bound is
+*recovered* from the failure branch rather than discharged up front. -/
+@[spec]
+theorem u32_pow_mvcgen_spec (x exp : Std.U32)
+    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
+    (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑x : Nat) ^ (↑exp : Nat) →
+      Aeneas.Std.WP.willYield r Q)
+    (h_fail : Std.UScalar.max .U32 < (↑x : Nat) ^ (↑exp : Nat) →
+      Aeneas.Std.WP.willFail Aeneas.Std.Error.integerOverflow Q) :
+    ⦃ ⌜ True ⌝ ⦄ core.num.U32.pow x exp ⦃ Q ⦄ := by
+  have hp : Aeneas.Std.WP.partialSpec (core.num.U32.pow x exp)
+      (fun r => (↑r : Nat) = (↑x : Nat) ^ (↑exp : Nat))
+      (fun e => e = Aeneas.Std.Error.integerOverflow ∧
+        Std.UScalar.max .U32 < (↑x : Nat) ^ (↑exp : Nat))
+      False := by
+    unfold CoreModels.core.num.U32.pow CoreModels.rust_primitives.arithmetic.pow_u32
+    have heq := Std.UScalar.tryMk_eq Std.UScalarTy.U32 ((↑x : Nat) ^ (↑exp : Nat))
+    cases hc : Std.UScalar.tryMk Std.UScalarTy.U32 ((↑x : Nat) ^ (↑exp : Nat)) <;>
+      simp_all [Std.UScalar.inBounds]
+    refine ⟨?_, by scalar_tac⟩
+    have hne : ¬ ((↑x : Nat) ^ (↑exp : Nat) < 4294967296) := by omega
+    simp_all [Std.UScalar.tryMk, Result.ofOption, Std.UScalar.tryMkOpt]
+  refine triple_of_partialSpec hp Q h_ok ?_ (by simp)
+  rintro e ⟨rfl, hlt⟩
+  exact h_fail hlt
+
+/-- `u32::leading_zeros` (the `CoreModels` model): genuinely total — the model is a pure
+`ok` — so there is no failure hypothesis at all.
+
+Partial-correctness counterpart of `leading_zeros_spec` above. The total spec already has a
+`True` precondition, so this adds no logical information; it exists purely so that stepping
+a `leading_zeros` in hypothesis position produces no success obligation. -/
+@[spec]
+theorem u32_leading_zeros_mvcgen_spec (x : Std.U32)
+    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
+    (h_ok : ∀ r : Std.U32,
+      (↑r : Nat) = (if x.val = 0 then 32 else 31 - Nat.log 2 x.val) →
+      Aeneas.Std.WP.willYield r Q) :
+    ⦃ ⌜ True ⌝ ⦄ core.num.U32.leading_zeros x ⦃ Q ⦄ := by
+  have hp : Aeneas.Std.WP.partialSpec (core.num.U32.leading_zeros x)
+      (fun r => (↑r : Nat) = if x.val = 0 then 32 else 31 - Nat.log 2 x.val)
+      (fun _ => False) False := by
+    unfold CoreModels.core.num.U32.leading_zeros
+      CoreModels.rust_primitives.arithmetic.leading_zeros_u32
+    simp only [Aeneas.Std.WP.partialSpec_ok]
+    unfold Aeneas.Std.core.num.U32.leading_zeros Aeneas.Std.BitVec.leadingZeros
+    simp only [Aeneas.Std.UScalar.val]
+    have hbv : (x.bv = 0) ↔ (x.bv.toNat = 0) := by
+      rw [BitVec.toNat_eq]; rfl
+    rcases eq_or_ne x.bv.toNat 0 with h | h
+    · rw [if_pos (hbv.mpr h), if_pos h]
+      show (BitVec.ofNat 32 32).toNat = 32
+      rw [BitVec.toNat_ofNat]
+    · rw [if_neg (fun hc => h (hbv.mp hc)), if_neg h]
+      show (BitVec.ofNat 32 (32 - Nat.log 2 x.bv.toNat - 1)).toNat = 31 - Nat.log 2 x.bv.toNat
+      rw [BitVec.toNat_ofNat]
+      omega
+  exact triple_of_partialSpec hp Q h_ok (by simp) (by simp)
+
+/-- `u32::is_multiple_of` is a total divisibility test, so again there is no failure
+hypothesis.
+
+Partial-correctness counterpart of `is_multiple_of_spec` above; as with `leading_zeros` it
+adds no logical information and exists only to suppress the success obligation when stepped
+in hypothesis position. -/
+@[spec]
+theorem u32_is_multiple_of_mvcgen_spec (x y : Std.U32)
+    (Q : PostCond Bool Aeneas.Std.WP.Result.postShape)
+    (h_ok : ∀ b : Bool, b = decide (x.val % y.val = 0) →
+      Aeneas.Std.WP.willYield b Q) :
+    ⦃ ⌜ True ⌝ ⦄ core.num.U32.is_multiple_of x y ⦃ Q ⦄ := by
+  have hp : Aeneas.Std.WP.partialSpec (core.num.U32.is_multiple_of x y)
+      (fun b => b = decide (x.val % y.val = 0))
+      (fun _ => False) False := by
+    unfold core.num.U32.is_multiple_of
+    simp only [Aeneas.Std.WP.partialSpec_ok]
+  exact triple_of_partialSpec hp Q h_ok (by simp) (by simp)
+
+end openmls

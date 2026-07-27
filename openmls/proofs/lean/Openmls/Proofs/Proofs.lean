@@ -1,20 +1,4 @@
--- [openmls]: treemath panic-freedom — the per-function value specs and the 9 `.spec.proof`
--- obligations Aeneas asks us to discharge. Originally Aeneas-generated, since hand-edited and no
--- longer regenerated (extraction is frozen). The supporting development is split across imports:
---   * `Common`           — generic loop driver, triple helpers, `vecLen`, `attribute [spec] uncurry`
---   * `BitMath`          — pure-`Nat` `tones` / `parent` bit lemmas
---   * `MissingCoreSpecs` — PROVED `@[spec]` contracts for `core`/`alloc` ops
---   * `AdmittedCoreSpecs`— the TRUSTED audit surface (11 admitted `@[spec]` contracts)
--- STATUS (WIP):
--- * `level_loop_spec` STRENGTHENED to the trailing-ones characterization
---     (`res ≤ 30 ∧ index % 2^(res+1) = 2^res − 1`), matching the re-extracted `level.post`.
---   New `@[scalar_tac]` helper `level_ge_one` for the `level x > 0` massert.
--- * The re-extraction (new characterization-shaped `level.post`) currently leaves the `level.post`
---     consumers RED: level.spec.proof, left, right, parent (their original bodies are intact; they
---     need re-adapting to the richer post — NOT yet done).
--- * Pre-existing `sorry`s: sibling, direct_path, copath.
--- (proved: root, lowest_common_ancestor, common_direct_path, is_node_in_tree,
---  both to_tree_index, both from_tree_index, TreeNodeIndex.u32, TreeSize.{new,inc,dec}.)
+-- [openmls]: treemath panic-freedom — the per-function value specs
 import Aeneas
 import CoreModels
 import Openmls.Extraction.Types
@@ -22,6 +6,7 @@ import Openmls.Extraction.Funs
 import Openmls.Extraction.Specs
 import Openmls.Proofs.Common
 import Openmls.Proofs.BitMath
+import Openmls.Proofs.PartialSpecs
 import Openmls.Proofs.MissingCoreSpecs
 import Openmls.Proofs.AdmittedCoreSpecs
 open CoreModels Aeneas
@@ -53,29 +38,29 @@ attribute [spec]
   MAX_TREE_SIZE MIN_TREE_SIZE
   MAX_TREE_INDEX MAX_LEAF MAX_PARENT MAX_LEAF_COUNT MAX_ROOT_INDEX
   --
-  log2
+  --log2
   is_node_in_tree
   --
   TreeSize.u32
   TreeSize.leaf_count
   TreeSize.parent_count
-  TreeSize.valid
+  -- TreeSize.valid
   --
   TreeNodeIndex.new
   TreeNodeIndex.u32
-  TreeNodeIndex.valid
+  -- TreeNodeIndex.valid
   --
   LeafNodeIndex.new
   LeafNodeIndex.u32
   LeafNodeIndex.to_tree_index
   LeafNodeIndex.from_tree_index
-  LeafNodeIndex.valid
+  -- LeafNodeIndex.valid
   --
   ParentNodeIndex.new
   ParentNodeIndex.u32
   ParentNodeIndex.to_tree_index
   ParentNodeIndex.from_tree_index
-  ParentNodeIndex.valid
+  -- ParentNodeIndex.valid
 
 
 -- ------------------------------------------------------------------------------
@@ -98,7 +83,7 @@ theorem level_loop_spec (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 30) :
   · rintro k ⟨hk30, hkinv⟩
     unfold level_loop.body
     mvcgen <;> try scalar_tac
-    case vc2.hQ =>
+    case vc1.hQ =>
       -- bit `k` is set ⇒ continue with `k + 1`; the low `k+1` bits become all 1.
       rename_i i hi_conj bit hbiteq hbit_conj add hadd
       obtain ⟨hi, _⟩ := hi_conj
@@ -122,7 +107,7 @@ theorem level_loop_spec (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 30) :
       have hp : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
       refine ⟨⟨by scalar_tac, ?_⟩, by scalar_tac⟩
       rw [haddv, hmodsucc, hkinv, hbitk, pow_succ]; omega
-    case vc4 =>
+    case vc3 =>
       -- bit `k` is clear ⇒ stop; the low `k+1` bits are `2^k − 1` (bit `k` = 0).
       rename_i i hi_conj bit hbitne hbit_conj
       obtain ⟨hi, _⟩ := hi_conj
@@ -266,30 +251,32 @@ theorem level.spec.proof (index : Std.U32) :
   -- wrap-around mod, matching the char `level_loop_spec` delivers.
   all_goals (simp_all!; try simp (disch := scalar_tac) only [one_shiftLeft_mod_eq] at *)
   all_goals try scalar_tac
-  grind
+
 
 @[spec]
 theorem root.spec.proof (size : TreeSize) :
   (root.pre size).holds →
-  ⦃ ⌜ True ⌝ ⦄ root size ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⌜ True ⌝ ⦄ root size ⦃ ⇓ res => ⌜ (root.post size res).holds ⌝ ⦄
   := by
   unfold pre root
   intro h_pre
   apply triple_in_hypothesis (h := h_pre) ; clear h_pre
-  mvcgen <;> simp at * <;> intros
-  case vc3.h_ok.pre =>
-    scalar_tac
-  case vc7.h_ok.pre =>
-    split_ifs at *
-    simp_all!
+  hax_mvcgen <;> simp at * <;> intros
+  all_goals try simp at *
+  all_goals try omega
+  all_goals try grind
+  · expose_names
+
     sorry
-  · hax_mvcgen
-    all_goals try simp [*] at *
-  · hax_mvcgen
-    all_goals try simp at *
-    all_goals try split_ifs at *
-    all_goals try omega
-    all_goals try grind
+  ·
+    sorry
+  ·
+    sorry
+  ·
+    sorry
+  ·
+    sorry
+  ·
     sorry
 
 @[spec]
@@ -345,7 +332,8 @@ theorem direct_path.spec.proof (node_index : LeafNodeIndex) (size : TreeSize) :
   direct_path node_index size
   ⦃ ⇓ res => ⌜ (direct_path.post node_index size res).holds ⌝ ⦄
   := by
-  hax_mvcgen [direct_path]
+  intros
+  mvcgen [direct_path] <;> try scalar_tac
   all_goals sorry
 
 @[spec]
@@ -550,6 +538,14 @@ theorem TreeSize.new.spec.proof
   -- Discharge every purely-integer VC first; what survives is exactly the `Nat.log`/`2 ^ e`
   -- residue, so the remaining goals are *all* sorried (bare `all_goals sorry` below).
   all_goals try omega
+  -- `scalar_tac` is safe in *this* declaration (no symbolic `2 ^ e` survives `simp_all!` here) and
+  -- now benefits from the `@[scalar_tac Nat.log 2 x]`/`@[scalar_tac 1 <<< k % U32.size]` extensions.
+  all_goals try scalar_tac
+  -- NB: blanket closers for the two remaining shapes all abort with `maximum recursion depth`
+  -- (uncatchable by `try`), so they are NOT used here:
+  --   `exact two_pow_le_u32_max _ (by scalar_tac)`  -- the nested `by scalar_tac` blows up
+  --   `rw [log2_two_pow_sub_one]; scalar_tac` / `simp only [decide_eq_true_eq]; scalar_tac`
+  -- Both leaves need a per-case `rename_i …; clear <pow hyps>; …` script instead.
   all_goals sorry -- TODO(arith): `valid (2^(log₂ nodes + 1) − 1)` — needs
                   -- `log2_two_pow_sub_one (Nat.log 2 nodes)` plus `2 ^ e ≤ u32::MAX`.
 
