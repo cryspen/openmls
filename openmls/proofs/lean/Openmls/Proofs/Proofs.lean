@@ -273,21 +273,24 @@ theorem root.spec.proof (size : TreeSize) :
   (root.pre size).holds →
   ⦃ ⌜ True ⌝ ⦄ root size ⦃ ⇓ res => ⌜ True ⌝ ⦄
   := by
-  hax_mvcgen [root]
-  · scalar_tac
-  · scalar_tac
-  · scalar_tac
-  · scalar_tac
-  · scalar_tac
-  · sorry -- something is making simp loop !
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
+  unfold pre root
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  mvcgen <;> simp at * <;> intros
+  case vc3.h_ok.pre =>
+    scalar_tac
+  case vc7.h_ok.pre =>
+    split_ifs at *
+    simp_all!
+    sorry
+  · hax_mvcgen
+    all_goals try simp [*] at *
+  · hax_mvcgen
+    all_goals try simp at *
+    all_goals try split_ifs at *
+    all_goals try omega
+    all_goals try grind
+    sorry
 
 @[spec]
 theorem left.spec.proof (index : ParentNodeIndex) :
@@ -544,7 +547,11 @@ theorem TreeSize.new.spec.proof
   -- discharges the shift bound (`< 32`), the `1 ≤ …` underflow guard, and `res ≤ 2^30` (via `<`).
   hax_mvcgen [new] <;> try scalar_tac
   all_goals simp_all!
-  all_goals sorry
+  -- Discharge every purely-integer VC first; what survives is exactly the `Nat.log`/`2 ^ e`
+  -- residue, so the remaining goals are *all* sorried (bare `all_goals sorry` below).
+  all_goals try omega
+  all_goals sorry -- TODO(arith): `valid (2^(log₂ nodes + 1) − 1)` — needs
+                  -- `log2_two_pow_sub_one (Nat.log 2 nodes)` plus `2 ^ e ≤ u32::MAX`.
 
 @[spec]
 theorem TreeSize.leaf_count.spec.proof (self : TreeSize) :
@@ -664,10 +671,14 @@ theorem TreeSize.inc.spec.proof (self : TreeSize) :
     have hbnd := two_pow_le_u32_max (↑e : Nat) he31
     rw [show ((2#u32 : Std.U32) : Nat) = 2 from rfl]
     scalar_tac
-  all_goals first
-    | omega
-    | sorry -- TODO(arith): `valid (2·self+1)` — needs `log₂ (2^(k+2)−1) = k+1`
-            -- (`log2_two_pow_sub_one`) plus the `2 ^ e ≤ u32::MAX` bound at exponent `k+2 ≤ 31`.
+  -- CAUTION: `scalar_tac` and `simp … at *` must NOT be used as blanket closers here — with a symbolic `↑r = ↑2#u32 ^ ↑e` hypothesis in context they
+  -- abort elaboration with `maximum recursion depth`, which neither `first` nor `try` catches.
+  -- NB: `omega` closes *nothing* here (linter-confirmed no-op), so every remaining goal is
+  -- sorried.  The residue is: `vc14.hQ` (fullness of `2·self+1`),
+  -- `vc10.h_ok.pre` (`2 ^ e ≤ u32::MAX` at `e = k+2`), `vc11.hQ` (Nat→U32 equality),
+  -- `vc21.hQ`/`vc25.hQ`/`vc15`–`vc17.h_fail` (bounds).
+  all_goals sorry -- TODO(arith): `valid (2·self+1)` — needs `log₂ (2^(k+2)−1) = k+1`
+                  -- (`log2_two_pow_sub_one`) plus `2 ^ e ≤ u32::MAX` at exponent `k+2 ≤ 31`.
 
 @[spec]
 theorem TreeSize.dec.spec.proof (self : TreeSize) :
@@ -680,10 +691,14 @@ theorem TreeSize.dec.spec.proof (self : TreeSize) :
   apply triple_in_hypothesis (h := h_pre) ; clear h_pre
   -- `self = 2^(k+1) − 1` with `1 < self` (so `k ≥ 1`); `divCeil self 2 − 1 = 2^k − 1 = self/2`,
   -- which is again `valid`.  Same `2 ^ e` caveat as `inc`: `scalar_tac`'s preprocessing blows the
-  -- recursion limit on the symbolic-power hypotheses, so `omega` runs first everywhere.
+  -- recursion limit on the symbolic-power hypotheses.
   set_option maxRecDepth 40000 in
   hax_mvcgen [dec, TreeSize.dec.pre, TreeSize.dec.post]
-  all_goals sorry
+  -- Same caveat as `inc`: `scalar_tac`/`simp … at *` abort uncatchably while the symbolic `2 ^ e`
+  -- hypotheses are in context, and `omega` closes nothing, so every goal here is still sorried.
+  all_goals sorry -- TODO(arith): `valid (self/2)` — needs `log₂ (2^k−1) = k−1`
+                  -- (`log2_two_pow_sub_one` at `k−1`, guarded by `k ≥ 1` from `1 < self`)
+                  -- plus `2 ^ e ≤ u32::MAX`.
 
 
 end binary_tree.array_representation.treemath
