@@ -298,4 +298,11 @@ theorem level_ge_one (x k : Nat) (hchar : x % 2 ^ (k + 1) = 2 ^ k - 1) :
 theorem level_ge_one' (x k : Nat) (hchar : 2 ^ k - 1 = x % 2 ^ (k + 1)) :
     1 ≤ k ∨ x % 2 = 0 := level_ge_one x k hchar.symm
 
+/-- `Nat.log 2 (2^(k+1) − 1) = k`: an all-ones value of width `k+1` has log₂ exactly `k`.
+    This is the fixpoint fact behind `TreeSize.valid` (`s = 2^(log2 s + 1) − 1`). -/
+theorem log2_two_pow_sub_one (k : Nat) : Nat.log 2 (2 ^ (k + 1) - 1) = k := by
+  have hk : (1:Nat) ≤ 2 ^ k := Nat.one_le_two_pow
+  have hsucc : (2:Nat) ^ (k + 1) = 2 * 2 ^ k := by rw [pow_succ]; ring
+  exact Nat.log_eq_of_pow_le_of_lt_pow (by omega) (by omega)
+
 end openmls

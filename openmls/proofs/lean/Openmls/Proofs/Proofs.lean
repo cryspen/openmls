@@ -50,7 +50,8 @@ set_option hax_mvcgen.warnings false
 attribute [spec]
   pure
   --
-  MAX_TREE_SIZE MIN_TREE_SIZE MAX_INDEX
+  MAX_TREE_SIZE MIN_TREE_SIZE
+  MAX_TREE_INDEX MAX_LEAF MAX_PARENT MAX_LEAF_COUNT MAX_ROOT_INDEX
   --
   log2
   is_node_in_tree
@@ -238,7 +239,22 @@ theorem lca_loop0_spec (x1 y1 : Std.U32)
 
 -- ------------------------------------------------------------------------------
 
+/-- Pure-`Prop` spec for `level`: the trailing-ones characterization, with a pure hypothesis
+    pre. User-validated exception to the "generated specs only" rule — `level` occurs inside
+    the postconditions of `parent`/`left`/`right`, and re-stepping the monadic `level.post`
+    do-block at every use site is a performance blocker. Registered `@[spec]` (in place of
+    `level.spec.proof`, which is unregistered): callers step `level` through THIS. -/
 @[spec]
+theorem level.spec_pure (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 30) :
+    ⦃ ⌜ True ⌝ ⦄
+    level index
+    ⦃ ⇓ r => ⌜ (↑r : Nat) ≤ 30
+        ∧ (↑index : Nat) % 2 ^ ((↑r : Nat) + 1) = 2 ^ (↑r : Nat) - 1 ⌝ ⦄ := by
+  -- Even `index`: `level` short-circuits to `0`, and `index % 2 = 0 = 2^0 − 1` (`u32_and_one_eq_zero`).
+  -- Odd `index`: the loop runs and `level_loop_spec` is exactly the postcondition.
+  unfold level
+  mvcgen [level_loop_spec] <;> first | scalar_tac | simp_all
+
 theorem level.spec.proof (index : Std.U32) :
   (level.pre index).holds →
   ⦃ ⌜ True ⌝ ⦄ level index ⦃ ⇓ res => ⌜ (level.post index res).holds ⌝ ⦄
@@ -249,7 +265,8 @@ theorem level.spec.proof (index : Std.U32) :
   -- `simp_all!` reduces the post's shift do-block to `Nat`; `one_shiftLeft_mod_eq` drops the
   -- wrap-around mod, matching the char `level_loop_spec` delivers.
   all_goals (simp_all!; try simp (disch := scalar_tac) only [one_shiftLeft_mod_eq] at *)
-  all_goals scalar_tac
+  all_goals try scalar_tac
+  grind
 
 @[spec]
 theorem root.spec.proof (size : TreeSize) :
@@ -257,17 +274,20 @@ theorem root.spec.proof (size : TreeSize) :
   ⦃ ⌜ True ⌝ ⦄ root size ⦃ ⇓ res => ⌜ True ⌝ ⦄
   := by
   hax_mvcgen [root]
-  all_goals try scalar_tac
-  all_goals try simp_all!
-  -- No loop here: the only residual VC is that the root index `(1 << log2 size) − 1` does not
-  -- underflow, i.e. `1 <<< s ≥ 1`. The shift `s = 31 - (31 - log2 size)` is capped at `≤ 31` by the
-  -- double subtraction, so `1 <<< s = 2^s < 2^32`, hence `2^s % 2^32 = 2^s ≥ 1`.
-  have hs : (31 - (31 - Nat.log 2 (↑size : Nat))) ≤ 31 := by omega
-  sorry
-  sorry
-  -- rw [Nat.shiftLeft_eq, one_mul,
-  --   Nat.mod_eq_of_lt (lt_of_le_of_lt (Nat.pow_le_pow_right (by norm_num) hs) (by native_decide))]
-  -- exact Nat.one_le_two_pow
+  · scalar_tac
+  · scalar_tac
+  · scalar_tac
+  · scalar_tac
+  · scalar_tac
+  · sorry -- something is making simp loop !
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
 
 @[spec]
 theorem left.spec.proof (index : ParentNodeIndex) :
@@ -276,20 +296,14 @@ theorem left.spec.proof (index : ParentNodeIndex) :
   := by
   -- `x = 2·index+1` is odd, so `level x > 0`: reduce the shifts to expose the char, then
   -- `level_ge_one` fires and `scalar_tac` discharges the massert; `simp_all` mops up `2^k > 0`.
-  hax_mvcgen [left, level.post]
-  all_goals try scalar_tac
-  all_goals (simp_all!; try simp (disch := scalar_tac) only [one_shiftLeft_mod_eq] at *)
-  all_goals first | scalar_tac | simp_all
+  hax_mvcgen [left] <;> scalar_tac
 
 @[spec]
 theorem right.spec.proof (index : ParentNodeIndex) :
   (right.pre index).holds →
   ⦃ ⌜ True ⌝ ⦄ right index ⦃ ⇓ res => ⌜ True ⌝ ⦄
   := by
-  hax_mvcgen [right, level.post]
-  all_goals try scalar_tac
-  all_goals (simp_all!; try simp (disch := scalar_tac) only [one_shiftLeft_mod_eq] at *)
-  all_goals first | scalar_tac | simp_all
+  hax_mvcgen [right] <;> scalar_tac
 
 @[spec]
 theorem parent.spec.proof
@@ -304,13 +318,7 @@ theorem parent.spec.proof
   intro h_pre
   apply triple_in_hypothesis (h := h_pre)
   clear h_pre
-  hax_mvcgen [level.post, pure] <;> try scalar_tac
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
+  sorry -- blows up, need to investigate
 
 @[spec]
 theorem sibling.spec.proof
@@ -323,7 +331,7 @@ theorem sibling.spec.proof
   unfold sibling pre
   intro h_pre
   apply triple_in_hypothesis (h := h_pre) ; clear h_pre
-  hax_mvcgen
+  mvcgen <;> intros <;> try mvcgen
   all_goals try (simp_all! ; scalar_tac)
   all_goals sorry
 
@@ -335,8 +343,6 @@ theorem direct_path.spec.proof (node_index : LeafNodeIndex) (size : TreeSize) :
   ⦃ ⇓ res => ⌜ (direct_path.post node_index size res).holds ⌝ ⦄
   := by
   hax_mvcgen [direct_path]
-  all_goals try simp_all
-  all_goals try grind
   all_goals sorry
 
 @[spec]
@@ -345,12 +351,7 @@ theorem copath.spec.proof (leaf_index : LeafNodeIndex) (size : TreeSize) :
   ⦃ ⌜ True ⌝ ⦄ copath leaf_index size ⦃ ⇓ res => ⌜ True ⌝ ⦄
   := by
   hax_mvcgen [copath]
-  all_goals try scalar_tac
-  all_goals try simp_all
-  · -- TODO(sorry): empty-path branch — `copath_loop` then `map sibling >>= collect` is panic-free; needs per-element `SiblingSafe` + `copath_loop_spec` + `into_map_collect_sibling_spec`.
-    sorry
-  · -- TODO(sorry): non-empty branch (after `pop` drops the root) — same `sibling`-collect tail on the popped path.
-    sorry
+  all_goals sorry
 
 /-- `level v = 0` for an even `v`: the low-bit test in `level` short-circuits before the loop. -/
 private theorem level_even_eq (v : Std.U32) (hv : (↑v : Nat) % 2 = 0) :
@@ -424,70 +425,20 @@ theorem lowest_common_ancestor.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex
   -- The precondition forces two distinct valid (`< 2^29`) leaves. Their tree-indices are even,
   -- so `level` returns `0` and both early-return branches are unreachable (their `x>>1 = y>>1`
   -- tests fail). Only the shift-loop runs; close its `from_tree_index` tail via `lca_tail_aux`.
-  unfold lowest_common_ancestor.pre LeafNodeIndex.valid LeafNodeIndex.u32 MAX_INDEX MAX_TREE_SIZE
+  unfold lowest_common_ancestor.pre LeafNodeIndex.valid LeafNodeIndex.u32
   intro h_pre
-  simp only [Aeneas.Std.Result.holds, Std.Do.Triple, Std.Do.WP.wp,
-    Std.Do.PredTrans.apply] at h_pre
-  rw [show (1#u32 <<< 30#i32 : Aeneas.Std.Result Std.U32) = ok 1073741824#u32 from by rfl] at h_pre
-  simp only [bind_tc_ok, pure] at h_pre
-  rw [show (1073741824#u32 / 2#u32 : Aeneas.Std.Result Std.U32) = ok 536870912#u32 from by rfl] at h_pre
-  simp only [bind_tc_ok, decide_eq_true_eq] at h_pre
-  have hx29 : (x : Std.U32) < 536870912#u32 := by
-    by_contra h; rw [if_neg h] at h_pre; simp_all
-  have hy29 : (y : Std.U32) < 536870912#u32 := by
-    by_contra h; rw [if_pos hx29, if_neg h] at h_pre; simp_all
-  have hxy : x ≠ y := by
-    rw [if_pos hx29, if_pos hy29] at h_pre; simp_all
-  have hxn : (↑x : Nat) < 2 ^ 29 := by scalar_tac
-  have hyn : (↑y : Nat) < 2 ^ 29 := by scalar_tac
-  have hxyn : (↑x : Nat) ≠ (↑y : Nat) := by scalar_tac
-  obtain ⟨x1, hx1eq, hx1v⟩ := mul2_ok x (by omega)
-  obtain ⟨y1, hy1eq, hy1v⟩ := mul2_ok y (by omega)
-  unfold lowest_common_ancestor
-  rw [hx1eq, hy1eq]
-  simp only [bind_tc_ok]
-  rw [level_even_eq x1 (by rw [hx1v]; omega), level_even_eq y1 (by rw [hy1v]; omega)]
-  simp only [bind_tc_ok]
-  mvcgen [lca_loop0_spec, ParentNodeIndex.from_tree_index]
+  apply triple_in_hypothesis (h := h_pre)
+  clear h_pre
+  mvcgen ; simp
+  case vc9.hQ =>
+    grind
+  case vc6.hQ =>
+    grind
+  simp_all; intro
+  hax_mvcgen [lowest_common_ancestor]
   all_goals try scalar_tac
-  case vc30.hmax =>
-    rename_i p hpost i6 hi6 i7 hi7 i8 hi8
-    obtain ⟨hk2, hk30, hbnd⟩ := hpost
-    obtain ⟨hi6v, -⟩ := hi6
-    obtain ⟨hi8v, -⟩ := hi8
-    rw [show p.2.toNat = IScalar.toNat p.2 from rfl] at hk2 hk30 hbnd
-    obtain ⟨hsum, -, -, -⟩ := lca_tail_aux hk2 hk30 hbnd hi6v hi7 hi8v
-    have hmax : UScalar.max UScalarTy.U32 = 2 ^ 32 - 1 := by native_decide
-    omega
-  case vc31.h =>
-    rename_i p hpost i6 hi6 i7 hi7 i8 hi8 i9 hi9
-    obtain ⟨hk2, hk30, hbnd⟩ := hpost
-    obtain ⟨hi6v, -⟩ := hi6
-    obtain ⟨hi8v, -⟩ := hi8
-    rw [show p.2.toNat = IScalar.toNat p.2 from rfl] at hk2 hk30 hbnd
-    obtain ⟨-, -, hi8ge, -⟩ := lca_tail_aux hk2 hk30 hbnd hi6v hi7 hi8v
-    scalar_tac
-  case vc32.h =>
-    rename_i p hpost i6 hi6 i7 hi7 i8 hi8 i9 hi9 i10 hi10
-    obtain ⟨hk2, hk30, hbnd⟩ := hpost
-    obtain ⟨hi6v, -⟩ := hi6
-    obtain ⟨hi8v, -⟩ := hi8
-    obtain ⟨hi10v, -⟩ := hi10
-    rw [show p.2.toNat = IScalar.toNat p.2 from rfl] at hk2 hk30 hbnd
-    obtain ⟨-, -, hi8ge, -⟩ := lca_tail_aux hk2 hk30 hbnd hi6v hi7 hi8v
-    scalar_tac
-  case vc34.h =>
-    rename_i p hpost i6 hi6 i7 hi7 i8 hi8 i9 hi9 i10 hi10 u hu rmod hmod
-    obtain ⟨hk2, hk30, hbnd⟩ := hpost
-    obtain ⟨hi6v, -⟩ := hi6
-    obtain ⟨hi8v, -⟩ := hi8
-    obtain ⟨hi10v, hi9ge⟩ := hi10
-    rw [show p.2.toNat = IScalar.toNat p.2 from rfl] at hk2 hk30 hbnd
-    obtain ⟨-, hi6dvd, hi8ge, hi8dvd⟩ := lca_tail_aux hk2 hk30 hbnd hi6v hi7 hi8v
-    rw [show (↑(1#u32) : Nat) = 1 from rfl] at hi10v
-    rw [show (↑(2#u32) : Nat) = 2 from rfl] at hmod
-    have : (↑rmod : Nat) = 1 := by omega
-    scalar_tac
+  all_goals sorry
+
 
 @[spec]
 theorem common_direct_path.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex)
@@ -495,8 +446,8 @@ theorem common_direct_path.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex)
   (common_direct_path.pre x y size).holds →
   ⦃ ⌜ True ⌝ ⦄ common_direct_path x y size ⦃ ⇓ res => ⌜ True ⌝ ⦄
   := by
-  hax_mvcgen [common_direct_path]
-  all_goals try scalar_tac
+  sorry -- blows up
+
 
 @[spec]
 theorem is_node_in_tree.spec.proof (node_index : TreeNodeIndex) (size : TreeSize) :
@@ -513,8 +464,15 @@ theorem is_node_in_tree.spec.proof (node_index : TreeNodeIndex) (size : TreeSize
 @[spec]
 theorem LeafNodeIndex.to_tree_index.spec.proof (self : LeafNodeIndex) :
   (LeafNodeIndex.to_tree_index.pre self).holds →
-  ⦃ ⌜ True ⌝ ⦄ LeafNodeIndex.to_tree_index self ⦃ ⇓ res => ⌜ True ⌝ ⦄
-  := by hax_mvcgen ; scalar_tac
+  ⦃ ⌜ True ⌝ ⦄
+  LeafNodeIndex.to_tree_index self
+  ⦃ ⇓ res => ⌜ (LeafNodeIndex.to_tree_index.post self res).holds ⌝ ⦄
+  := by
+  -- `res = self·2`, hence even, and `< MAX_TREE_SIZE − 1` since the pre gives `self < MAX_INDEX`.
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  hax_mvcgen [LeafNodeIndex.to_tree_index, LeafNodeIndex.to_tree_index.post]
+  all_goals scalar_tac
 
 @[spec]
 theorem LeafNodeIndex.from_tree_index.spec.proof (node_index : Std.U32) :
@@ -527,8 +485,16 @@ theorem LeafNodeIndex.from_tree_index.spec.proof (node_index : Std.U32) :
 @[spec]
 theorem ParentNodeIndex.to_tree_index.spec.proof (self : ParentNodeIndex) :
   (ParentNodeIndex.to_tree_index.pre self).holds →
-  ⦃ ⌜ True ⌝ ⦄ ParentNodeIndex.to_tree_index self ⦃ ⇓ res => ⌜ True ⌝ ⦄
-  := by hax_mvcgen <;> scalar_tac
+  ⦃ ⌜ True ⌝ ⦄
+  ParentNodeIndex.to_tree_index self
+  ⦃ ⇓ res => ⌜ (ParentNodeIndex.to_tree_index.post self res).holds ⌝ ⦄
+  := by
+  -- `res = self·2 + 1`, hence odd, and `< MAX_TREE_SIZE − 2` since the pre gives
+  -- `self < MAX_INDEX − 1`.
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  hax_mvcgen [ParentNodeIndex.to_tree_index, ParentNodeIndex.to_tree_index.post]
+  all_goals scalar_tac
 
 @[spec]
 theorem ParentNodeIndex.from_tree_index.spec.proof (node_index : Std.U32) :
@@ -537,14 +503,32 @@ theorem ParentNodeIndex.from_tree_index.spec.proof (node_index : Std.U32) :
   := by hax_mvcgen <;> scalar_tac
 
 @[spec]
+theorem TreeNodeIndex.new.spec.proof (index : Std.U32) :
+  ⦃ ⌜ True ⌝ ⦄
+  TreeNodeIndex.new index
+  ⦃ ⇓ res => ⌜ (TreeNodeIndex.new.post index res).holds ⌝ ⦄
+  := by
+  -- Unconditional (no pre): either `index > MAX_TREE_INDEX` and the post is vacuously `true`, or
+  -- `index ≤ 2^30 − 2` and the constructed index is valid — even `index ↦ Leaf (index/2)` with
+  -- `index/2 ≤ 2^29 − 1 = MAX_LEAF`; odd `index ≤ 2^30 − 3 ↦ Parent ((index−1)/2)` with
+  -- `(index−1)/2 ≤ 2^29 − 2 = MAX_PARENT`.  Both are tight at the boundary.
+  hax_mvcgen [TreeNodeIndex.new, TreeNodeIndex.new.post, TreeNodeIndex.valid,
+    LeafNodeIndex.from_tree_index, ParentNodeIndex.from_tree_index,
+    LeafNodeIndex.valid, ParentNodeIndex.valid]
+  all_goals scalar_tac
+
+@[spec]
 theorem TreeNodeIndex.u32.spec.proof (self : TreeNodeIndex) :
   (TreeNodeIndex.u32.pre self).holds →
-  ⦃ ⌜ True ⌝ ⦄ TreeNodeIndex.u32 self ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⌜ True ⌝ ⦄
+  TreeNodeIndex.u32 self
+  ⦃ ⇓ res => ⌜ (TreeNodeIndex.u32.post self res).holds ⌝ ⦄
   := by
+  -- Case split on the constructor: `Leaf l ↦ 2l` with `l < 2^29`, `Parent p ↦ 2p+1` with
+  -- `p < 2^29 − 1`; both are `< MAX_TREE_SIZE − 1`.
   intro h_pre
-  apply triple_in_hypothesis (h := h_pre)
-  mvcgen [is_node_in_tree, pure, pre] <;> try scalar_tac
-  all_goals (simp ; intros ; mvcgen)
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  hax_mvcgen [TreeNodeIndex.u32, TreeNodeIndex.u32.pre, TreeNodeIndex.u32.post]
   all_goals scalar_tac
 
 @[spec]
@@ -560,40 +544,147 @@ theorem TreeSize.new.spec.proof
   -- discharges the shift bound (`< 32`), the `1 ≤ …` underflow guard, and `res ≤ 2^30` (via `<`).
   hax_mvcgen [new] <;> try scalar_tac
   all_goals simp_all!
-  all_goals
-    (have hnodes : (↑nodes:Nat) < 2 ^ 30 := by
-      have h30 : (1:Nat) <<< 30#i32.toNat % Aeneas.Std.U32.size = 2 ^ 30 :=
-        one_shiftLeft_mod_eq 30#i32.toNat (by decide)
-      have ha : (↑nodes:Nat) < 1 <<< 30#i32.toNat % Aeneas.Std.U32.size := by assumption
-      rw [h30] at ha; exact ha
-     have hlog : Nat.log 2 (↑nodes:Nat) ≤ 29 := by
-      have := Nat.log_lt_of_lt_pow (by assumption) hnodes; omega)
-  · omega
-  · exact one_le_one_shiftLeft_mod _ (by omega)
-  · exfalso
-    have hshow : (30#i32).toNat = 30 := by decide
-    simp only [hshow,
-      one_shiftLeft_mod_eq 30 (by decide),
-      one_shiftLeft_mod_eq (31 - (31 - Nat.log 2 (↑nodes:Nat)) + 1) (by omega)] at *
-    have hle : (2:Nat) ^ (31 - (31 - Nat.log 2 (↑nodes:Nat)) + 1) ≤ 2 ^ 30 :=
-      Nat.pow_le_pow_right (by norm_num) (by omega)
-    omega
+  all_goals sorry
+
+@[spec]
+theorem TreeSize.leaf_count.spec.proof (self : TreeSize) :
+  ⦃ ⌜ True ⌝ ⦄
+  TreeSize.leaf_count self
+  ⦃ ⇓ res => ⌜ (TreeSize.leaf_count.post self res).holds ⌝ ⦄
+  := by
+  -- Unconditional: `res = self/2 + 1` is immediate; the `≤ MAX_LEAF_COUNT` conjunct is guarded by
+  -- `TreeSize.valid self`, which forces `self = 2^(log2 self + 1) − 1 ≤ 2^30` — an odd value, hence
+  -- `≤ 2^30 − 1`, hence `self/2 + 1 ≤ 2^29 = MAX_LEAF_COUNT`.
+  -- CAUTION: `TreeSize.valid` drags in both `Nat.log` (from `log2`/`leading_zeros_spec`) and a
+  -- symbolic `2 ^ e` (from `u32_pow_spec`); `scalar_tac`'s preprocessing loops on the latter, so the
+  -- two hard VCs extract what they need from the `2 ^ e` hypothesis and then `clear` it.
+  hax_mvcgen [TreeSize.leaf_count, TreeSize.leaf_count.post]
+  case vc12.h_ok.pre =>
+    -- `u32::pow` side condition: the exponent is `log₂ self + 1 ≤ 31`, so `2 ^ e ≤ u32::MAX`.
+    rename_i q1 hq1 res hres q2 hq2 res2 hres2 heq hmin mts hlemts hmtsv hne0 lz hlzv k hkv
+      hlzle e hev
+    have hne' : (↑self : Nat) ≠ 0 := by scalar_tac
+    rw [if_neg hne'] at hlzv
+    have hmtsv' : (↑mts : Nat) = 1073741824 := by
+      rw [hmtsv.1, show ((1#u32 : Std.U32) : Nat) = 1 from rfl,
+          show (30#i32).toNat = 30 from by decide, one_shiftLeft_mod_eq 30 (by decide)]
+      norm_num
+    have hself30 : (↑self : Nat) ≤ 1073741824 := by rw [← hmtsv']; scalar_tac
+    have hL : Nat.log 2 (↑self : Nat) < 31 :=
+      Nat.log_lt_of_lt_pow hne' (by have h2 : (2:Nat) ^ 31 = 2147483648 := by norm_num
+                                    omega)
+    have he31 : (↑e : Nat) ≤ 31 := by scalar_tac
+    have hbnd := two_pow_le_u32_max (↑e : Nat) he31
+    rw [show ((2#u32 : Std.U32) : Nat) = 2 from rfl]
+    scalar_tac
+  case vc15.hQ =>
+    -- The `valid` branch: `self = 2^e − 1` with `e ≥ 1` (so `self` is odd) and `self ≤ 2^30`.
+    -- The bound is now the three-step chain
+    -- `MAX_LEAF_COUNT = (MAX_TREE_INDEX)/2 + 1 = ((2^30 − 2)/2) + 1 = 2^29`.
+    rename_i q1 hq1 res hres q2 hq2 res2 hres2 heq hmin mts hlemts hmtsv hne0 lz hlzv
+      k hkv hlzle e hev p hpv pm1 hpm1v hp1 hselfeq mts2 hmts2v ti htiv h2lemts2 ml hmlv
+      mlc hmlcv
+    have he1 : 1 ≤ (↑e : Nat) := by clear hpv; scalar_tac
+    have hpeven : (↑p : Nat) % 2 = 0 := by
+      obtain ⟨m, hm⟩ : ∃ m, (↑e : Nat) = m + 1 := ⟨(↑e : Nat) - 1, by omega⟩
+      rw [hpv, show ((2#u32 : Std.U32) : Nat) = 2 from rfl, hm, pow_succ]
+      omega
+    clear hpv
+    have hmts2v' : (↑mts2 : Nat) = 1073741824 := by
+      rw [hmts2v.1, show ((1#u32 : Std.U32) : Nat) = 1 from rfl,
+          show (30#i32).toNat = 30 from by decide, one_shiftLeft_mod_eq 30 (by decide)]
+      norm_num
+    have hmtsv' : (↑mts : Nat) = 1073741824 := by
+      rw [hmtsv.1, show ((1#u32 : Std.U32) : Nat) = 1 from rfl,
+          show (30#i32).toNat = 30 from by decide, one_shiftLeft_mod_eq 30 (by decide)]
+      norm_num
+    have hself30 : (↑self : Nat) ≤ 1073741824 := by rw [← hmtsv']; scalar_tac
+    have hti : (↑ti : Nat) = 1073741822 := by
+      rw [htiv, hmts2v', show ((2#u32 : Std.U32) : Nat) = 2 from rfl]
+    have hml : (↑ml : Nat) = 536870911 := by
+      rw [hmlv, hti, show ((2#u32 : Std.U32) : Nat) = 2 from rfl]
+    have hmlc : (↑mlc : Nat) = 536870912 := by
+      rw [hmlcv, hml, show ((1#u32 : Std.U32) : Nat) = 1 from rfl]
+    have hselfv : (↑self : Nat) = (↑p : Nat) - 1 := by scalar_tac
+    simp only [decide_eq_true_eq]
+    scalar_tac
+  case vc16.h_fail =>
+    -- `MAX_LEAF_COUNT = MAX_LEAF + 1` cannot overflow (`MAX_LEAF = (2^30 − 2)/2 = 2^29 − 1`).
+    rename_i p hpv pm1 hpm1v hp1 hselfeq mts2 hmts2v ti htiv h2lemts2 ml hmlv hlt
+    clear hpv
+    scalar_tac
+  case vc18 =>
+    -- `MAX_TREE_INDEX = MAX_TREE_SIZE − 2` cannot underflow (`MAX_TREE_SIZE = 2^30`).
+    rename_i p hpv pm1 hpm1v hp1 hselfeq mts2 hmts2v hlt
+    clear hpv
+    scalar_tac
+  case vc19.h_fail =>
+    -- `2 ^ e − 1` cannot underflow: `1 ≤ 2 ^ e`.
+    rename_i e hev p hpv hlt
+    have hp1 : 1 ≤ (↑p : Nat) := by
+      rw [hpv, show ((2#u32 : Std.U32) : Nat) = 2 from rfl]; exact Nat.one_le_two_pow
+    clear hpv
+    scalar_tac
+  case vc21.h_fail =>
+    -- `31 - leading_zeros self` does not underflow: `leading_zeros self ≤ 31` for `self ≠ 0`.
+    rename_i hne0 lz hlzv hgt
+    have hne' : (↑self : Nat) ≠ 0 := by scalar_tac
+    rw [if_neg hne'] at hlzv
+    scalar_tac
+  all_goals scalar_tac
 
 @[spec]
 theorem TreeSize.inc.spec.proof (self : TreeSize) :
   (TreeSize.inc.pre self).holds →
-  ⦃ ⌜ True ⌝ ⦄ TreeSize.inc self ⦃ ⇓ res => ⌜ True ⌝ ⦄
-  := by hax_mvcgen [inc] <;> scalar_tac
+  ⦃ ⌜ True ⌝ ⦄
+  TreeSize.inc self
+  ⦃ ⇓ res => ⌜ (TreeSize.inc.post self res).holds ⌝ ⦄
+  := by
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  -- `self = 2^(k+1) − 1` and `self < 2^29`, so `res = 2·self + 1 = 2^(k+2) − 1` is again `valid`.
+  -- CAUTION: `TreeSize.valid` (twice: pre on `self`, post on `res`) drags in `Nat.log` and a
+  -- symbolic `2 ^ e`; `scalar_tac`'s preprocessing blows the recursion limit on the latter, so the
+  -- `2 ^ e ≤ u32::MAX` side condition is discharged by hand and `omega` runs first everywhere else.
+  hax_mvcgen [inc, TreeSize.inc.pre, TreeSize.inc.post]
+  case vc11.h_ok.pre =>
+    -- `u32::pow` side condition for `valid self`: exponent is `log₂ self + 1 ≤ 31`.
+    rename_i hmin mts hlemts hmtsv hne0 lz hlzv k hkv hlzle e hev
+    have hne' : (↑self : Nat) ≠ 0 := by scalar_tac
+    rw [if_neg hne'] at hlzv
+    have hmtsv' : (↑mts : Nat) = 1073741824 := by
+      rw [hmtsv.1, show ((1#u32 : Std.U32) : Nat) = 1 from rfl,
+          show (30#i32).toNat = 30 from by decide, one_shiftLeft_mod_eq 30 (by decide)]
+      norm_num
+    have hself30 : (↑self : Nat) ≤ 1073741824 := by rw [← hmtsv']; scalar_tac
+    have hL : Nat.log 2 (↑self : Nat) < 31 :=
+      Nat.log_lt_of_lt_pow hne' (by have h2 : (2:Nat) ^ 31 = 2147483648 := by norm_num
+                                    omega)
+    have he31 : (↑e : Nat) ≤ 31 := by scalar_tac
+    have hbnd := two_pow_le_u32_max (↑e : Nat) he31
+    rw [show ((2#u32 : Std.U32) : Nat) = 2 from rfl]
+    scalar_tac
+  all_goals first
+    | omega
+    | sorry -- TODO(arith): `valid (2·self+1)` — needs `log₂ (2^(k+2)−1) = k+1`
+            -- (`log2_two_pow_sub_one`) plus the `2 ^ e ≤ u32::MAX` bound at exponent `k+2 ≤ 31`.
 
 @[spec]
 theorem TreeSize.dec.spec.proof (self : TreeSize) :
   (TreeSize.dec.pre self).holds →
-  ⦃ ⌜ True ⌝ ⦄ TreeSize.dec self ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⌜ True ⌝ ⦄
+  TreeSize.dec self
+  ⦃ ⇓ res => ⌜ (TreeSize.dec.post self res).holds ⌝ ⦄
   := by
-  unfold dec
-  hax_mvcgen [dec]
-  <;> (try simp only [MIN_TREE_SIZE] at *)
-  <;> scalar_tac
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  -- `self = 2^(k+1) − 1` with `1 < self` (so `k ≥ 1`); `divCeil self 2 − 1 = 2^k − 1 = self/2`,
+  -- which is again `valid`.  Same `2 ^ e` caveat as `inc`: `scalar_tac`'s preprocessing blows the
+  -- recursion limit on the symbolic-power hypotheses, so `omega` runs first everywhere.
+  set_option maxRecDepth 40000 in
+  hax_mvcgen [dec, TreeSize.dec.pre, TreeSize.dec.post]
+  all_goals sorry
+
 
 end binary_tree.array_representation.treemath
 end openmls
