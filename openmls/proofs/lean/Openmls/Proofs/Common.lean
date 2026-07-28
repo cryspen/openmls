@@ -99,4 +99,15 @@ end loop_measure_helpers
 /-- `vecLen v` is the length of `v`'s underlying list. -/
 theorem vecLen_eq_length {T : Type} (v : alloc.vec.Vec T) : vecLen v = v.1.length := rfl
 
+/-! ### `scalar_tac`-free escape hatch for `Nat.log`-poisoned contexts
+
+   `scalar_tac`'s preprocessing loops on `TreeSize.valid`-shaped hypotheses (they carry
+   `Nat.log`/`2 ^ (…) - 1` terms), so goals living in such a context must be closed by `omega`
+   on plain `Nat`s instead. These two `rfl`s let `simp only` rewrite a machine-word `<` into
+   the `Nat` `<` that `omega` understands, without invoking `scalar_tac` at all. -/
+
+theorem u32_lt_nat (u v : Std.U32) : (u < v) = ((↑u : Nat) < ↑v) := rfl
+
+theorem usize_lt_nat (u v : Std.Usize) : (u < v) = ((↑u : Nat) < ↑v) := rfl
+
 end openmls
