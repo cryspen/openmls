@@ -380,4 +380,285 @@ theorem two_pow_le_u32_max_or (e : Nat) : 2 ^ e ≤ Aeneas.Std.U32.max ∨ 31 < 
   · exact Or.inl (two_pow_le_u32_max e h)
   · exact Or.inr (by omega)
 
+/-! ### Value lemmas for `left` / `right` / `parent` / the `direct_path` walk
+(moved here from `Proofs.lean`: pure-`Nat` / `u32`-bit facts, no monad). -/
+
+/-- Bit lemma for `left`: with the low `j+2` bits of `v` equal to `2^(j+1) − 1`, xor-ing with `2^j`
+    CLEARS bit `j`, so the value drops by `2^j`.  Delivered in `+`/`·` form for `omega`. -/
+theorem left_val_arith (v j : Nat) (hchar : v % 2 ^ (j + 2) = 2 ^ (j + 1) - 1) :
+    v ^^^ 2 ^ j = 2 ^ (j + 1) * (v / 2 ^ (j + 1)) + (2 ^ j - 1) := by
+  have hlow : ∀ i, i ≤ j + 1 → v.testBit i = decide (i < j + 1) := by
+    intro i hi
+    have h1 := Nat.testBit_mod_two_pow v (j + 2) i
+    rw [hchar, Nat.testBit_two_pow_sub_one] at h1
+    have hi1 : i < j + 2 := by omega
+    simp only [hi1, decide_true, Bool.true_and] at h1
+    exact h1.symm
+  have step : v ^^^ 2 ^ j = ((v >>> (j + 1)) <<< (j + 1)) ||| (2 ^ j - 1) := by
+    refine Nat.eq_of_testBit_eq fun i => ?_
+    simp only [Nat.testBit_lor, Nat.testBit_xor, Nat.testBit_two_pow, Nat.testBit_shiftLeft,
+      Nat.testBit_shiftRight, Nat.testBit_two_pow_sub_one, ge_iff_le]
+    rcases Nat.lt_trichotomy i j with h | h | h
+    · rw [hlow i (by omega)]
+      simp [h, show i < j + 1 by omega, show ¬ (j = i) by omega, show ¬ (j + 1 ≤ i) by omega]
+    · subst h
+      rw [hlow i (by omega)]
+      simp [show i < i + 1 by omega, show ¬ (i + 1 ≤ i) by omega]
+    · rcases Nat.lt_trichotomy i (j + 1) with h1 | h1 | h1
+      · omega
+      · subst h1
+        have hb1 : v.testBit (j + 1) = false := by rw [hlow (j + 1) (by omega)]; simp
+        simp [hb1, show ¬ (j = j + 1) by omega]
+      · simp [hlow, show j + 1 ≤ i by omega, show ¬ (j = i) by omega, show ¬ (i < j) by omega,
+          show j + 1 + (i - (j + 1)) = i by omega]
+  have hb : 2 ^ j - 1 < 2 ^ (j + 1) := by
+    have h1 : (2 : Nat) ^ j ≤ 2 ^ (j + 1) := Nat.pow_le_pow_right (by norm_num) (by omega)
+    have h2 : 1 ≤ (2 : Nat) ^ j := Nat.one_le_two_pow
+    omega
+  rw [step, Nat.shiftRight_eq_div_pow, Nat.shiftLeft_eq, mul_comm,
+    Nat.two_pow_add_eq_or_of_lt hb]
+
+/-- Bit lemma for `right`: same hypothesis, but xor-ing with `3·2^j = 2^(j+1) + 2^j` clears bit `j`
+    and SETS bit `j+1` (clear in `v`), so the value rises by `2^j`. -/
+theorem right_val_arith (v j : Nat) (hchar : v % 2 ^ (j + 2) = 2 ^ (j + 1) - 1) :
+    v ^^^ (3 * 2 ^ j) = 2 ^ (j + 2) * (v / 2 ^ (j + 2)) + (2 ^ (j + 1) + (2 ^ j - 1)) := by
+  have hlow : ∀ i, i ≤ j + 1 → v.testBit i = decide (i < j + 1) := by
+    intro i hi
+    have h1 := Nat.testBit_mod_two_pow v (j + 2) i
+    rw [hchar, Nat.testBit_two_pow_sub_one] at h1
+    have hi1 : i < j + 2 := by omega
+    simp only [hi1, decide_true, Bool.true_and] at h1
+    exact h1.symm
+  have h3bit : ∀ m, (3 : Nat).testBit m = decide (m < 2) := by
+    intro m; rw [show (3 : Nat) = 2 ^ 2 - 1 from by norm_num, Nat.testBit_two_pow_sub_one]
+  have hsh : (3 : Nat) * 2 ^ j = 3 <<< j := by rw [Nat.shiftLeft_eq]
+  have step : v ^^^ (3 * 2 ^ j)
+      = ((v >>> (j + 2)) <<< (j + 2)) ||| (2 ^ (j + 1) ||| (2 ^ j - 1)) := by
+    rw [hsh]
+    refine Nat.eq_of_testBit_eq fun i => ?_
+    simp only [Nat.testBit_lor, Nat.testBit_xor, Nat.testBit_two_pow, Nat.testBit_shiftLeft,
+      Nat.testBit_shiftRight, Nat.testBit_two_pow_sub_one, h3bit, ge_iff_le]
+    rcases Nat.lt_trichotomy i j with h | h | h
+    · rw [hlow i (by omega)]
+      simp [h, show i < j + 1 by omega, show ¬ (j ≤ i) by omega, show ¬ (j + 2 ≤ i) by omega,
+        show ¬ (j + 1 = i) by omega]
+    · subst h
+      rw [hlow i (by omega)]
+      simp [show i < i + 1 by omega, show ¬ (i + 2 ≤ i) by omega, show ¬ (i + 1 = i) by omega]
+    · rcases Nat.lt_trichotomy i (j + 1) with h1 | h1 | h1
+      · omega
+      · subst h1
+        rw [hlow (j + 1) (by omega)]
+        simp [show ¬ (j + 2 ≤ j + 1) by omega, show j ≤ j + 1 by omega]
+      · simp [hlow, show j + 2 ≤ i by omega, show j ≤ i by omega, show ¬ (i - j < 2) by omega,
+          show ¬ (j + 1 = i) by omega, show ¬ (i < j) by omega,
+          show j + 2 + (i - (j + 2)) = i by omega]
+  have h1 : 1 ≤ (2 : Nat) ^ j := Nat.one_le_two_pow
+  have hp1 : (2 : Nat) ^ (j + 1) = 2 * 2 ^ j := by ring
+  have hp2 : (2 : Nat) ^ (j + 2) = 4 * 2 ^ j := by ring
+  have hb1 : 2 ^ j - 1 < 2 ^ (j + 1) := by omega
+  have hb2 : 2 ^ (j + 1) + (2 ^ j - 1) < 2 ^ (j + 2) := by omega
+  rw [step, Nat.shiftRight_eq_div_pow, Nat.shiftLeft_eq, mul_comm,
+    Nat.two_pow_add_eq_or_of_lt hb2,
+    show (2 : Nat) ^ (j + 1) ||| (2 ^ j - 1) = 2 ^ (j + 1) * 1 ||| (2 ^ j - 1) from by
+      rw [Nat.mul_one],
+    ← Nat.two_pow_add_eq_or_of_lt hb1, Nat.mul_one]
+
+/-- `left_val_arith` in the shape `left`'s VCs present it (`v` the tree index, `k` its level, `j =
+    k − 1`, `r1 = 1 <<< j`): the xor STRICTLY DECREASES the value. -/
+theorem left_bits_lt (v r1 : U32) (k j : Usize)
+    (hk30 : (↑k : Nat) ≤ 30) (hkpos : 1 ≤ (↑k : Nat))
+    (hchar : (↑v : Nat) % 2 ^ ((↑k : Nat) + 1) = 2 ^ (↑k : Nat) - 1)
+    (hj : (↑j : Nat) = (↑k : Nat) - (↑(1#usize) : Nat))
+    (hr1 : (↑r1 : Nat) = (↑(1#u32) : Nat) <<< (↑j : Nat) % UScalar.size UScalarTy.U32) :
+    (↑(v ^^^ r1) : Nat) < (↑v : Nat) := by
+  have e1 : (↑(1#usize) : Nat) = 1 := by simp
+  have e1' : (↑(1#u32) : Nat) = 1 := by simp
+  rw [e1] at hj
+  obtain ⟨m, hm⟩ : ∃ m, (↑k : Nat) = m + 1 := ⟨(↑k : Nat) - 1, by omega⟩
+  have hjm : (↑j : Nat) = m := by omega
+  have hchar' : (↑v : Nat) % 2 ^ (m + 2) = 2 ^ (m + 1) - 1 := by
+    rw [show m + 2 = (↑k : Nat) + 1 from by omega, show m + 1 = (↑k : Nat) from by omega]
+    exact hchar
+  have hval : (↑(v ^^^ r1) : Nat) = 2 ^ (m + 1) * ((↑v : Nat) / 2 ^ (m + 1)) + (2 ^ m - 1) := by
+    rw [UScalar.val_xor, hr1, e1', UScalar.size_UScalarTyU32, hjm,
+      one_shiftLeft_mod_eq m (by omega)]
+    exact left_val_arith _ m hchar'
+  have hmod : (↑v : Nat) % 2 ^ (m + 1) = 2 ^ (m + 1) - 1 := by
+    have hdvd : (2 : Nat) ^ (m + 1) ∣ 2 ^ (m + 2) := pow_dvd_pow 2 (by omega)
+    have h := Nat.mod_mod_of_dvd (↑v : Nat) hdvd
+    rw [hchar'] at h
+    have h1 : 1 ≤ (2 : Nat) ^ (m + 1) := Nat.one_le_two_pow
+    rw [← h, Nat.mod_eq_of_lt (by omega)]
+  have hdm := Nat.div_add_mod (↑v : Nat) (2 ^ (m + 1))
+  rw [hmod] at hdm
+  obtain ⟨Q, hQ⟩ : ∃ Q, 2 ^ (m + 1) * ((↑v : Nat) / 2 ^ (m + 1)) = Q := ⟨_, rfl⟩
+  rw [hQ] at hval hdm
+  have h1 : (2 : Nat) ^ (m + 1) = 2 * 2 ^ m := by ring
+  have h2 : 1 ≤ (2 : Nat) ^ m := Nat.one_le_two_pow
+  omega
+
+/-- Range half of `right`'s VCs, pure-`Nat`: with `Q` the high part (divisible by `2^(m+2)`), the
+    result `Q + (2^(m+1) + (2^m − 1)) = v + 2^m` still fits `MAX_TREE_INDEX = 2^30 − 2`. -/
+theorem right_val_le (Q m : Nat) (hdvd : 2 ^ (m + 2) ∣ Q)
+    (hx : Q + (2 ^ (m + 1) - 1) ≤ 2 ^ 30 - 3) :
+    Q + (2 ^ (m + 1) + (2 ^ m - 1)) ≤ 2 ^ 30 - 2 := by
+  have h1 : 1 ≤ (2 : Nat) ^ m := Nat.one_le_two_pow
+  have e1 : (2 : Nat) ^ (m + 1) = 2 * 2 ^ m := by ring
+  have e2 : (2 : Nat) ^ (m + 2) = 4 * 2 ^ m := by ring
+  have hB : (4 : Nat) ≤ 2 ^ 30 := by norm_num
+  -- `m = 29` (i.e. `k = 30`) is ruled out by `hx`: it would force `v = 2^30 − 1 > 2^30 − 3`.
+  have hm28 : m ≤ 28 := by
+    by_contra hc
+    have h30 : (2 : Nat) ^ 30 ≤ 2 ^ (m + 1) := Nat.pow_le_pow_right (by norm_num) (by omega)
+    omega
+  obtain ⟨q, hq⟩ := hdvd
+  have hpow : (2 : Nat) ^ (m + 2) * 2 ^ (28 - m) = 2 ^ 30 := by
+    rw [← pow_add]; congr 1; omega
+  have hQlt : Q < 2 ^ 30 := by omega
+  have hqlt : q < 2 ^ (28 - m) := by
+    by_contra hc
+    have h := Nat.mul_le_mul_left ((2 : Nat) ^ (m + 2)) (show 2 ^ (28 - m) ≤ q from by omega)
+    rw [hpow, ← hq] at h
+    omega
+  have hQle : Q ≤ 2 ^ 30 - 2 ^ (m + 2) := by
+    have h := Nat.mul_le_mul_left ((2 : Nat) ^ (m + 2)) (show q ≤ 2 ^ (28 - m) - 1 from by omega)
+    rw [Nat.mul_sub, Nat.mul_one, hpow, ← hq] at h
+    omega
+  -- `omega` needs an UPPER bound on the `2^m` atom too (`m ≤ 28` alone is invisible to it).
+  have hup : (2 : Nat) ^ m ≤ 2 ^ 28 := Nat.pow_le_pow_right (by norm_num) hm28
+  have hB28 : (2 : Nat) ^ 28 = 268435456 := by norm_num
+  have hB30 : (2 : Nat) ^ 30 = 1073741824 := by norm_num
+  omega
+
+/-- `right_val_arith` in the shape `right`'s VCs present it (the `left_bits_lt` twin), delivering
+    both facts they need: the result exceeds the tree index, and it stays `≤ 2^30 − 2`. -/
+theorem right_bits (v r1 : U32) (k j : Usize)
+    (hk30 : (↑k : Nat) ≤ 30) (hkpos : 1 ≤ (↑k : Nat))
+    (hchar : (↑v : Nat) % 2 ^ ((↑k : Nat) + 1) = 2 ^ (↑k : Nat) - 1)
+    (hj : (↑j : Nat) = (↑k : Nat) - (↑(1#usize) : Nat))
+    (hr1 : (↑r1 : Nat) = (↑(3#u32) : Nat) <<< (↑j : Nat) % UScalar.size UScalarTy.U32)
+    (hx : (↑v : Nat) ≤ 2 ^ 30 - 3) :
+    (↑v : Nat) < (↑(v ^^^ r1) : Nat) ∧ (↑(v ^^^ r1) : Nat) ≤ 2 ^ 30 - 2 := by
+  have e1 : (↑(1#usize) : Nat) = 1 := by simp
+  have e3 : (↑(3#u32) : Nat) = 3 := by simp
+  rw [e1] at hj
+  obtain ⟨m, hm⟩ : ∃ m, (↑k : Nat) = m + 1 := ⟨(↑k : Nat) - 1, by omega⟩
+  have hjm : (↑j : Nat) = m := by omega
+  have hm29 : m ≤ 29 := by omega
+  have hchar' : (↑v : Nat) % 2 ^ (m + 2) = 2 ^ (m + 1) - 1 := by
+    rw [show m + 2 = (↑k : Nat) + 1 from by omega, show m + 1 = (↑k : Nat) from by omega]
+    exact hchar
+  have hsh3 : (3 : Nat) <<< m % Aeneas.Std.U32.size = 3 * 2 ^ m := by
+    rw [Nat.shiftLeft_eq]
+    apply Nat.mod_eq_of_lt
+    have h1 : (2 : Nat) ^ m ≤ 2 ^ 29 := Nat.pow_le_pow_right (by norm_num) hm29
+    have h2 : (3 : Nat) * 2 ^ 29 < Aeneas.Std.U32.size := by scalar_tac
+    omega
+  have hval : (↑(v ^^^ r1) : Nat)
+      = 2 ^ (m + 2) * ((↑v : Nat) / 2 ^ (m + 2)) + (2 ^ (m + 1) + (2 ^ m - 1)) := by
+    rw [UScalar.val_xor, hr1, e3, UScalar.size_UScalarTyU32, hjm, hsh3]
+    exact right_val_arith _ m hchar'
+  have hdm := Nat.div_add_mod (↑v : Nat) (2 ^ (m + 2))
+  rw [hchar'] at hdm
+  obtain ⟨Q, hQ⟩ : ∃ Q, 2 ^ (m + 2) * ((↑v : Nat) / 2 ^ (m + 2)) = Q := ⟨_, rfl⟩
+  rw [hQ] at hval hdm
+  have hle := right_val_le Q m ⟨_, hQ.symm⟩ (by omega)
+  have h1 : 1 ≤ (2 : Nat) ^ m := Nat.one_le_two_pow
+  have h2 : (2 : Nat) ^ (m + 1) = 2 * 2 ^ m := by ring
+  omega
+
+/-- `parent_val_u32` in the shape `parent`'s VCs present it: the extracted code binds each
+    shift/mask to its own `r`-variable, so the value equation is re-assembled from those. -/
+theorem parent_bits_val
+    (v r1 r2 rr : U32) (k k1 : Usize)
+    (hk30 : (↑k : Nat) ≤ 30)
+    (hchar : (↑v : Nat) % 2 ^ ((↑k : Nat) + 1) = 2 ^ (↑k : Nat) - 1)
+    (hk1 : (↑k1 : Nat) = (↑k : Nat) + (↑(1#usize) : Nat))
+    (hr2 : (↑r2 : Nat) = (↑v : Nat) >>> (↑k1 : Nat))
+    (hr1 : (↑r1 : Nat) = (↑(1#u32) : Nat) <<< (↑k : Nat) % UScalar.size UScalarTy.U32)
+    (hrr : (↑rr : Nat)
+      = (↑(r2 &&& 1#u32) : Nat) <<< (↑k1 : Nat) % UScalar.size UScalarTy.U32) :
+    (↑((v ||| r1) ^^^ rr) : Nat)
+      = 2 ^ ((↑k : Nat) + 2) * ((↑v : Nat) / 2 ^ ((↑k : Nat) + 2))
+        + (2 ^ ((↑k : Nat) + 1) - 1) := by
+  have h1 : (↑(1#u32) : Nat) = 1 := by simp
+  have h1' : (↑(1#usize) : Nat) = 1 := by simp
+  rw [UScalar.val_xor, UScalar.val_or, hr1, hrr, UScalar.val_and, hr2, hk1, h1, h1',
+    UScalar.size_UScalarTyU32]
+  exact parent_val_u32 v _ hk30 hchar
+
+/-- A node value below `2^30 − 1` has its parent value below `2^30` (the tighter `MAX_PARENT`
+    version of `parent_val_lt`; the strict bound is needed since `V = 2^30 − 1` has `k = 30`). -/
+theorem parent_val_lt_two_pow_30 (V k : Nat) (hV : V < 2 ^ 30 - 1)
+    (hk : V % 2 ^ (k + 1) = 2 ^ k - 1) :
+    2 ^ (k + 2) * (V / 2 ^ (k + 2)) + (2 ^ (k + 1) - 1) < 2 ^ 30 := by
+  have hle : 2 ^ k - 1 ≤ V := by rw [← hk]; exact Nat.mod_le _ _
+  have h1 : 1 ≤ (2 : Nat) ^ k := Nat.one_le_two_pow
+  rcases Nat.lt_or_ge k 29 with hlt | hge
+  · refine parent_lt 29 k _ hlt ?_
+    refine Nat.div_lt_of_lt_mul ?_
+    rw [← pow_add, show (k + 2) + (29 - 1 - k) = 30 from by omega]
+    omega
+  · have hk29 : k = 29 := by
+      by_contra hc
+      have : (2 : Nat) ^ 30 ≤ 2 ^ k := Nat.pow_le_pow_right (by norm_num) (by omega)
+      omega
+    subst hk29
+    have hq0 : V / 2 ^ (29 + 2) = 0 := by
+      apply Nat.div_eq_of_lt
+      have : (2 : Nat) ^ 30 ≤ 2 ^ (29 + 2) := Nat.pow_le_pow_right (by norm_num) (by omega)
+      omega
+    rw [hq0, Nat.mul_zero, Nat.zero_add]
+    have he : (2 : Nat) ^ (29 + 1) = 2 ^ 30 := by norm_num
+    have h1' : 1 ≤ (2 : Nat) ^ (29 + 1) := Nat.one_le_two_pow
+    omega
+
+/-- On-path uniqueness: a value below `2^(L+1)` whose trailing-ones count is exactly `L` *is* the
+    root value `2^L − 1`. -/
+theorem eq_root_of_tones_eq (v L : Nat) (hv : v < 2 ^ (L + 1)) (ht : tones v = L) :
+    v = 2 ^ L - 1 := by
+  have hm := tones_mod v
+  rw [ht] at hm
+  rwa [Nat.mod_eq_of_lt hv] at hm
+
+/-- Below the root there is room left in the measure: an on-path `v` strictly inside the tree
+    (`v < 2^(L+1) − 1`) that is not the root value has `tones v < L`. -/
+theorem tones_lt_of_ne_root (v L : Nat) (hv : v < 2 ^ (L + 1) - 1)
+    (ht : tones v ≤ L) (hne : v ≠ 2 ^ L - 1) : tones v < L := by
+  rcases Nat.lt_or_ge (tones v) L with h | h
+  · exact h
+  · exact absurd (eq_root_of_tones_eq v L (by omega) (by omega)) hne
+
+/-- The parent value of an on-path node stays strictly inside the tree: with `size = 2^(L+1) − 1`,
+    `k = tones x < L` and `x < size`, the parent value is `< size` (equality is excluded because
+    `2^(L+1) − 1` has `L+1` trailing ones while the parent value has `k+1 ≤ L`). -/
+theorem parent_val_lt_size (x L k : Nat) (hL : k < L) (hx : x < 2 ^ (L + 1) - 1) :
+    2 ^ (k + 2) * (x / 2 ^ (k + 2)) + (2 ^ (k + 1) - 1) < 2 ^ (L + 1) - 1 := by
+  have hlt : 2 ^ (k + 2) * (x / 2 ^ (k + 2)) + (2 ^ (k + 1) - 1) < 2 ^ (L + 1) := by
+    refine parent_lt L k _ hL ?_
+    refine Nat.div_lt_of_lt_mul ?_
+    rw [← pow_add, show (k + 2) + (L - 1 - k) = L + 1 from by omega]
+    omega
+  have htp : tones (2 ^ (k + 2) * (x / 2 ^ (k + 2)) + (2 ^ (k + 1) - 1)) = k + 1 :=
+    tones_parent _ _
+  by_contra hc
+  have heq : 2 ^ (k + 2) * (x / 2 ^ (k + 2)) + (2 ^ (k + 1) - 1) = 2 ^ (L + 1) - 1 := by omega
+  rw [heq, tones_pow_sub_one] at htp
+  omega
+
+/-- `level`'s postcondition `v % 2^(k+1) = 2^k − 1` forces `k = 0` on an *even* `v`: for `k ≥ 1`
+    the right-hand side is odd while the left-hand side inherits `v`'s parity. -/
+theorem level_res_eq_zero {v k : Nat} (hv : v % 2 = 0)
+    (hmod : v % 2 ^ (k + 1) = 2 ^ k - 1) : k = 0 := by
+  by_contra hk
+  have h2dvd : (2 : Nat) ∣ 2 ^ (k + 1) := dvd_pow_self 2 (by omega)
+  have hk2 : (2 : Nat) ∣ 2 ^ k := dvd_pow_self 2 hk
+  have h2le : (2 : Nat) ≤ 2 ^ k := by
+    calc (2 : Nat) = 2 ^ 1 := (pow_one 2).symm
+      _ ≤ 2 ^ k := Nat.pow_le_pow_right (by norm_num) (by omega)
+  have hmm : v % 2 ^ (k + 1) % 2 = v % 2 := Nat.mod_mod_of_dvd v h2dvd
+  rw [hmod, hv] at hmm
+  omega
+
 end openmls

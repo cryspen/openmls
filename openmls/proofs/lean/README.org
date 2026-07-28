@@ -1,4 +1,5 @@
 #+TITLE: OpenMLS treemath — panic-freedom proofs (Aeneas → Lean)
+#+TODO: TODO WIP INREVIEW | MERGED DONE
 #+OPTIONS: toc:2
 
 * Overview
@@ -51,9 +52,19 @@ Loop specs: =level_loop_spec= proved, =lca_loop0_spec= proved,
 
 Open a PR with those specs
 
+** TODO Upstream missing =CoreModels=
+
+** TODO Remove spurious const introduced by =hax_lib=
+
 ** TODO Upstream fix for looping ~scalar_tac~
 
-** Update specs
+** TODO Renames ~tones~ into ~trailing_ones~
+
+** Improve spec of ~direct_path~ to include level info
+
+As can be seen in the PureSpecs.lean
+
+** INREVIEW Update specs
 
 * For AI agents
 

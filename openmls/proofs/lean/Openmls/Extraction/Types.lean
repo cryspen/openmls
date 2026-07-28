@@ -20,19 +20,19 @@ set_option maxRecDepth 2048
 namespace openmls
 
 /-- [openmls::binary_tree::array_representation::treemath::LeafNodeIndex]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 54:0-54:30
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 55:0-55:30
     Visibility: public -/
 @[reducible]
 def binary_tree.array_representation.treemath.LeafNodeIndex := Std.U32
 
 /-- [openmls::binary_tree::array_representation::treemath::ParentNodeIndex]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 104:0-104:32
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 105:0-105:32
     Visibility: public -/
 @[reducible]
 def binary_tree.array_representation.treemath.ParentNodeIndex := Std.U32
 
 /-- [openmls::binary_tree::array_representation::treemath::TreeNodeIndex]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 176:0-179:1
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 177:0-180:1
     Visibility: public -/
 @[discriminant isize]
 inductive binary_tree.array_representation.treemath.TreeNodeIndex where
@@ -44,20 +44,19 @@ inductive binary_tree.array_representation.treemath.TreeNodeIndex where
   binary_tree.array_representation.treemath.TreeNodeIndex
 
 /-- [openmls::binary_tree::array_representation::treemath::TreeSize]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 252:0-252:32 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 255:0-255:32 -/
 @[reducible]
 def binary_tree.array_representation.treemath.TreeSize := Std.U32
 
-/-- [openmls::binary_tree::array_representation::treemath::_#20::ensures::closure#1]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 455:16-456:46 -/
-def binary_tree.array_representation.treemath.__20.ensures.closure_1 :=
-  alloc.vec.Vec binary_tree.array_representation.treemath.ParentNodeIndex ×
+/-- [openmls::binary_tree::array_representation::treemath::_#18::ensures::closure]
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 444:21-444:81 -/
+@[reducible]
+def binary_tree.array_representation.treemath.__18.ensures.closure :=
   binary_tree.array_representation.treemath.TreeSize
 
-/-- [openmls::binary_tree::array_representation::treemath::_#20::ensures::closure]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 454:11-454:66 -/
+/-- [openmls::binary_tree::array_representation::treemath::copath::closure]
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 473:17-473:46 -/
 @[reducible]
-def binary_tree.array_representation.treemath.__20.ensures.closure :=
-  alloc.vec.Vec binary_tree.array_representation.treemath.ParentNodeIndex
+def binary_tree.array_representation.treemath.copath.closure := Unit
 
 end openmls

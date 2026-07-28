@@ -43,6 +43,23 @@ def core.num.U32.is_multiple_of (x y : Std.U32) : Result Bool :=
 /-- `u32::div_ceil` -/
 axiom core.num.U32.div_ceil : Std.U32 → Std.U32 → Result Std.U32
 
+/-- Every natural has a clear bit (bit `x` of `x` is clear, as `x < 2^x`). Self-contained
+    copy of `openmls.tones_ex` (`Openmls/Proofs/BitMath.lean`), which cannot be imported
+    here — BitMath imports the extraction. -/
+theorem core.num.U32.trailing_ones.ex (x : Nat) : ∃ m, x.testBit m = false :=
+  ⟨x, Nat.testBit_lt_two_pow Nat.lt_two_pow_self⟩
+
+/-- `u32::trailing_ones` — faithful total MODEL (a definition, not an axiom): the
+    trailing-ones count is the index of the lowest clear bit, `Nat.find`-style, exactly
+    mirroring the pure `openmls.tones`. In range because `Nat.find ≤ the witness x.val`.
+    The proved bridge spec (`⇓ r => r.val = tones x.val`) lives in `MissingCoreSpecs.lean`;
+    upstream-PR candidate for CoreModels. -/
+noncomputable def core.num.U32.trailing_ones (x : Std.U32) : Result Std.U32 :=
+  ok (UScalar.ofNatCore (Nat.find (core.num.U32.trailing_ones.ex x.val))
+    (Nat.lt_of_le_of_lt
+      (Nat.find_le (Nat.testBit_lt_two_pow Nat.lt_two_pow_self))
+      x.bv.isLt))
+
 /- ### Slice indexing on `Vec` -/
 
 /-- `SliceIndex<[T]>` witness (only ever threaded through `Index::index`). -/
@@ -109,11 +126,33 @@ axiom alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator.map
   (self : alloc.vec.into_iter.IntoIter T) (f : F) :
   Result (core.iter.adapters.map.Map (alloc.vec.into_iter.IntoIter T) F)
 
+/-- `<slice::Iter<'_, T> as Iterator>::map` — `F` is the closure *state* type (e.g. `Unit`
+    for a non-capturing closure), witnessed by its CoreModels `FnMut` instance. Used since
+    the `copath` rewrite maps an extracted closure over a slice iterator. -/
+axiom core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.map
+  {T : Type} {O : Type} {F : Type}
+  (FnMutInst : CoreModels.core.ops.function.FnMut F T O)
+  (self : core.slice.iter.Iter T) (f : F) :
+  Result (core.iter.adapters.map.Map (core.slice.iter.Iter T) F)
+
+/-- `<slice::Iter<'_, T> as Iterator>::all` — `F` is the closure state (e.g. the captured
+    environment), witnessed by its CoreModels `FnMut` instance; returns the boolean and the
+    advanced iterator (`&mut self` receiver). Referenced by the extracted `direct_path.post`
+    (the `result.iter().all(...)` ensures). -/
+axiom core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.all
+  {T : Type} {F : Type}
+  (FnMutInst : CoreModels.core.ops.function.FnMut F T Bool)
+  (self : core.slice.iter.Iter T) (f : F) :
+  Result (Bool × core.slice.iter.Iter T)
+
 /-- `<Map<I, F> as Iterator>::collect` — target collection `B` is fixed by the
-    `FromIterator` witness. -/
+    `FromIterator` witness. The `FnMut` witness parameter is type-generic (`W`) because the
+    extraction mixes two `FnMut` families at the two call sites: `Aeneas.Std`'s (via
+    `BuiltinFnMut`, for the plain-function `sibling` map) and `CoreModels`' (for real
+    extracted closures); `Item`/`O` are already pinned by the other two witnesses. -/
 axiom core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.collect
-  {I : Type} {Item : Type} {O : Type} {F : Type} {B : Type}
+  {I : Type} {Item : Type} {O : Type} {F : Type} {B : Type} {W : Type}
   (IteratorInst : core.iter.traits.iterator.Iterator I Item)
-  (FnMutInst : Std.core.ops.function.FnMut F Item O)
+  (FnMutInst : W)
   (FromIteratorInst : core.iter.traits.collect.FromIterator B O) :
   core.iter.adapters.map.Map I F → Result B

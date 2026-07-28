@@ -8,6 +8,7 @@ import Openmls.Extraction.Types
 import Openmls.Extraction.Funs
 import Openmls.Extraction.Specs
 import Openmls.Proofs.Common
+import Openmls.Proofs.BitMath
 open CoreModels Aeneas
 open Aeneas.Std hiding namespace core alloc
 open Result ControlFlow Error
@@ -86,6 +87,18 @@ theorem leading_zeros_spec (x : Std.U32) :
     show (BitVec.ofNat 32 (32 - Nat.log 2 x.bv.toNat - 1)).toNat = 31 - Nat.log 2 x.bv.toNat
     rw [BitVec.toNat_ofNat]
     omega
+
+/-- `u32::trailing_ones` returns the trailing-ones count `tones ↑x`. Total: the
+    `FunsExternal` model is `Nat.find` of the lowest-clear-bit predicate — definitionally
+    the same `Nat.find` as `tones` (proof irrelevance), so this is proved, not admitted.
+    Upstream-PR candidate: CoreModels has no `trailing_ones` model. -/
+@[spec]
+theorem trailing_ones_spec (x : Std.U32) :
+    ⦃ ⌜ True ⌝ ⦄
+    core.num.U32.trailing_ones x
+    ⦃ ⇓ r => ⌜ (↑r : Nat) = tones (↑x : Nat) ⌝ ⦄ := by
+  unfold core.num.U32.trailing_ones
+  mvcgen
 
 /-- `u32::pow` computes `x ^ exp` exactly, as long as the result fits in a `u32`. -/
 @[spec]
