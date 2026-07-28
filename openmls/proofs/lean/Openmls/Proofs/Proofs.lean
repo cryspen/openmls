@@ -367,8 +367,15 @@ private theorem parent_val_lt_two_pow_30 (V k : Nat) (hV : V < 2 ^ 30 - 1)
     Registered `@[spec]`; the official `parent.spec.proof` is derived from it and unregistered.
     `v` is `x`'s tree index, `tones v` its trailing-ones count (BitMath); the parent's tree
     index is the classic formula. Planned Rust backport: ensures phrased via in-crate `level`
-    (no `trailing_ones` — CoreModels lacks a model). -/
-@[spec]
+    (no `trailing_ones` — CoreModels lacks a model).
+
+    NOT YET REGISTERED `@[spec]`.  The swap was attempted and reverted: with `spec_value` registered
+    in place of `parent.spec.proof`, `sibling.spec.proof`'s blanket `scalar_tac` fails on 9 goals
+    (it consumed parent's 3 clauses — bound, `MAX_ROOT_INDEX ∨ valid`, level successor — which the
+    value equation implies but not syntactically), and `parent.spec.proof` itself hits a `simp`
+    `maxRecDepth` in its `vc3.hQ` branch.  Next slice: do the swap together with re-deriving the
+    three clauses for `sibling` (bound via `parent_val_lt_two_pow_30`, validity likewise, level via
+    `tones_parent`/`trailing_unique`). -/
 theorem parent.spec_value (x : TreeNodeIndex)
     (hx : match x with
           | .Leaf l => (↑l : Nat) ≤ 2^29 - 1
@@ -471,9 +478,7 @@ theorem parent.spec_value (x : TreeNodeIndex)
       omega
     exact key _ (by scalar_tac)
 
--- UNREGISTERED (see `parent.spec_value` above): `@[spec]` was moved to the value-carrying spec,
--- which is what callers now step `parent` through.  The statement and proof below are unchanged and
--- fully proved; deriving them from `spec_value` is left to a later slice.
+@[spec]
 theorem parent.spec.proof
   (x : TreeNodeIndex) :
   (parent.pre x).holds →
@@ -800,6 +805,164 @@ def direct_path_loop_inv (s L : Nat)
   (↑p.2 : Nat) < s ∧ tones (↑p.2 : Nat) ≤ L
   ∧ vecLen p.1 = tones (↑p.2 : Nat)
   ∧ ∀ e ∈ p.1.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ 2 * (↑e : Nat) + 1 < s
+
+/-! ### `direct_path`: status of the two halves
+
+    1. **The loop is DONE** — `direct_path_loop_spec` just below.  Recorded because it cost a slice
+       to find: the value-carrying `parent.spec_value` will *not* fire from the `mvcgen` list (the
+       globally registered three-clause `parent.spec.proof` wins, and the VCs arrive carrying
+       `(parent.post …).holds`), and a section-local `attribute [local spec] parent.spec_value` does
+       not override it either — both measured.  What works is `mvcgen`'s simp-style *erasure*
+       `- parent.spec.proof`, which is scoped to the single call, so the global registration that
+       `sibling.spec.proof` and `parent.spec.proof` depend on is untouched: **the registration swap
+       the old blocker note called for is NOT needed.**
+
+    2. **`direct_path.spec.proof` is blocked on the admitted surface, not on maths.**  Its post is
+       index-based (`∀ i < len, (index result i …).holds`) and `AdmittedCoreSpecs.vec_index_spec`
+       has postcondition `⌜ True ⌝` — it delivers no relation between the indexed result and the
+       vector.  So the two `∀ i < len` clauses cannot be discharged from the membership-flavoured
+       invariant, no matter how the loop lemma is phrased.  USER DECISION NEEDED: strengthen
+       `vec_index_spec` to a value-carrying contract (`result = v.1[i]`) on the trusted surface, or
+       leave `direct_path.spec.proof` sorried.  (Not added here: the admitted surface is not the
+       proof agent's to extend.) -/
+
+/-- The `direct_path` walk: from an on-path node `x` inside the tree, repeatedly replace `x` by its
+    parent until the root value `↑r = 2^L − 1` is reached, collecting the parents.  On exit the
+    collected vector has length exactly `L` (`= tones ↑r`, so `≤ 29`) and every entry is `valid`
+    (`≤ 2^29 − 2`) and inside the tree (`2·e + 1 < s`) — i.e. exactly the two per-entry clauses of
+    `direct_path.post`, in membership form.
+
+    The step runs on `parent.spec_value`, forced past the globally registered three-clause
+    `parent.spec.proof` by `mvcgen`'s simp-style erasure `- parent.spec.proof` (see the note above:
+    neither a plain list entry nor a section-local `@[spec]` overrides it).  With `k = tones ↑x` it
+    gives `2·↑p + 1 = 2^(k+2)·(↑x / 2^(k+2)) + (2^(k+1) − 1)`; `parent_val_lt_size` keeps that value
+    `< s`, `tones_parent` raises `tones` by exactly one (so the measure `L − tones ↑x` drops and
+    `vecLen d = tones ↑x` is maintained), and `2·↑p + 1 < s ≤ 2^30 − 1` yields `↑p ≤ 2^29 − 2` for
+    the freshly pushed entry.  `TreeNodeIndex.new` and both `from_tree_index` are unfolded (their
+    registered specs are value-less), which is what exposes `2·(↑x/2) = ↑x` (even) resp.
+    `2·((↑x−1)/2) + 1 = ↑x` (odd) — the link from `spec_value`'s `v` to `↑x` in each parity. -/
+@[spec]
+theorem direct_path_loop_spec (s L : Nat) (r : Std.U32)
+    (d : alloc.vec.Vec ParentNodeIndex) (x : Std.U32)
+    (hs : s = 2 ^ (L + 1) - 1) (hL : L ≤ 29) (hr : (↑r : Nat) = 2 ^ L - 1)
+    (hinv : direct_path_loop_inv s L (d, x)) :
+    ⦃ ⌜ True ⌝ ⦄
+    direct_path_loop r d x
+    ⦃ ⇓ res => ⌜ vecLen res = L
+        ∧ ∀ e ∈ res.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ 2 * (↑e : Nat) + 1 < s ⌝ ⦄ := by
+  -- Numeric shape of the tree size, in numerals: the `2 ^ L` atoms stay out of `scalar_tac`'s way.
+  have hp1 : (1 : Nat) ≤ 2 ^ L := Nat.one_le_two_pow
+  have hpL : (2 : Nat) ^ L ≤ 2 ^ 29 := Nat.pow_le_pow_right (by norm_num) hL
+  have hpS : (2 : Nat) ^ (L + 1) = 2 * 2 ^ L := by rw [pow_succ]; ring
+  have hsnum : s ≤ 1073741823 := by simp only [hs]; omega
+  unfold direct_path_loop
+  apply loop_spec_measure
+    (measure := fun p => L - tones (↑p.2 : Nat))
+    (inv := direct_path_loop_inv s L)
+    -- The `Vec ParentNodeIndex` ascription is REQUIRED: without it `β` is inferred as `Vec ℕ` from
+    -- the `↑e` coercion and `apply` fails to unify.
+    (post := fun (res : alloc.vec.Vec ParentNodeIndex) => vecLen res = L
+        ∧ ∀ e ∈ res.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ 2 * (↑e : Nat) + 1 < s)
+  · exact hinv
+  · rintro ⟨dd, xx⟩ hI
+    obtain ⟨hxs, hxt, hlen, hents⟩ := hI
+    simp only at hxs hxt hlen hents ⊢
+    unfold direct_path_loop.body
+    split
+    · -- `xx ≠ r`: one more step up the path.
+      rename_i hne
+      have hxr : (↑xx : Nat) ≠ 2 ^ L - 1 := by
+        intro h
+        exact absurd (by scalar_tac : xx = r) (by simpa [bne_iff_ne] using hne)
+      have hklt : tones (↑xx : Nat) < L := tones_lt_of_ne_root _ L (by omega) hxt hxr
+      have hxnum : (↑xx : Nat) ≤ 1073741822 := by omega
+      have hPlt : 2 ^ (tones (↑xx : Nat) + 2) * ((↑xx : Nat) / 2 ^ (tones (↑xx : Nat) + 2))
+          + (2 ^ (tones (↑xx : Nat) + 1) - 1) < s := by
+        rw [hs]; exact parent_val_lt_size _ L _ hklt (by omega)
+      have hlen29 : vecLen dd ≤ 29 := by omega
+      have h2u : ((2#u32 : Std.U32) : Nat) = 2 := by simp
+      have h1u : ((1#u32 : Std.U32) : Nat) = 1 := by simp
+      -- `- parent.spec.proof` (local to this call) is what lets `parent.spec_value` fire.
+      mvcgen [parent.spec_value, - parent.spec.proof, TreeNodeIndex.new,
+        LeafNodeIndex.from_tree_index, ParentNodeIndex.from_tree_index, vec_push_spec]
+      -- Even `xx`: the step maintains the invariant and drops the measure.
+      case vc4.hQ =>
+        rename_i b2 hb2e u1 hb2 half hhalf p hval d1 hd1 x1 hx1
+        have heven : (↑xx : Nat) % 2 = 0 := by simpa using hb2e ▸ hb2
+        have hv : 2 * (↑half : Nat) = (↑xx : Nat) := by rw [hhalf, h2u]; omega
+        rw [hv] at hval
+        obtain ⟨hlen1, hlist⟩ := hd1
+        have hx1s : (↑x1 : Nat) < s := by rw [hx1, hval]; exact hPlt
+        have htn : tones (↑x1 : Nat) = tones (↑xx : Nat) + 1 := by
+          rw [hx1, hval]; exact tones_parent _ _
+        have hple : (↑p : Nat) ≤ 2 ^ 29 - 2 := by omega
+        refine ⟨?_, by omega⟩
+        simp only [direct_path_loop_inv]
+        refine ⟨hx1s, by omega, ?_, ?_⟩
+        · rw [hlen1, hlen, htn]
+        · rw [hlist]
+          intro e he
+          rcases List.mem_append.1 he with h | h
+          · exact hents e h
+          · simp only [List.mem_singleton] at h
+            subst h
+            exact ⟨hple, by omega⟩
+      -- Odd `xx`: same, with `2·((↑xx − 1)/2) + 1 = ↑xx`.
+      case vc11.hQ =>
+        rename_i m hm u2 hm1 xm1 hxm1 hxge1 half hhalf p hval d1 hd1 x1 hx1
+        have hodd : (↑xx : Nat) % 2 = 1 := by
+          have hm1' : (↑m : Nat) = 1 := by rw [hm1]; simp
+          rw [hm, h2u] at hm1'; exact hm1'
+        have hv : 2 * (↑half : Nat) + 1 = (↑xx : Nat) := by
+          rw [hhalf, hxm1, h1u, h2u]; omega
+        rw [hv] at hval
+        obtain ⟨hlen1, hlist⟩ := hd1
+        have hx1s : (↑x1 : Nat) < s := by rw [hx1, hval]; exact hPlt
+        have htn : tones (↑x1 : Nat) = tones (↑xx : Nat) + 1 := by
+          rw [hx1, hval]; exact tones_parent _ _
+        have hple : (↑p : Nat) ≤ 2 ^ 29 - 2 := by omega
+        refine ⟨?_, by omega⟩
+        simp only [direct_path_loop_inv]
+        refine ⟨hx1s, by omega, ?_, ?_⟩
+        · rw [hlen1, hlen, htn]
+        · rw [hlist]
+          intro e he
+          rcases List.mem_append.1 he with h | h
+          · exact hents e h
+          · simp only [List.mem_singleton] at h
+            subst h
+            exact ⟨hple, by omega⟩
+      -- `to_tree_index`'s `2·p + 1` cannot overflow: the value equation plus `parent_val_lt_size`
+      -- bound it by `s ≤ 2^30 − 1`.  Even, then odd branch.
+      case vc5.h_fail =>
+        rename_i b2 hb2e u1 hb2 half hhalf p hval d1 hd1 hof
+        have heven : (↑xx : Nat) % 2 = 0 := by simpa using hb2e ▸ hb2
+        have hv : 2 * (↑half : Nat) = (↑xx : Nat) := by rw [hhalf, h2u]; omega
+        rw [hv] at hval
+        have hlt : 2 * (↑p : Nat) + 1 < s := by rw [hval]; exact hPlt
+        scalar_tac
+      case vc12.h_fail =>
+        rename_i m hm u2 hm1 xm1 hxm1 hxge1 half hhalf p hval d1 hd1 hof
+        have hodd : (↑xx : Nat) % 2 = 1 := by
+          have hm1' : (↑m : Nat) = 1 := by rw [hm1]; simp
+          rw [hm, h2u] at hm1'; exact hm1'
+        have hv : 2 * (↑half : Nat) + 1 = (↑xx : Nat) := by
+          rw [hhalf, hxm1, h1u, h2u]; omega
+        rw [hv] at hval
+        have hlt : 2 * (↑p : Nat) + 1 < s := by rw [hval]; exact hPlt
+        scalar_tac
+      -- Residue: the two `spec_value` payload bounds (`↑xx/2 ≤ 2^29−1`, `(↑xx−1)/2 ≤ 2^29−2`), the
+      -- `push` capacity, the parity massertions and the `↑xx − 1` underflow guard — all linear in
+      -- `hxnum` / `hlen29` plus the parity facts.
+      all_goals scalar_tac
+    · -- `xx = r`: done, and `vecLen dd = tones ↑r = L` by `tones_pow_sub_one`.
+      rename_i heq
+      have hxr : (↑xx : Nat) = 2 ^ L - 1 := by
+        have h : (↑xx : Nat) = (↑r : Nat) := by simpa [bne_iff_ne] using heq
+        rw [h, hr]
+      mvcgen
+      refine ⟨?_, hents⟩
+      rw [hlen, hxr, tones_pow_sub_one]
 
 @[spec]
 theorem direct_path.spec.proof (node_index : LeafNodeIndex) (size : TreeSize) :

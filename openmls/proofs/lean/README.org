@@ -41,6 +41,10 @@ Loop specs: =level_loop_spec= proved, =lca_loop0_spec= proved,
 =common_direct_path_loop_spec= sorried (commented draft in-file), =direct_path_loop= /
 =copath_loop= not yet stated.
 
+** Contributions
+
+- Change the ~MAX_TREE_SIZE~ constant https://github.com/openmls/openmls/pull/2136
+
 * High-level tasks
 
 ** TODO Empty the =MissingCoreSpecs.lean=
@@ -53,7 +57,8 @@ Open a PR with those specs
 
 * For AI agents
 
-- =Openmls/Proofs/HANDOFF_*.md= — episode handoffs (proof repair, refactors, re-extraction).
+- =Openmls/Proofs/HANDOFF.md= — the consolidated session handoff (state, architecture,
+  playbook, pending decisions). Single source of truth; superseded episode handoffs deleted.
 - Root =CLAUDE.md= — the broader FV-target roadmap and pipeline.
 
 ** Module layout
@@ -73,6 +78,11 @@ Generated (frozen — hand-overridden, do not regenerate without re-applying ove
 =Openmls/Extraction/{Types,Funs,Specs}.lean=. Hand-derived reference:
 =Openmls/Extraction/ProofObligationsExplicit.lean= (and the Aeneas-generated
 =ProofObligations.lean= it mirrors).
+
+Upstream-issue reproducers live in =Openmls/Issues/= (one issue per file, intentionally
+failing to compile, imported by no build target — see its =README.md=). Current entries:
+the two =scalar_tac= non-termination reproducers (=ScalarTacNatLogLoop.lean=,
+=ScalarTacCyclicHyps.lean=).
 
 ** The proof scheme
 
