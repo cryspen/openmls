@@ -97,14 +97,10 @@ axiom core.Usize.Insts.CoreCmpOrd : core.cmp.Ord Std.Usize
 
 /- ### Iterators (slice iter, vec into-iter, map adapter) -/
 
-/-- `<slice::Iter<'_, T> as Iterator>::next` -/
-axiom core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.next
-  {T : Type} : core.slice.iter.Iter T →
-  Result ((core.option.Option T) × (core.slice.iter.Iter T))
-
-/-- `<&Vec<T> as IntoIterator>::into_iter` -/
-axiom alloc.SharedAVec.Insts.CoreIterTraitsCollectIntoIteratorSharedATIter.into_iter
-  {T : Type} : alloc.vec.Vec T → Result (core.slice.iter.Iter T)
+/- Tombstone: the root-namespace axioms for `<slice::Iter as Iterator>::next` and
+   `<&Vec<T> as IntoIterator>::into_iter` were removed — the current extraction references
+   neither, and `CoreModels` already provides concrete bodies (`slice.iter.Iter.Insts.
+   CoreIterTraitsIteratorIteratorSharedAT.next`, via `seq_len`/`seq_remove`) if ever needed. -/
 
 /-- `<Vec<T> as IntoIterator>::into_iter` -/
 axiom alloc.vec.Vec.Insts.CoreIterTraitsCollectIntoIteratorTIntoIter.into_iter

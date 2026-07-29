@@ -540,17 +540,77 @@ theorem sibling.spec.proof
   hax_mvcgen [sibling]
   all_goals first | scalar_tac | (cases index <;> simp_all <;> scalar_tac)
 
+/-! #### `sibling.pre` discharge lemmas (consumed by `copath.spec.proof`) -/
+
+theorem max_leaf_eq : MAX_LEAF = ok 536870911#u32 := by
+  unfold MAX_LEAF MAX_TREE_INDEX MAX_TREE_SIZE; rfl
+
+theorem max_root_index_eq : MAX_ROOT_INDEX = ok 536870911#u32 := by
+  unfold MAX_ROOT_INDEX MAX_TREE_SIZE; rfl
+
+theorem sibling_pre_leaf (l : LeafNodeIndex) (hl : (↑l : Nat) ≤ 2 ^ 29 - 1) :
+    (sibling.pre (TreeNodeIndex.Leaf l)).holds := by
+  unfold sibling.pre TreeNodeIndex.valid LeafNodeIndex.valid TreeNodeIndex.u32
+  obtain ⟨w, hw, hwv⟩ := mul2_ok l (by omega)
+  simp only [max_leaf_eq, max_root_index_eq, bind_tc_ok, hw]
+  have hle : (↑l : Nat) ≤ 536870911 := by omega
+  have hne : (w != 536870911#u32) = true := by
+    simp only [bne_iff_ne, ne_eq]
+    intro hc
+    rw [hc, show ((536870911#u32 : Std.U32) : Nat) = 536870911 from rfl] at hwv
+    omega
+  simp [hle, hne]; mvcgen
+
+/-- `ParentNodeIndex.to_tree_index p = 2·p + 1` as an ok-equation (no overflow below `2^32`). -/
+theorem ptti_ok (p : ParentNodeIndex) (hp : 2 * (↑p : Nat) + 1 < 2 ^ 32) :
+    ∃ x : Std.U32, ParentNodeIndex.to_tree_index p = ok x ∧ (↑x : Nat) = 2 * (↑p : Nat) + 1 := by
+  unfold ParentNodeIndex.to_tree_index
+  obtain ⟨w, hw, hwv⟩ := mul2_ok p (by
+    have hsz : (2 : Nat) ^ 31 ≤ 2 ^ 32 := Nat.pow_le_pow_right (by norm_num) (by omega); omega)
+  unfold LeafNodeIndex.to_tree_index at hw
+  rw [hw]; simp only [bind_tc_ok]
+  have hadd := Aeneas.Std.UScalar.add_equiv w 1#u32
+  cases hac : (w + 1#u32) with
+  | ok x =>
+    rw [hac] at hadd; obtain ⟨-, hxv, -⟩ := hadd
+    exact ⟨x, rfl, by rw [hxv, show (↑(1#u32) : Nat) = 1 from rfl, hwv]⟩
+  | fail e =>
+    exfalso; rw [hac] at hadd; simp only [Aeneas.Std.UScalar.inBounds] at hadd
+    rw [show (↑(1#u32) : Nat) = 1 from rfl, hwv] at hadd
+    scalar_tac
+  | div => rw [hac] at hadd; exact absurd hadd (by simp)
+
+theorem max_parent_eq : MAX_PARENT = ok 536870910#u32 := by
+  unfold MAX_PARENT MAX_LEAF MAX_TREE_INDEX MAX_TREE_SIZE; rfl
+
+theorem sibling_pre_parent (p : ParentNodeIndex) (hp : (↑p : Nat) ≤ 2 ^ 29 - 2)
+    (hnr : 2 * (↑p : Nat) + 1 ≠ 2 ^ 29 - 1) :
+    (sibling.pre (TreeNodeIndex.Parent p)).holds := by
+  unfold sibling.pre TreeNodeIndex.valid ParentNodeIndex.valid TreeNodeIndex.u32
+  obtain ⟨x, hx, hxv⟩ := ptti_ok p (by omega)
+  simp only [max_parent_eq, max_root_index_eq, bind_tc_ok, hx]
+  have hle : (↑p : Nat) ≤ 536870910 := by omega
+  have hne : (x != 536870911#u32) = true := by
+    simp only [bne_iff_ne, ne_eq]
+    intro hc
+    rw [hc, show ((536870911#u32 : Std.U32) : Nat) = 536870911 from rfl] at hxv
+    omega
+  simp [hle, hne]; mvcgen
+
 /-! ### `direct_path`: the on-path walk -/
 
 /-- Loop invariant for `direct_path_loop` on the state `(d, x)`, with `s = ↑size = 2^(L+1) − 1`:
     `↑x < s` (inside the tree), `tones ↑x ≤ L` (on the direct path), `vecLen d = tones ↑x` (which
     yields the postcondition's `len ≤ 30`), and every collected parent `valid` and inside the tree.
-    The measure is `L − tones ↑x`. -/
+    The final POSITIONAL clause pins the entry at index `i` to the level-`(i+1)` ancestor
+    (`tones` of its tree index `2·e+1` is exactly `i+1`), which is what lets `direct_path.spec_pure`
+    read off the path level-by-level.  The measure is `L − tones ↑x`. -/
 def direct_path_loop_inv (s L : Nat)
     (p : alloc.vec.Vec ParentNodeIndex × Std.U32) : Prop :=
   (↑p.2 : Nat) < s ∧ tones (↑p.2 : Nat) ≤ L
   ∧ vecLen p.1 = tones (↑p.2 : Nat)
-  ∧ ∀ e ∈ p.1.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ 2 * (↑e : Nat) + 1 < s
+  ∧ (∀ e ∈ p.1.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ 2 * (↑e : Nat) + 1 < s)
+  ∧ ∀ i (hi : i < p.1.1.length), tones (2 * (↑p.1.1[i] : Nat) + 1) = i + 1
 
 /-- The `direct_path` walk: from an on-path node `x` inside the tree, repeatedly replace `x` by its
     parent until the root value `↑r = 2^L − 1` is reached, collecting the parents.  On exit the
@@ -568,7 +628,8 @@ theorem direct_path_loop_spec (s L : Nat) (r : Std.U32)
     ⦃ ⌜ True ⌝ ⦄
     direct_path_loop r d x
     ⦃ ⇓ res => ⌜ vecLen res = L
-        ∧ ∀ e ∈ res.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ 2 * (↑e : Nat) + 1 < s ⌝ ⦄ := by
+        ∧ (∀ e ∈ res.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ 2 * (↑e : Nat) + 1 < s)
+        ∧ ∀ i (hi : i < res.1.length), tones (2 * (↑res.1[i] : Nat) + 1) = i + 1 ⌝ ⦄ := by
   -- Numeric shape of the tree size, in numerals: the `2 ^ L` atoms stay out of `scalar_tac`'s way.
   have hp1 : (1 : Nat) ≤ 2 ^ L := Nat.one_le_two_pow
   have hpL : (2 : Nat) ^ L ≤ 2 ^ 29 := Nat.pow_le_pow_right (by norm_num) hL
@@ -581,11 +642,12 @@ theorem direct_path_loop_spec (s L : Nat) (r : Std.U32)
     -- The `Vec ParentNodeIndex` ascription is REQUIRED: without it `β` is inferred as `Vec ℕ` from
     -- the `↑e` coercion and `apply` fails to unify.
     (post := fun (res : alloc.vec.Vec ParentNodeIndex) => vecLen res = L
-        ∧ ∀ e ∈ res.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ 2 * (↑e : Nat) + 1 < s)
+        ∧ (∀ e ∈ res.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ 2 * (↑e : Nat) + 1 < s)
+        ∧ ∀ i (hi : i < res.1.length), tones (2 * (↑res.1[i] : Nat) + 1) = i + 1)
   · exact hinv
   · rintro ⟨dd, xx⟩ hI
-    obtain ⟨hxs, hxt, hlen, hents⟩ := hI
-    simp only at hxs hxt hlen hents ⊢
+    obtain ⟨hxs, hxt, hlen, hents, hpos⟩ := hI
+    simp only at hxs hxt hlen hents hpos ⊢
     unfold direct_path_loop.body
     split
     · -- `xx ≠ r`: one more step up the path.
@@ -615,9 +677,12 @@ theorem direct_path_loop_spec (s L : Nat) (r : Std.U32)
         have htn : tones (↑x1 : Nat) = tones (↑xx : Nat) + 1 := by
           rw [hx1, hval]; exact tones_parent _ _
         have hple : (↑p : Nat) ≤ 2 ^ 29 - 2 := by omega
+        -- The pushed entry's tree index is the parent of `↑xx`, so its `tones` is one higher.
+        have htp : tones (2 * (↑p : Nat) + 1) = tones (↑xx : Nat) + 1 := by
+          rw [← hx1]; exact htn
         refine ⟨?_, by omega⟩
         simp only [direct_path_loop_inv]
-        refine ⟨hx1s, by omega, ?_, ?_⟩
+        refine ⟨hx1s, by omega, ?_, ?_, ?_⟩
         · rw [hlen1, hlen, htn]
         · rw [hlist]
           intro e he
@@ -626,6 +691,15 @@ theorem direct_path_loop_spec (s L : Nat) (r : Std.U32)
           · simp only [List.mem_singleton] at h
             subst h
             exact ⟨hple, by omega⟩
+        · rw [hlist]
+          intro i hi
+          rcases Nat.lt_or_ge i dd.1.length with h | h
+          · rw [List.getElem_append_left h]; exact hpos i h
+          · have hie : i = dd.1.length := by
+              simp only [List.length_append, List.length_cons, List.length_nil] at hi; omega
+            rw [List.getElem_concat_length hie, htp]
+            have hll : dd.1.length = tones (↑xx : Nat) := hlen
+            omega
       -- Odd `xx`: same, with `2·((↑xx − 1)/2) + 1 = ↑xx`.
       case vc11.hQ =>
         rename_i m hm u2 hm1 xm1 hxm1 hxge1 half hhalf p hval d1 hd1 x1 hx1
@@ -640,9 +714,11 @@ theorem direct_path_loop_spec (s L : Nat) (r : Std.U32)
         have htn : tones (↑x1 : Nat) = tones (↑xx : Nat) + 1 := by
           rw [hx1, hval]; exact tones_parent _ _
         have hple : (↑p : Nat) ≤ 2 ^ 29 - 2 := by omega
+        have htp : tones (2 * (↑p : Nat) + 1) = tones (↑xx : Nat) + 1 := by
+          rw [← hx1]; exact htn
         refine ⟨?_, by omega⟩
         simp only [direct_path_loop_inv]
-        refine ⟨hx1s, by omega, ?_, ?_⟩
+        refine ⟨hx1s, by omega, ?_, ?_, ?_⟩
         · rw [hlen1, hlen, htn]
         · rw [hlist]
           intro e he
@@ -651,6 +727,15 @@ theorem direct_path_loop_spec (s L : Nat) (r : Std.U32)
           · simp only [List.mem_singleton] at h
             subst h
             exact ⟨hple, by omega⟩
+        · rw [hlist]
+          intro i hi
+          rcases Nat.lt_or_ge i dd.1.length with h | h
+          · rw [List.getElem_append_left h]; exact hpos i h
+          · have hie : i = dd.1.length := by
+              simp only [List.length_append, List.length_cons, List.length_nil] at hi; omega
+            rw [List.getElem_concat_length hie, htp]
+            have hll : dd.1.length = tones (↑xx : Nat) := hlen
+            omega
       -- `to_tree_index`'s `2·p + 1` cannot overflow: the value equation plus `parent_val_lt_size`
       -- bound it by `s ≤ 2^30 − 1`.  Even, then odd branch.
       case vc5.h_fail =>
@@ -679,8 +764,75 @@ theorem direct_path_loop_spec (s L : Nat) (r : Std.U32)
         have h : (↑xx : Nat) = (↑r : Nat) := by simpa [bne_iff_ne] using heq
         rw [h, hr]
       mvcgen
-      refine ⟨?_, hents⟩
+      refine ⟨?_, hents, hpos⟩
       rw [hlen, hxr, tones_pow_sub_one]
+
+/-- Pure membership-form companion of `direct_path.spec` (statement USER-VALIDATED 2026-07-28;
+    the Rust spec may later gain clause 3 phrased via `level`).
+    Clause 1-2 are the Rust post in membership form: at most 29 entries, every entry `valid`
+    (`≤ 2^29 − 2 = MAX_PARENT`) and below `parent_count size = ↑size / 2`. Clause 3 is a
+    positional strengthening needed by `copath`: the entry at position `i` is the level-`i+1`
+    ancestor (`tones (2·e+1) = i+1`), so after `pop` no remaining entry can be the root.
+    Deliberately NOT `@[spec]`-registered: the official registration is `direct_path.spec.proof`;
+    this companion is consumed by explicit application / scoped erasure at its call sites. -/
+theorem direct_path.spec_pure (node_index : LeafNodeIndex) (size : TreeSize)
+    (h : (direct_path.pre node_index size).holds) :
+    ⦃ ⌜ True ⌝ ⦄
+    direct_path node_index size
+    ⦃ ⇓ res => ⌜ vecLen res ≤ 29
+        ∧ (∀ e ∈ res.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ (↑e : Nat) < (↑size : Nat) / 2)
+        ∧ (∀ i, (hi : i < res.1.length) → tones (2 * (↑res.1[i] : Nat) + 1) = i + 1) ⌝ ⦄ := by
+  -- ERASURE RECIPE: `root.spec.proof`'s post (`res.valid ∧ res.u32 < size`) is too weak — the loop
+  -- spec needs the root VALUE `↑r = 2^L − 1`.  So `root` is stepped by its body
+  -- (`- root.spec.proof, root`, plus the two `from_tree_index` unfolds inside `TreeNodeIndex.new`),
+  -- which is where `log2_mvcgen_spec` supplies `↑ = Nat.log 2 ↑size`.  `direct_path_loop_spec` is
+  -- erased too: its `s`/`L` are explicit arguments no unifier can guess, so it is applied by hand.
+  apply triple_in_hypothesis (h := h) ; clear h
+  hax_mvcgen [direct_path.pre, direct_path, - root.spec.proof, root, TreeNodeIndex.new,
+    LeafNodeIndex.from_tree_index, ParentNodeIndex.from_tree_index,
+    - direct_path_loop_spec]
+  -- Same `Nat.log`-quarantine preamble as `root.spec.proof`: make `L := Nat.log 2 ↑size` opaque
+  -- (term-level `of_decide_eq_true`, then `clear_value`) BEFORE any `scalar_tac` runs.
+  all_goals
+    (obtain ⟨hs1, hs2, hs3⟩ :=
+        of_decide_eq_true
+          (show decide (1 ≤ (↑size : Nat) ∧ (↑size : Nat) ≤ 2 ^ 30 - 1 ∧
+              (↑size : Nat) = 2 ^ (Nat.log 2 (↑size : Nat) + 1) - 1) = true by assumption)
+     set L := Nat.log 2 (↑size : Nat) with hLdef
+     clear hLdef
+     clear_value L
+     have hL29 : L ≤ 29 := by
+       by_contra hc
+       have : (2 : Nat) ^ 31 ≤ 2 ^ (L + 1) := Nat.pow_le_pow_right (by omega) (by omega)
+       omega
+     have hp1 : (1 : Nat) ≤ 2 ^ L := Nat.one_le_two_pow
+     have hp29 : (2 : Nat) ^ L ≤ 2 ^ 29 := Nat.pow_le_pow_right (by omega) hL29
+     have hpow : (2 : Nat) ^ (L + 1) = 2 * 2 ^ L := by rw [pow_succ]; ring
+     have hsh : 1 <<< L % Aeneas.Std.U32.size = 2 ^ L := one_shiftLeft_mod_eq L (by omega)
+     try scalar_tac)
+  -- The two surviving goals are the loop call, once per `TreeNodeIndex.new` branch: `2^L − 1` is
+  -- even only for `L = 0` (the singleton tree), odd otherwise, and BOTH reconstructions collapse
+  -- back to `↑rt = 2^L − 1` by `omega`.  The last EIGHT inaccessible hypotheses sit at the same
+  -- depth in both branches — root value, `Vec::new`, `to_tree_index`, then the two hypotheses the
+  -- `set L` above re-introduced at the very end (`hdec`/`hlog`); the `rename_i` count must cover
+  -- those two as well or the names slide by two slots.
+  all_goals
+    (rename_i rt hrt dv hdv xv hxv hdec hlog
+     have hx2 : (↑xv : Nat) = 2 * (↑node_index : Nat) := by scalar_tac
+     have hxt : tones (↑xv : Nat) = 0 := tones_even _ (by omega)
+     have hinv : direct_path_loop_inv (↑size : Nat) L (dv, xv) := by
+       simp only [direct_path_loop_inv]
+       refine ⟨by scalar_tac, by rw [hxt]; omega, ?_, ?_, ?_⟩
+       · rw [hxt]; exact hdv.1
+       · rw [hdv.2]; simp
+       · rw [hdv.2]; simp
+     mspec (direct_path_loop_spec (↑size : Nat) L rt dv xv (by omega) hL29 (by scalar_tac) hinv)
+     intro hpost
+     obtain ⟨hlen, hents, hpos⟩ := hpost
+     refine ⟨by omega, ?_, hpos⟩
+     intro e he
+     obtain ⟨he1, he2⟩ := hents e he
+     exact ⟨he1, by omega⟩)
 
 @[spec]
 theorem direct_path.spec.proof (node_index : LeafNodeIndex) (size : TreeSize) :
@@ -689,17 +841,116 @@ theorem direct_path.spec.proof (node_index : LeafNodeIndex) (size : TreeSize) :
   direct_path node_index size
   ⦃ ⇓ res => ⌜ (direct_path.post node_index size res).holds ⌝ ⦄
   := by
-  intros
-  mvcgen [direct_path] <;> try scalar_tac
-  all_goals sorry
+  -- The function's behaviour comes entirely from `direct_path.spec_pure` (membership form); the
+  -- Rust post is then re-derived by STEPPING THE POST do-block (`len`/`deref`/`iter`/`all`).
+  -- SELF-SPEC HAZARD: this very theorem is `@[spec]`-registered, so it must be erased from the
+  -- `mvcgen` set (`- direct_path.spec.proof`) or the call would be discharged by itself.
+  -- The `all` step goes through the trusted `slice_iter_all_spec`, whose predicate `P` is not
+  -- inferable: it arrives as the `vc1.P` goal (a `Bool` with the element in scope) and is
+  -- instantiated with the pointwise value of the Rust closure `__18.ensures.closure`.
+  intro h_pre
+  unfold direct_path.post
+  hax_mvcgen [- direct_path.spec.proof, direct_path.spec_pure]
+  case vc1.P =>
+    rename_i e
+    exact decide ((↑e : Nat) ≤ 2 ^ 29 - 2 ∧ (↑e : Nat) < (↑size : Nat) / 2)
+  case vc1.hQ =>
+    rename_i h1 e1 he1 e2 he2 hlt h2 f1 hf1 f2 hf2
+    clear h1 h2
+    scalar_tac
+  case vc2.hcall =>
+    rename_i e he
+    unfold __18.ensures.closure.Insts.CoreOpsFunctionFnMutTupleSharedParentNodeIndexBool.call_mut
+      ParentNodeIndex.valid ParentNodeIndex.u32 TreeSize.parent_count
+    rw [show binary_tree.array_representation.treemath.MAX_PARENT = ok 536870910#u32 by
+      unfold MAX_PARENT MAX_LEAF MAX_TREE_INDEX MAX_TREE_SIZE; rfl]
+    obtain ⟨q, hq, hqv⟩ := Aeneas.Std.UScalar.div_spec (x := size) (y := 2#u32) (by scalar_tac)
+    simp [hq, hqv]
+    split <;> rename_i hb <;> simp [hb]
+  case vc3 =>
+    rename_i hpre e1 he1 e2 he2 hlt v hlen hents hposs l hl29 hlv s hs it hit p hp
+    rw [hp]
+    simp only [sliceIterElems, hit, hs, List.all_eq_true, decide_eq_true_eq]
+    intro e he
+    exact hents e he
+  case vc4 =>
+    rename_i hpre e1 he1 e2 he2 hlt v hlen hents hposs l hl29 hlv
+    clear hpre
+    scalar_tac
 
 @[spec]
 theorem copath.spec.proof (leaf_index : LeafNodeIndex) (size : TreeSize) :
   (copath.pre leaf_index size).holds →
   ⦃ ⌜ True ⌝ ⦄ copath leaf_index size ⦃ ⇓ res => ⌜ True ⌝ ⦄
   := by
-  hax_mvcgen [copath]
-  all_goals sorry
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  hax_mvcgen [copath, - copath.spec.proof, - direct_path.spec.proof, direct_path.spec_pure,
+    slice_iter_map_collect_spec, into_map_collect_spec]
+  case vc1.hQ =>
+    rename_i h1 e1 he1 e2 he2 hlt h2 f1 hf1 f2 hf2
+    clear h1 h2
+    scalar_tac
+  case vc4.hQ =>
+    rename_i hdec e1 he1 e2 he2 hlt dp hdp b hbne hb pr hpr
+    obtain ⟨hsz1, hsz, hsz3⟩ := of_decide_eq_true hdec
+    clear hdec
+    obtain ⟨hlen29, hents, hposs⟩ := hdp
+    obtain ⟨hpr2, -⟩ := hpr
+    simp only [alloc.slice.Slice.into_vec]
+    mvcgen [alloc.slice.Dummy.into_vec, rust_primitives.sequence.seq_from_boxed_slice,
+      alloc.vec.from_seq, slice_iter_map_collect_spec, into_map_collect_spec]
+    -- mvcgen stalls at the `map`/`collect` pair: apply the trusted contract by hand.
+    rename_i s hs it hit
+    have hmc := slice_iter_map_collect_spec
+      copath.closure.Insts.CoreOpsFunctionFnMutTupleSharedParentNodeIndexTreeNodeIndex
+      it () TreeNodeIndex.Parent (by intro e he; rfl)
+    obtain ⟨mv, hmv⟩ := triple_noThrow_exists_ok hmc
+    have hmvp := triple_noThrow_elim hmc hmv
+    simp only [SPred.down_pure] at hmvp
+    rw [← Std.Do.WP.bind, ← bind_assoc, hmv]
+    simp only [bind_tc_ok]
+    mvcgen [vec_append_spec, into_map_collect_spec]
+    · -- `Vec::append` capacity: `|[Leaf leaf_index]| + |dp.dropLast| = 1 + (|dp| − 1) ≤ Usize.max`.
+      simp only [hmvp, List.length_map, sliceIterElems, hit, hs, hpr2, List.length_dropLast]
+      simp only [Aeneas.Std.Array.to_slice, Aeneas.Std.Array.make, List.length_cons,
+        List.length_nil, Nat.zero_add]
+      have hne0 : vecLen dp ≠ 0 := by intro hh; exact hbne (by rw [hb, hh]; rfl)
+      rw [vecLen_eq_length] at hne0
+      have hdm : dp.val.length ≤ Std.Usize.max := dp.property
+      omega
+    · -- The final `into_iter` / `map sibling` / `collect`.  `mvcgen` will not re-associate the
+      -- three-step do-block into the shape of `into_map_collect_spec`, so the trusted contract is
+      -- applied by hand (as for `slice_iter_map_collect_spec` above), with
+      --   `hsafe : ∀ e ∈ [Leaf leaf_index] ++ (dp.dropLast).map Parent, ⦃True⦄ sibling e ⦃True⦄`
+      -- derived from the registered `sibling.spec.proof` by computing `(sibling.pre e).holds`.
+      rename_i r hr
+      have hrl : r.1.val
+          = TreeNodeIndex.Leaf leaf_index :: (dp.val.dropLast).map TreeNodeIndex.Parent := by
+        rw [hr.1, hmvp]
+        simp only [sliceIterElems, hit, hs, hpr2, Aeneas.Std.Array.to_slice,
+          Aeneas.Std.Array.make, List.cons_append, List.nil_append]
+      have hsafe : ∀ e ∈ r.1.val, ⦃ ⌜ True ⌝ ⦄ sibling e ⦃ ⇓ _ => ⌜ True ⌝ ⦄ := by
+        intro t ht
+        rw [hrl] at ht
+        refine sibling.spec.proof t ?_
+        rcases List.mem_cons.1 ht with rfl | hR
+        · -- `Leaf leaf_index`: `↑leaf_index < ↑size/2 + 1 ≤ 2^29` and `2·leaf` is even.
+          refine sibling_pre_leaf leaf_index ?_
+          have hlt' : (↑e1 : Nat) < (↑e2 : Nat) := by
+            simpa only [u32_lt_nat] using of_decide_eq_true hlt
+          rw [he1, he2] at hlt'
+          omega
+        · -- `Parent p` with `p ∈ dp.dropLast`.
+          obtain ⟨p, hp, rfl⟩ := List.mem_map.1 hR
+          refine sibling_pre_parent p (hents p (List.dropLast_subset _ hp)).1 ?_
+          have hlen' : dp.val.length ≤ 29 := by
+            simpa only [vecLen_eq_length] using hlen29
+          exact dropLast_entries_ne_max_root dp.val hlen' hposs p hp
+      have hcol := into_map_collect_spec r.1 sibling hsafe
+      obtain ⟨cv, hcv⟩ := triple_noThrow_exists_ok hcol
+      rw [← Std.Do.WP.bind, hcv]
+      trivial
 
 @[spec]
 theorem lowest_common_ancestor.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex) :

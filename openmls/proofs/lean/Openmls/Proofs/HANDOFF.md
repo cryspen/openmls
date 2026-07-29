@@ -130,10 +130,44 @@ body rewritten (vec![leaf] + append + slice-iter map/collect). **Census: 19 obli
 
 1. RETIRED: `vec_index_spec` strengthening — the new membership-form `direct_path.post`
    (iter().all) removed the need; `direct_path.spec_pure` (validated) is the consumption route.
-2. `copath`/`direct_path` package (STOP LINE): admitted `slice_iter_all_spec` +
-   `slice_iter_map_collect_spec` drafts presented 2026-07-28, awaiting user validation; proved
-   specs for `deref`/`Slice.iter`/`Vec.append` to be added to MissingCoreSpecs (CoreModels
-   real defs); then spec_pure proof from direct_path_loop_spec; then copath.
+2. `copath`/`direct_path` package steps 1-4 DONE (2026-07-28 evening, user-directed):
+   - Recon: `Iter T` = `Seq T` = `Aeneas.Std.Slice T` (CONCRETE); pop/is_empty/append/deref/
+     Slice.iter are real CoreModels defs; SharedAVec-into_iter + Iter.next axioms were dead
+     (deleted from FunsExternal with their admitted contracts).
+   - Spec layer: MissingCoreSpecs gained PROVED vec_is_empty/vec_pop (post: dropLast +
+     getLast decomposition)/vec_deref_slice/slice_iter_of_slice/vec_append specs;
+     AdmittedCoreSpecs = 10 contracts (−4 retired, +2 user-validated slice_iter_all_spec /
+     slice_iter_map_collect_spec); sliceIterElems is now a REAL def (it.val), not opaque.
+     Side effect: the new registered specs let hax_mvcgen step the new copath body — its
+     old `all_goals sorry` scaffold elaborates again (gate 0 errors).
+   - direct_path_loop_inv/_spec STRENGTHENED with the positional clause
+     (`∀ i < len, tones (2·l[i]+1) = i+1`); `direct_path.spec_pure` MOVED to Proofs.lean
+     (user ruling (a); placed after the loop spec, unregistered) and PROVED — root's VALUE
+     needed the erasure recipe (`- root.spec.proof, root, TreeNodeIndex.new,
+     from_tree_index ×2`) and manual `mspec` application of the loop spec (explicit s/L);
+     `set L := Nat.log …` re-introduces Nat.log hypotheses at the END of the context
+     (rename_i budgets +2 slots).
+   - `dropLast_entries_ne_max_root` PROVED in PureSpecs (popped entries ≠ max-root, via
+     tones_pow_sub_one; instantiates verbatim with spec_pure clauses 1+3).
+   Step 5 DONE (2026-07-28 night): `direct_path.spec.proof` PROVED (hax_mvcgen with
+   `- direct_path.spec.proof` erasure + spec_pure in the list; `unfold direct_path.post`
+   first; slice_iter_all_spec's non-inferable P arrives as a bare `vc1.P : Bool` goal;
+   hcall by unfold-the-closure + MAX_* `= ok` rewrites + UScalar.div_spec ∃-triple + split).
+   `copath.spec.proof` PROVED (5b+5c): key mechanics — mvcgen is INERT on multi-step admitted
+   contracts (slice_iter_map_collect_spec / into_map_collect_spec): apply by hand via
+   `have h := <contract> …; obtain ⟨v,hv⟩ := triple_noThrow_exists_ok h;
+   rw [← Std.Do.WP.bind, hv]` (bind_assoc only if shapes mismatch — for the final trio NO
+   bind_assoc); `into_vec` steps only via `simp only [alloc.slice.Slice.into_vec]` then
+   `mvcgen [alloc.slice.Dummy.into_vec, seq_from_boxed_slice, alloc.vec.from_seq]` (lifted
+   Dummy twin, exists in no source file); hsafe per element from sibling.spec.proof +
+   new helpers `sibling_pre_leaf`/`sibling_pre_parent`/`ptti_ok`/`max_*_eq` (Proofs.lean,
+   sibling section) + dropLast_entries_ne_max_root + spec_pure clauses.
+
+## FINAL STATE: 19/19 obligations proved, gate 0 errors, ZERO work-sorries.
+   Sorry census = exactly the 10 admitted contracts in AdmittedCoreSpecs.lean.
+   Optional cleanups parked: promote ptti_ok to PureSpecs next to mul2_ok; share the
+   max_*_eq constants (direct_path.spec.proof has an inline duplicate of max_parent_eq);
+   delete Proof_bck.lean (its useful blocks are lifted); the 4 cosmetic linter warnings.
 3. Rust backport (option C part 2): parent's value ensures phrased via in-crate `level`
    (NOT `trailing_ones` — CoreModels has no model). Retires `parent.spec_value` after
    re-extraction. The domain-constants refactor + `TreeNodeIndex::new` off-by-one fix are

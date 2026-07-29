@@ -207,26 +207,25 @@ theorem lca_level_one {xn : Nat} {xv : Std.U32} {k k1 : Std.Usize}
   rw [hk1', hxv, h2, Nat.shiftRight_eq_div_pow, pow_one]
   omega
 
+/-- No non-final `direct_path` entry is the maximal tree's root: entry `i` has
+    `tones (2·e+1) = i+1 ≤ 28` on the popped list, while the root value `2^29 − 1` has
+    `tones = 29`. Feeds `sibling.pre` in `copath.spec.proof`. -/
+theorem dropLast_entries_ne_max_root (l : List ParentNodeIndex)
+    (hlen : l.length ≤ 29)
+    (hpos : ∀ i (hi : i < l.length), tones (2 * (↑l[i] : Nat) + 1) = i + 1) :
+    ∀ e ∈ l.dropLast, 2 * (↑e : Nat) + 1 ≠ 2 ^ 29 - 1 := by
+  intro e he heq
+  obtain ⟨i, hi, hie⟩ := List.getElem_of_mem he
+  rw [List.length_dropLast] at hi
+  have hi' : i < l.length := by omega
+  have hle : l[i] = e := by rw [← hie, List.getElem_dropLast]
+  have ht := hpos i hi'
+  rw [hle, heq, tones_pow_sub_one] at ht
+  omega
+
 end binary_tree.array_representation.treemath
 
-/-! ### Pure companion specs (statements user-validated 2026-07-28) -/
-
-/-- Pure membership-form companion of `direct_path.spec` (statement USER-VALIDATED 2026-07-28;
-    the Rust spec may later gain clause 3 phrased via `level`).
-    Clause 1-2 are the Rust post in membership form: at most 29 entries, every entry `valid`
-    (`≤ 2^29 − 2 = MAX_PARENT`) and below `parent_count size = ↑size / 2`. Clause 3 is a
-    positional strengthening needed by `copath`: the entry at position `i` is the level-`i+1`
-    ancestor (`tones (2·e+1) = i+1`), so after `pop` no remaining entry can be the root.
-    NOT `@[spec]`-registered while the proof is incomplete. -/
-theorem binary_tree.array_representation.treemath.direct_path.spec_pure
-    (node_index : binary_tree.array_representation.treemath.LeafNodeIndex)
-    (size : binary_tree.array_representation.treemath.TreeSize)
-    (h : (binary_tree.array_representation.treemath.direct_path.pre node_index size).holds) :
-    ⦃ ⌜ True ⌝ ⦄
-    binary_tree.array_representation.treemath.direct_path node_index size
-    ⦃ ⇓ res => ⌜ vecLen res ≤ 29
-        ∧ (∀ e ∈ res.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ (↑e : Nat) < (↑size : Nat) / 2)
-        ∧ (∀ i, (hi : i < res.1.length) → tones (2 * (↑res.1[i] : Nat) + 1) = i + 1) ⌝ ⦄ := by
-  sorry -- TODO(proof): from direct_path_loop_spec once repaired (lives in Proofs.lean)
+-- NOTE: `direct_path.spec_pure` used to live here; it moved to `Openmls/Proofs/Proofs.lean`
+-- (right after `direct_path_loop_spec`, which is what proves it) — user ruling 2026-07-28.
 
 end openmls

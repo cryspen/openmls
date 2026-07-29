@@ -54,6 +54,98 @@ theorem vec_with_capacity_spec (T : Type) (c : Std.Usize) :
     rust_primitives.sequence.seq_empty vecLen
   mvcgen
 
+/-- `Vec::is_empty` returns `decide (vecLen v = 0)` — proved from the `seq_len` body. -/
+@[spec]
+theorem vec_is_empty_spec {T : Type} (v : alloc.vec.Vec T) :
+    ⦃ ⌜ True ⌝ ⦄
+    alloc.vec.Vec.is_empty v
+    ⦃ ⇓ b => ⌜ b = decide (vecLen v = 0) ⌝ ⦄ := by
+  unfold alloc.vec.Vec.is_empty vecLen CoreModels.rust_primitives.sequence.seq_len
+  mvcgen
+  simp only [Aeneas.Std.Slice.length]
+  scalar_tac
+
+/-- `Vec::pop` never fails: on a nonempty vec it returns the last element and the vec with its
+    last element dropped; on an empty vec it returns `None` and the vec unchanged. Proved from
+    the `seq_len`/`seq_remove` bodies. -/
+@[spec]
+theorem vec_pop_spec {T : Type} (v : alloc.vec.Vec T) :
+    ⦃ ⌜ True ⌝ ⦄
+    alloc.vec.Vec.pop v
+    ⦃ ⇓ res => ⌜ res.2.1 = v.1.dropLast
+        ∧ (v.1 ≠ [] → ∃ x, res.1 = core.option.Option.Some x ∧ v.1 = res.2.1 ++ [x]) ⌝ ⦄ := by
+  unfold alloc.vec.Vec.pop CoreModels.rust_primitives.sequence.seq_len
+    CoreModels.rust_primitives.sequence.seq_remove
+  mvcgen
+  case vc1.hQ =>
+    -- Nonempty, in-bounds: `seq_remove` at `len − 1` is `take (len−1) ++ drop len`, i.e.
+    -- `dropLast`, and the removed element is `getLast`.
+    rename_i r hr h1 hlt
+    have hrv : (↑r : Nat) = v.1.length - 1 := by scalar_tac
+    have hpos : 0 < v.1.length := by scalar_tac
+    have hne : v.1 ≠ [] := List.ne_nil_of_length_pos hpos
+    have hdrop : List.drop ((↑r : Nat) + 1) v.1 = [] :=
+      List.drop_eq_nil_of_le (by omega)
+    have htake : List.take (↑r : Nat) v.1 = v.1.dropLast := by
+      rw [List.dropLast_eq_take, hrv]
+    refine ⟨by rw [hdrop, List.append_nil, htake], fun _ => ⟨_, rfl, ?_⟩⟩
+    rw [hdrop, List.append_nil, htake]
+    conv_lhs => rw [← List.dropLast_append_getLast hne]
+    congr 1
+    simp [List.getLast_eq_getElem, List.get_eq_getElem, hrv]
+  case vc2.hQ =>
+    -- `len − 1 < length` cannot fail on a nonempty vec.
+    exfalso; scalar_tac
+  case vc3.h_fail =>
+    -- `len > 0` and `len < 1` is absurd.
+    exfalso; scalar_tac
+  case vc4.hQ =>
+    -- Empty vec: `dropLast [] = []` and the implication is vacuous.
+    have hnil : v.1 = [] := by
+      have h0 : v.1.length = 0 := by scalar_tac
+      exact List.eq_nil_of_length_eq_zero h0
+    simp [hnil]
+
+/-- `<Vec<T> as Deref<[T]>>::deref` exposes the vec's contents as a slice with the same list.
+    Proved from the `seq_to_slice` body (the identity on the underlying `Seq`). -/
+@[spec]
+theorem vec_deref_slice_spec {T : Type} (v : alloc.vec.Vec T) :
+    ⦃ ⌜ True ⌝ ⦄
+    alloc.vec.Vec.Insts.CoreOpsDerefDerefSlice.deref v
+    ⦃ ⇓ s => ⌜ s.val = v.1 ⌝ ⦄ := by
+  unfold alloc.vec.Vec.Insts.CoreOpsDerefDerefSlice.deref alloc.vec.Vec.as_slice
+    CoreModels.rust_primitives.sequence.seq_to_slice
+  mvcgen
+
+/-- `<[T]>::iter` yields an iterator whose remaining elements are exactly the slice's. Proved
+    from the `seq_from_slice` body (the identity). Phrased on `.val` directly rather than via
+    `sliceIterElems` (which lives in the sibling `AdmittedCoreSpecs.lean`, not imported here);
+    the two are definitionally equal. -/
+@[spec]
+theorem slice_iter_of_slice_spec {T : Type} (s : Slice T) :
+    ⦃ ⌜ True ⌝ ⦄
+    core.slice.Slice.iter s
+    ⦃ ⇓ it => ⌜ it.val = s.val ⌝ ⦄ := by
+  unfold CoreModels.core.slice.Slice.iter CoreModels.rust_primitives.sequence.seq_from_slice
+  mvcgen
+
+/-- `Vec::append` moves `other`'s elements onto the end of `self` and leaves `other` empty.
+    Fails only when the concatenation would exceed `Usize.max` (the `seq_concat` body). -/
+@[spec]
+theorem vec_append_spec {T : Type} (self other : alloc.vec.Vec T) :
+    ⦃ ⌜ self.1.length + other.1.length ≤ Std.Usize.max ⌝ ⦄
+    alloc.vec.Vec.append self other
+    ⦃ ⇓ r => ⌜ r.1.1 = self.1 ++ other.1 ∧ r.2.1 = [] ⌝ ⦄ := by
+  unfold alloc.vec.Vec.append CoreModels.rust_primitives.sequence.seq_concat
+    CoreModels.rust_primitives.sequence.seq_empty
+  mvcgen
+  -- Only the `maximumSizeExceeded` branch survives; it contradicts the precondition.
+  exfalso
+  rename_i hpre hcomb hgt
+  have hc : hcomb = self.1 ++ other.1 := rfl
+  rw [hc, List.length_append] at hgt
+  omega
+
 /-- `u32::is_multiple_of` returns exactly the divisibility test `x % y == 0`.
     Total (the `FunsExternal` model is a pure `ok`), so this is proved, not admitted. -/
 @[spec]
