@@ -206,24 +206,6 @@ theorem parent_lt (d k q : Nat) (hkd : k < d) (hq : q < 2 ^ (d - 1 - k)) :
   have hp1 : 2 ^ (k + 2) ≤ 2 ^ (d + 1) := Nat.pow_le_pow_right (by norm_num) (by omega)
   omega
 
-/-- A node value bounded by `2^(d+1)` with level `≤ d ≤ 30` is `< 2^31 − 1` (it can't be the
-    31-trailing-ones value `2^31−1`). The per-element bound needed for `sibling` panic-freedom. -/
-theorem small_of_tones (v d : Nat) (hd : d ≤ 30) (hv : v < 2 ^ (d + 1)) (ht : tones v ≤ d) :
-    v < 2 ^ 31 - 1 := by
-  rcases Nat.lt_or_ge d 30 with hd' | hd'
-  · have h1 : (2 : Nat) ^ (d + 1) ≤ 2 ^ 30 := Nat.pow_le_pow_right (by norm_num) (by omega)
-    have h2 : (2 : Nat) ^ 30 < 2 ^ 31 - 1 := by norm_num
-    omega
-  · have hd30' : d = 30 := by omega
-    subst hd30'
-    by_contra hc
-    have hv_eq : v = 2 ^ 31 - 1 := by
-      have : (2 : Nat) ^ (30 + 1) = 2 ^ 31 := by norm_num
-      omega
-    have htp := tones_pow_sub_one 31
-    rw [← hv_eq] at htp
-    omega
-
 /-- A value `< 2^31 − 1` has at most 30 trailing ones. -/
 theorem tones_le_30 (v : Nat) (hv : v < 2 ^ 31 - 1) : tones v ≤ 30 := by
   by_contra hc
@@ -232,32 +214,6 @@ theorem tones_le_30 (v : Nat) (hv : v < 2 ^ 31 - 1) : tones v ≤ 30 := by
   have hle : v % 2 ^ (tones v + 1) ≤ v := Nat.mod_le _ _
   rw [hm] at hle
   omega
-
-/-- An odd number has at least one trailing one. -/
-theorem tones_pos_of_odd (x : Nat) (h : x % 2 = 1) : 1 ≤ tones x := by
-  by_contra hc
-  have ht0 : tones x = 0 := by omega
-  have hm := tones_mod x
-  rw [ht0] at hm; simp at hm; omega
-
-/-- The parent value of a node `< 2^31` (level `≤ 30`) stays `< 2^31` (no carry past bit 31). -/
-theorem parent_val_lt (v : Nat) (hv : v < 2 ^ 31) (hk : tones v ≤ 30) :
-    2 ^ (tones v + 2) * (v / 2 ^ (tones v + 2)) + (2 ^ (tones v + 1) - 1) < 2 ^ 31 := by
-  rcases Nat.lt_or_ge (tones v) 30 with hlt | hge
-  · refine parent_lt 30 (tones v) (v / 2 ^ (tones v + 2)) hlt ?_
-    refine Nat.div_lt_of_lt_mul ?_
-    rw [← pow_add, show (tones v + 2) + (30 - 1 - tones v) = 31 from by omega]
-    exact hv
-  · have hk30 : tones v = 30 := by omega
-    rw [hk30]
-    have hq0 : v / 2 ^ (30 + 2) = 0 := by
-      apply Nat.div_eq_of_lt
-      have : (2 : Nat) ^ 31 ≤ 2 ^ (30 + 2) := Nat.pow_le_pow_right (by norm_num) (by omega)
-      omega
-    rw [hq0, Nat.mul_zero, Nat.zero_add]
-    have h2 : (2 : Nat) ^ (30 + 1) = 2 ^ 31 := by norm_num
-    have h1 : 1 ≤ (2 : Nat) ^ (30 + 1) := Nat.one_le_two_pow
-    omega
 
 /-! ### `U32`-level shift/mask helpers -/
 
@@ -431,41 +387,6 @@ theorem xor_two_pow_of_testBit (x j : Nat) (h : x.testBit j = true) :
 /-! ### Value lemmas for `left` / `right` / `parent` / the `direct_path` walk
 (pure-`Nat` / `u32`-bit facts, no monad). -/
 
-/-- Bit lemma for `left`: with the low `j+2` bits of `v` equal to `2^(j+1) − 1`, xor-ing with `2^j`
-    CLEARS bit `j`, so the value drops by `2^j`.  Delivered in `+`/`·` form for `omega`. -/
-theorem left_val_arith (v j : Nat) (hchar : v % 2 ^ (j + 2) = 2 ^ (j + 1) - 1) :
-    v ^^^ 2 ^ j = 2 ^ (j + 1) * (v / 2 ^ (j + 1)) + (2 ^ j - 1) := by
-  have hlow : ∀ i, i ≤ j + 1 → v.testBit i = decide (i < j + 1) := by
-    intro i hi
-    have h1 := Nat.testBit_mod_two_pow v (j + 2) i
-    rw [hchar, Nat.testBit_two_pow_sub_one] at h1
-    have hi1 : i < j + 2 := by omega
-    simp only [hi1, decide_true, Bool.true_and] at h1
-    exact h1.symm
-  have step : v ^^^ 2 ^ j = ((v >>> (j + 1)) <<< (j + 1)) ||| (2 ^ j - 1) := by
-    refine Nat.eq_of_testBit_eq fun i => ?_
-    simp only [Nat.testBit_lor, Nat.testBit_xor, Nat.testBit_two_pow, Nat.testBit_shiftLeft,
-      Nat.testBit_shiftRight, Nat.testBit_two_pow_sub_one, ge_iff_le]
-    rcases Nat.lt_trichotomy i j with h | h | h
-    · rw [hlow i (by omega)]
-      simp [h, show i < j + 1 by omega, show ¬ (j = i) by omega, show ¬ (j + 1 ≤ i) by omega]
-    · subst h
-      rw [hlow i (by omega)]
-      simp [show i < i + 1 by omega, show ¬ (i + 1 ≤ i) by omega]
-    · rcases Nat.lt_trichotomy i (j + 1) with h1 | h1 | h1
-      · omega
-      · subst h1
-        have hb1 : v.testBit (j + 1) = false := by rw [hlow (j + 1) (by omega)]; simp
-        simp [hb1, show ¬ (j = j + 1) by omega]
-      · simp [hlow, show j + 1 ≤ i by omega, show ¬ (j = i) by omega, show ¬ (i < j) by omega,
-          show j + 1 + (i - (j + 1)) = i by omega]
-  have hb : 2 ^ j - 1 < 2 ^ (j + 1) := by
-    have h1 : (2 : Nat) ^ j ≤ 2 ^ (j + 1) := Nat.pow_le_pow_right (by norm_num) (by omega)
-    have h2 : 1 ≤ (2 : Nat) ^ j := Nat.one_le_two_pow
-    omega
-  rw [step, Nat.shiftRight_eq_div_pow, Nat.shiftLeft_eq, mul_comm,
-    Nat.two_pow_add_eq_or_of_lt hb]
-
 /-- Bit lemma for `right`: same hypothesis, but xor-ing with `3·2^j = 2^(j+1) + 2^j` clears bit `j`
     and SETS bit `j+1` (clear in `v`), so the value rises by `2^j`. -/
 theorem right_val_arith (v j : Nat) (hchar : v % 2 ^ (j + 2) = 2 ^ (j + 1) - 1) :
@@ -512,8 +433,8 @@ theorem right_val_arith (v j : Nat) (hchar : v % 2 ^ (j + 2) = 2 ^ (j + 1) - 1) 
       rw [Nat.mul_one],
     ← Nat.two_pow_add_eq_or_of_lt hb1, Nat.mul_one]
 
-/-- `left_val_arith` in the shape `left`'s VCs present it (`v` the tree index, `k` its level, `j =
-    k − 1`, `r1 = 1 <<< j`): the xor STRICTLY DECREASES the value. -/
+/-- `xor_two_pow_of_testBit` in the shape `left`'s VCs present it (`v` the tree index, `k` its
+    level, `j = k − 1`, `r1 = 1 <<< j`): the xor STRICTLY DECREASES the value. -/
 theorem left_bits_lt (v r1 : U32) (k j : Usize)
     (hk30 : (↑k : Nat) ≤ 30) (hkpos : 1 ≤ (↑k : Nat))
     (hchar : (↑v : Nat) % 2 ^ ((↑k : Nat) + 1) = 2 ^ (↑k : Nat) - 1)
@@ -631,8 +552,8 @@ theorem parent_bits_val
     UScalar.size_UScalarTyU32]
   exact parent_val_u32 v _ hk30 hchar
 
-/-- A node value below `2^30 − 1` has its parent value below `2^30` (the tighter `MAX_PARENT`
-    version of `parent_val_lt`; the strict bound is needed since `V = 2^30 − 1` has `k = 30`). -/
+/-- A node value below `2^30 − 1` has its parent value below `2^30` (the `MAX_PARENT` bound; the
+    strict hypothesis is needed since `V = 2^30 − 1` has `k = 30`). -/
 theorem parent_val_lt_two_pow_30 (V k : Nat) (hV : V < 2 ^ 30 - 1)
     (hk : V % 2 ^ (k + 1) = 2 ^ k - 1) :
     2 ^ (k + 2) * (V / 2 ^ (k + 2)) + (2 ^ (k + 1) - 1) < 2 ^ 30 := by

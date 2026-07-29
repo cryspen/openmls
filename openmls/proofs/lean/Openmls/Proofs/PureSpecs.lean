@@ -137,25 +137,6 @@ theorem TreeSize.leaf_count_mvcgen_spec (self : TreeSize)
 
 /-! ### Monadic helpers about the extracted functions (moved here from `Proofs.lean`) -/
 
-/-- `LeafNodeIndex.to_tree_index w = 2·w` (no overflow when `w < 2^31`). -/
-theorem mul2_ok (w : Std.U32) (hw : (↑w : Nat) < 2 ^ 31) :
-    ∃ v : Std.U32, LeafNodeIndex.to_tree_index w = ok v ∧ (↑v : Nat) = 2 * (↑w : Nat) := by
-  unfold LeafNodeIndex.to_tree_index
-  rw [show (w * 2#u32 : Aeneas.Std.Result Std.U32) = Aeneas.Std.UScalar.mul w 2#u32 from rfl]
-  have hspec := Aeneas.Std.UScalar.mul_equiv w 2#u32
-  have hmax : (↑w : Nat) * (↑(2#u32) : Nat) ≤ Aeneas.Std.UScalar.max .U32 := by
-    have h2 : (↑(2#u32) : Nat) = 2 := rfl
-    have hm : Aeneas.Std.UScalar.max .U32 = 2 ^ 32 - 1 := by native_decide
-    rw [h2, hm]; omega
-  cases hm : (Aeneas.Std.UScalar.mul w 2#u32) with
-  | ok v =>
-    rw [hm] at hspec
-    obtain ⟨_, hv, _⟩ := hspec
-    exact ⟨v, rfl, by rw [hv]; scalar_tac⟩
-  | fail e =>
-    rw [hm] at hspec; exfalso; omega
-  | div => rw [hm] at hspec; exact hspec.elim
-
 /-- Shared arithmetic for the `from_tree_index ((xn << k) + (1 << (k-1)) - 1)` tail of
     `lowest_common_ancestor`, given `loop0`'s postcondition (`2 ≤ k ≤ 30`, `xn·2^k < 2^30`):
     the two shifts don't wrap, their sum stays below `2^32`, `xn<<k` is even, and `1<<(k-1)`

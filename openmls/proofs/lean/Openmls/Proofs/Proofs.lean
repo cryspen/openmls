@@ -223,25 +223,17 @@ theorem left.spec.proof (index : ParentNodeIndex) :
   hax_mvcgen [left]
   set_option maxHeartbeats 100 in
     all_goals try scalar_tac
-  -- The four value VCs (`x.u32 < index.to_tree_index` + the `TreeNodeIndex.new` validity checks,
-  -- once per constructor branch); all follow from `left_bits_lt`.  NAMING: `case tag n₁ … nₙ` names
-  -- the LAST `n` hypotheses, so each list must cover the goal's FULL binder count (`gᵢ` = padding).
-  case vc1.hQ b0 hb0 hb0t x0 hx0 xv hxv kv hkv uv hkposv jv hjv hjv1 r1v hr1v
-      g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 g12 g13 g14 g15 g16 =>
-    have hlt := left_bits_lt xv r1v kv jv hkv.1 (by scalar_tac) hkv.2 hjv hr1v
-    scalar_tac
-  case vc4.hQ b0 hb0 hb0t x0 hx0 xv hxv kv hkv uv hkposv jv hjv hjv1 r1v hr1v
-      g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 g12 =>
-    have hlt := left_bits_lt xv r1v kv jv hkv.1 (by scalar_tac) hkv.2 hjv hr1v
-    scalar_tac
-  -- `TreeNodeIndex.new`'s odd branch (result `2·((idx−1)/2) + 1`).
-  case vc1.hQ b0 hb0 hb0t x0 hx0 xv hxv kv hkv uv hkposv jv hjv hjv1 r1v hr1v
-      g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 g12 g13 g14 g15 g16 g17 g18 g19 g20 g21 =>
-    have hlt := left_bits_lt xv r1v kv jv hkv.1 (by scalar_tac) hkv.2 hjv hr1v
-    scalar_tac
-  case vc4.hQ b0 hb0 hb0t x0 hx0 xv hxv kv hkv uv hkposv jv hjv hjv1 r1v hr1v
-      g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 g12 g13 g14 g15 g16 g17 =>
-    have hlt := left_bits_lt xv r1v kv jv hkv.1 (by scalar_tac) hkv.2 hjv hr1v
+  -- The four remaining value VCs (`x.u32 < index.to_tree_index` + the `TreeNodeIndex.new` validity
+  -- checks, once per constructor branch, twice per `TreeNodeIndex.new` branch); they differ ONLY in
+  -- how many `mvcgen` bindings pad the context, so one uniform closer handles all four: `casesm`
+  -- splits the level characterization out of its conjunction and the arguments of `left_bits_lt`
+  -- are then all found by `assumption` (which also fixes `v`/`r1`/`k`/`j`), avoiding per-case
+  -- `rename_i`/`case … gᵢ` padding lists that must be counted by hand.
+
+  all_goals
+    casesm* _ ∧ _
+    have hlt := left_bits_lt _ _ _ _ (by assumption) (by scalar_tac) (by assumption)
+      (by assumption) (by assumption)
     scalar_tac
 
 @[spec]
@@ -560,25 +552,6 @@ theorem sibling_pre_leaf (l : LeafNodeIndex) (hl : (↑l : Nat) ≤ 2 ^ 29 - 1) 
   unfold sibling.pre
   mvcgen
   all_goals scalar_tac
-
-/-- `ParentNodeIndex.to_tree_index p = 2·p + 1` as an ok-equation (no overflow below `2^32`). -/
-theorem ptti_ok (p : ParentNodeIndex) (hp : 2 * (↑p : Nat) + 1 < 2 ^ 32) :
-    ∃ x : Std.U32, ParentNodeIndex.to_tree_index p = ok x ∧ (↑x : Nat) = 2 * (↑p : Nat) + 1 := by
-  unfold ParentNodeIndex.to_tree_index
-  obtain ⟨w, hw, hwv⟩ := mul2_ok p (by
-    have hsz : (2 : Nat) ^ 31 ≤ 2 ^ 32 := Nat.pow_le_pow_right (by norm_num) (by omega); omega)
-  unfold LeafNodeIndex.to_tree_index at hw
-  rw [hw]; simp only [bind_tc_ok]
-  have hadd := Aeneas.Std.UScalar.add_equiv w 1#u32
-  cases hac : (w + 1#u32) with
-  | ok x =>
-    rw [hac] at hadd; obtain ⟨-, hxv, -⟩ := hadd
-    exact ⟨x, rfl, by rw [hxv, show (↑(1#u32) : Nat) = 1 from rfl, hwv]⟩
-  | fail e =>
-    exfalso; rw [hac] at hadd; simp only [Aeneas.Std.UScalar.inBounds] at hadd
-    rw [show (↑(1#u32) : Nat) = 1 from rfl, hwv] at hadd
-    scalar_tac
-  | div => rw [hac] at hadd; exact absurd hadd (by simp)
 
 /-- Parent counterpart of `sibling_pre_leaf`.  Same spec-based stepping; here the root-index
     disequality is not a parity argument but the caller-supplied `hnr`. -/
