@@ -380,6 +380,54 @@ theorem two_pow_le_u32_max_or (e : Nat) : 2 ^ e ≤ Aeneas.Std.U32.max ∨ 31 < 
   · exact Or.inl (two_pow_le_u32_max e h)
   · exact Or.inr (by omega)
 
+/-! ### Generic single-bit `xor` lemmas
+
+Xor-ing a natural with a single power of two toggles exactly that bit, so it either *subtracts*
+`2^j` (bit already set) or *adds* it (bit clear).  Mathlib only has the `j = 0` instance
+(`Nat.xor_one_of_odd`); the general pair below is stated for arbitrary `j` and is an upstream
+candidate.  Deliberately NOT `@[simp]` / `@[scalar_tac]`: the `x ^^^ 2 ^ j` pattern is far too
+common in the extracted bit code for an unconditional rewrite to be safe. -/
+
+/-- Xor-ing with a power of two whose bit is CLEAR adds it. -/
+theorem xor_two_pow_of_not_testBit (x j : Nat) (h : x.testBit j = false) :
+    x ^^^ 2 ^ j = x + 2 ^ j := by
+  have hb1 : x % 2 ^ j < 2 ^ j := Nat.mod_lt _ (Nat.two_pow_pos j)
+  have hpow : (2 : Nat) ^ (j + 1) = 2 * 2 ^ j := by ring
+  have hb2 : 2 ^ j * 1 + x % 2 ^ j < 2 ^ (j + 1) := by omega
+  -- bit `j` clear ⇒ the low `j+1` bits are just the low `j` bits
+  have hmodj : x % 2 ^ (j + 1) = x % 2 ^ j := by
+    refine Nat.eq_of_testBit_eq fun i => ?_
+    rw [Nat.testBit_mod_two_pow, Nat.testBit_mod_two_pow]
+    rcases Nat.lt_trichotomy i j with hi | hi | hi
+    · simp [hi, show i < j + 1 by omega]
+    · subst hi; simp [h]
+    · simp [show ¬ (i < j) by omega, show ¬ (i < j + 1) by omega]
+  have step : x ^^^ 2 ^ j = ((x >>> (j + 1)) <<< (j + 1)) ||| (2 ^ j * 1 ||| (x % 2 ^ j)) := by
+    refine Nat.eq_of_testBit_eq fun i => ?_
+    simp only [Nat.mul_one, Nat.testBit_lor, Nat.testBit_xor, Nat.testBit_two_pow,
+      Nat.testBit_shiftLeft, Nat.testBit_shiftRight, Nat.testBit_mod_two_pow, ge_iff_le]
+    rcases Nat.lt_trichotomy i j with hi | hi | hi
+    · simp [hi, show ¬ (j = i) by omega, show ¬ (j + 1 ≤ i) by omega]
+    · subst hi; simp [h, show ¬ (i + 1 ≤ i) by omega]
+    · simp [show j + 1 ≤ i by omega, show ¬ (j = i) by omega, show ¬ (i < j) by omega,
+        show j + 1 + (i - (j + 1)) = i by omega]
+  have hdm := Nat.div_add_mod x (2 ^ (j + 1))
+  rw [step, Nat.shiftRight_eq_div_pow, Nat.shiftLeft_eq, mul_comm,
+    ← Nat.two_pow_add_eq_or_of_lt hb1, ← Nat.two_pow_add_eq_or_of_lt hb2, Nat.mul_one]
+  omega
+
+/-- Xor-ing with a power of two whose bit is SET subtracts it.  Corollary of
+    `xor_two_pow_of_not_testBit` by involutivity of `(· ^^^ 2 ^ j)`. -/
+theorem xor_two_pow_of_testBit (x j : Nat) (h : x.testBit j = true) :
+    x ^^^ 2 ^ j = x - 2 ^ j := by
+  have hy : (x ^^^ 2 ^ j).testBit j = false := by
+    simp [Nat.testBit_xor, h]
+  have hinv : (x ^^^ 2 ^ j) ^^^ 2 ^ j = x := by
+    rw [Nat.xor_assoc, Nat.xor_self, Nat.xor_zero]
+  have h3 := xor_two_pow_of_not_testBit (x ^^^ 2 ^ j) j hy
+  rw [hinv] at h3
+  omega
+
 /-! ### Value lemmas for `left` / `right` / `parent` / the `direct_path` walk
 (pure-`Nat` / `u32`-bit facts, no monad). -/
 
@@ -475,27 +523,22 @@ theorem left_bits_lt (v r1 : U32) (k j : Usize)
   have e1 : (↑(1#usize) : Nat) = 1 := by simp
   have e1' : (↑(1#u32) : Nat) = 1 := by simp
   rw [e1] at hj
-  obtain ⟨m, hm⟩ : ∃ m, (↑k : Nat) = m + 1 := ⟨(↑k : Nat) - 1, by omega⟩
-  have hjm : (↑j : Nat) = m := by omega
-  have hchar' : (↑v : Nat) % 2 ^ (m + 2) = 2 ^ (m + 1) - 1 := by
-    rw [show m + 2 = (↑k : Nat) + 1 from by omega, show m + 1 = (↑k : Nat) from by omega]
-    exact hchar
-  have hval : (↑(v ^^^ r1) : Nat) = 2 ^ (m + 1) * ((↑v : Nat) / 2 ^ (m + 1)) + (2 ^ m - 1) := by
-    rw [UScalar.val_xor, hr1, e1', UScalar.size_UScalarTyU32, hjm,
-      one_shiftLeft_mod_eq m (by omega)]
-    exact left_val_arith _ m hchar'
-  have hmod : (↑v : Nat) % 2 ^ (m + 1) = 2 ^ (m + 1) - 1 := by
-    have hdvd : (2 : Nat) ^ (m + 1) ∣ 2 ^ (m + 2) := pow_dvd_pow 2 (by omega)
-    have h := Nat.mod_mod_of_dvd (↑v : Nat) hdvd
-    rw [hchar'] at h
-    have h1 : 1 ≤ (2 : Nat) ^ (m + 1) := Nat.one_le_two_pow
-    rw [← h, Nat.mod_eq_of_lt (by omega)]
-  have hdm := Nat.div_add_mod (↑v : Nat) (2 ^ (m + 1))
-  rw [hmod] at hdm
-  obtain ⟨Q, hQ⟩ : ∃ Q, 2 ^ (m + 1) * ((↑v : Nat) / 2 ^ (m + 1)) = Q := ⟨_, rfl⟩
-  rw [hQ] at hval hdm
-  have h1 : (2 : Nat) ^ (m + 1) = 2 * 2 ^ m := by ring
-  have h2 : 1 ≤ (2 : Nat) ^ m := Nat.one_le_two_pow
+  -- the shift doesn't wrap, so `r1` is exactly the single bit `2 ^ j`
+  have hr1' : (↑r1 : Nat) = 2 ^ (↑j : Nat) := by
+    rw [hr1, e1', UScalar.size_UScalarTyU32, one_shiftLeft_mod_eq _ (by omega)]
+  -- bit `j = k − 1` is one of the `k` trailing ones of `v`, hence SET
+  have hbit : (↑v : Nat).testBit (↑j : Nat) = true := by
+    have h1 := Nat.testBit_mod_two_pow (↑v : Nat) ((↑k : Nat) + 1) (↑j : Nat)
+    rw [hchar, Nat.testBit_two_pow_sub_one] at h1
+    simp only [show (↑j : Nat) < (↑k : Nat) from by omega,
+      show (↑j : Nat) < (↑k : Nat) + 1 from by omega, decide_true] at h1
+    exact h1.symm
+  have hval : (↑(v ^^^ r1) : Nat) = (↑v : Nat) - 2 ^ (↑j : Nat) := by
+    rw [UScalar.val_xor, hr1', xor_two_pow_of_testBit _ _ hbit]
+  have hmod_le : 2 ^ (↑k : Nat) - 1 ≤ (↑v : Nat) := by rw [← hchar]; exact Nat.mod_le _ _
+  have hkj : (2 : Nat) ^ (↑k : Nat) = 2 * 2 ^ (↑j : Nat) := by
+    rw [show (↑k : Nat) = (↑j : Nat) + 1 from by omega]; ring
+  have h1 : 1 ≤ (2 : Nat) ^ (↑j : Nat) := Nat.one_le_two_pow
   omega
 
 /-- Range half of `right`'s VCs, pure-`Nat`: with `Q` the high part (divisible by `2^(m+2)`), the

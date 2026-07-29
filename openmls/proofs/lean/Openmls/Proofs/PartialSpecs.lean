@@ -174,64 +174,8 @@ theorem ParentNodeIndex.u32_mvcgen_spec (self : ParentNodeIndex)
   unfold ParentNodeIndex.u32
   exact triple_of_ok _ Q (h_ok _ rfl)
 
-/-! ### `MAX_*` constants
-
-Each is a closed arithmetic chain over `u32` literals, so the value is computed once here by
-`rfl` after `unfold` and the postcondition is instantiated directly. Total. -/
-
-/-- `MAX_TREE_SIZE = 2^30 − 1 = 1073741823` (inclusive since the Rust constant change). -/
-@[spec]
-theorem MAX_TREE_SIZE_mvcgen_spec (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : Aeneas.Std.WP.willYield 1073741823#u32 Q) :
-    ⦃ ⌜ True ⌝ ⦄ MAX_TREE_SIZE ⦃ Q ⦄ := by
-  have h : binary_tree.array_representation.treemath.MAX_TREE_SIZE = ok 1073741823#u32 := by
-    unfold MAX_TREE_SIZE; rfl
-  rw [h]; exact triple_of_ok _ Q h_ok
-
-/-- `MAX_TREE_INDEX = 2^30 − 2 = 1073741822`. -/
-@[spec]
-theorem MAX_TREE_INDEX_mvcgen_spec (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : Aeneas.Std.WP.willYield 1073741822#u32 Q) :
-    ⦃ ⌜ True ⌝ ⦄ MAX_TREE_INDEX ⦃ Q ⦄ := by
-  have h : binary_tree.array_representation.treemath.MAX_TREE_INDEX = ok 1073741822#u32 := by
-    unfold MAX_TREE_INDEX MAX_TREE_SIZE; rfl
-  rw [h]; exact triple_of_ok _ Q h_ok
-
-/-- `MAX_LEAF = (2^30 − 2)/2 = 2^29 − 1 = 536870911`. -/
-@[spec]
-theorem MAX_LEAF_mvcgen_spec (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : Aeneas.Std.WP.willYield 536870911#u32 Q) :
-    ⦃ ⌜ True ⌝ ⦄ MAX_LEAF ⦃ Q ⦄ := by
-  have h : binary_tree.array_representation.treemath.MAX_LEAF = ok 536870911#u32 := by
-    unfold MAX_LEAF MAX_TREE_INDEX MAX_TREE_SIZE; rfl
-  rw [h]; exact triple_of_ok _ Q h_ok
-
-/-- `MAX_PARENT = MAX_LEAF − 1 = 2^29 − 2 = 536870910`. -/
-@[spec]
-theorem MAX_PARENT_mvcgen_spec (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : Aeneas.Std.WP.willYield 536870910#u32 Q) :
-    ⦃ ⌜ True ⌝ ⦄ MAX_PARENT ⦃ Q ⦄ := by
-  have h : binary_tree.array_representation.treemath.MAX_PARENT = ok 536870910#u32 := by
-    unfold MAX_PARENT MAX_LEAF MAX_TREE_INDEX MAX_TREE_SIZE; rfl
-  rw [h]; exact triple_of_ok _ Q h_ok
-
-/-- `MAX_LEAF_COUNT = MAX_LEAF + 1 = 2^29 = 536870912`. -/
-@[spec]
-theorem MAX_LEAF_COUNT_mvcgen_spec (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : Aeneas.Std.WP.willYield 536870912#u32 Q) :
-    ⦃ ⌜ True ⌝ ⦄ MAX_LEAF_COUNT ⦃ Q ⦄ := by
-  have h : binary_tree.array_representation.treemath.MAX_LEAF_COUNT = ok 536870912#u32 := by
-    unfold MAX_LEAF_COUNT MAX_LEAF MAX_TREE_INDEX MAX_TREE_SIZE; rfl
-  rw [h]; exact triple_of_ok _ Q h_ok
-
-/-- `MAX_ROOT_INDEX = 2^30/2 − 1 = 2^29 − 1 = 536870911`. -/
-@[spec]
-theorem MAX_ROOT_INDEX_mvcgen_spec (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : Aeneas.Std.WP.willYield 536870911#u32 Q) :
-    ⦃ ⌜ True ⌝ ⦄ MAX_ROOT_INDEX ⦃ Q ⦄ := by
-  have h : binary_tree.array_representation.treemath.MAX_ROOT_INDEX = ok 536870911#u32 := by
-    unfold MAX_ROOT_INDEX MAX_TREE_SIZE; rfl
-  rw [h]; exact triple_of_ok _ Q h_ok
+-- The value specs for the `MAX_*` / `MIN_TREE_SIZE` constants live in `Proofs.lean`
+-- (`MAX_*.spec_value`): one spec theorem per constant, no `willYield` layer.
 
 -- MOVED to `Openmls/Proofs/PureSpecs.lean` (user ruling 2026-07-28: single `@[spec]` per
 -- now-transparent function, homed with the pure companion specs): the fallible
