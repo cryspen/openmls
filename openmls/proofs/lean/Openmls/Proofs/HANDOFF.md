@@ -1,198 +1,143 @@
-# HANDOFF — treemath panic-freedom development (consolidated 2026-07-28)
+# HANDOFF — treemath panic-freedom development (consolidated 2026-07-29)
 
-Single source of truth for session state. Supersedes and replaces all previous
-`HANDOFF_*.md` files (level_refactor, parent, proof_repair, treemath_proofs,
-treemath_reextraction, treemath_refactor — all deleted; their still-relevant content is here).
-Companion docs: `../../README.org` (user-facing status + obligation table),
-`Openmls/Issues/` (upstream reproducers). Work dir: `openmls/proofs/lean/`.
+Single source of truth for session state. Companion docs: `../../README.org` (user-facing
+status + obligation table + module layout), `Openmls/Issues/` (upstream reproducers).
+Work dir: `openmls/proofs/lean/`.
 
-## State (verified 2026-07-28 ~15:30 CEST — POST-RE-EXTRACTION, repair in progress)
+## State (verified 2026-07-29, gate run by orchestrator)
 
-The Rust specs were reworked (user) and the extraction REGENERATED (user, 12:45): `MAX_TREE_SIZE =
-2^30 − 1` (inclusive), `level` body = `trailing_ones()` (no loop, no obligation), `to_tree_index`
-×2 / `leaf_count` transparent (no posts), `parent` pre gains `≠ MAX_ROOT_INDEX` with 2-clause post,
-`left`/`right` have REAL generated posts, `TreeNodeIndex.new` has a pre, pres/posts are BOOL-encoded
-(`Result Bool` + `.holds`, `import Hax`), `direct_path.post` is `iter().all` closure form, `copath`
-body rewritten (vec![leaf] + append + slice-iter map/collect). **Census: 19 obligations** (was 21).
+- **DEVELOPMENT COMPLETE.** Gate `~/.elan/bin/lake build Openmls.Proofs.Proofs`
+  (lake at `~/.elan/bin/lake`, ~50–90s): **GREEN, 0 errors. 19/19 obligations proved.**
+- **Sorry census = exactly the 10 admitted contracts in `AdmittedCoreSpecs.lean`** (the whole
+  trusted audit surface; was 12 before 2026-07-28). Nothing else in the tree is sorried.
+- Extraction state: regenerated 2026-07-28 against the reworked Rust specs — bool-encoded
+  pres/posts (`Result Bool` + `.holds`, `import Hax`), `MAX_TREE_SIZE = 2^30 − 1` (inclusive),
+  `MAX_ROOT_INDEX = 2^29 − 1`, `level` body = `trailing_ones()` (no loop, no obligation),
+  `to_tree_index` ×2 / `leaf_count` verification-transparent (no posts), `parent` pre
+  `valid ∧ ≠ MAX_ROOT_INDEX` with 2-clause post, `left`/`right` real posts, `TreeNodeIndex.new`
+  has a pre, `direct_path` post in `iter().all` closure form, `copath` body =
+  vec![leaf] + slice-iter map/collect + append + into_iter/map(sibling)/collect.
+  **Generated files build AS GENERATED** (`Extraction/{Types,Funs,Specs,ProofObligations}.lean`
+  — regenerate freely); `FunsExternal.lean` is hand-maintained (axioms + real MODELS for
+  `trailing_ones` (= `tones`' `Nat.find`), `is_multiple_of`, `reverse`).
+- Loop lemmas all proved: `lca_loop0_spec`, `common_direct_path_loop_spec`,
+  `direct_path_loop_spec` (invariant `direct_path_loop_inv` carries a POSITIONAL clause:
+  entry `i` has `tones (2·l[i]+1) = i + 1`).
+- Companion specs (each user-validated): `level.spec_pure` (REGISTERED; no official level
+  obligation exists anymore), `parent.spec_value` (unregistered, erasure-consumed),
+  `direct_path.spec_pure` (unregistered, erasure-consumed; clauses: `vecLen ≤ 29`, membership
+  bounds `↑e ≤ 2^29−2 ∧ ↑e < ↑size/2`, positional tones clause — feeds direct_path + copath).
 
-- **Extraction + spec layers ALL GREEN**: `Extraction.{Types,Funs,FunsExternal,Specs}`,
-  `Proofs.{Common,BitMath,MissingCoreSpecs,AdmittedCoreSpecs,PartialSpecs}`.
-  - `FunsExternal.lean` gained: `trailing_ones` as a real MODEL (`Nat.find` lowest-clear-bit,
-    = `tones` definitionally); axioms slice-iter `map`, slice-iter `all` (`(Bool × Iter T)`);
-    `collect`'s FnMut witness made type-generic (extraction mixes `Aeneas.Std` FnMut via
-    `BuiltinFnMut` and `CoreModels` FnMut at the same axiom's two call sites).
-  - `MissingCoreSpecs.lean`: NEW proved `trailing_ones_spec` (`⇓ r => ↑r = tones ↑x`), 2-line
-    proof; file now imports BitMath. Upstream-PR candidate.
-  - `PartialSpecs.lean`: `MAX_TREE_SIZE` value spec → `1073741823`; `TreeSize.valid` decide-shape
-    now `≤ 2^30 − 1` (all consumers must match this shape).
-  - `Specs.lean` builds AS GENERATED — the frozen-hand-override era is over.
-- `ProofObligationsExplicit.lean` REWRITTEN (19 theorems, 0 errors, sorries by design). 10 real
-  posts: root, left, right, parent, direct_path, TNI.{new,u32}, TS.{new,inc,dec}; 9 `True` posts.
-- NEW `Proofs/PureSpecs.lean`: `direct_path.spec_pure` STATEMENT (membership form + positional
-  `tones (2·e+1) = i+1` clause for copath's popped-root case), 1 sorry, UNREGISTERED, not yet
-  imported anywhere. **Statement awaits user validation** (clause 3 exceeds the Rust post).
-- **`Proofs.lean`: 18 of 19 obligations PROVED, exactly 1 error** — `copath.spec.proof`
-  (~line 701, `hax_mvcgen` fails on the new deref/slice-iter body; PARKED at the user's stop
-  line, next work package). Repair slices R1-R4b (2026-07-28 afternoon) fixed: root + TNI.new
-  (R1 — TNI.new's STATEMENT was stale, missing the new pre), parent.spec.proof + sibling (R2 —
-  case tags now DUPLICATE across TreeNodeIndex constructor branches, positional matching),
-  TS.inc (R3 — uniform "−2 binders" rename_i drift; the 2^29 bound now routes through validity),
-  left + right (R4/R4b — RESTATED to the real generated posts and proved via new XOR value
-  lemmas). SORRIED (intended): direct_path.spec.proof + PureSpecs' direct_path.spec_pure.
-- **Cleanup slice C1 done (user-ordered)**: Proofs.lean 1698 → 1139 lines. Comments trimmed
-  (tombstones/battle narratives deleted; hazard notes compressed to ≤2-4 lines). Non-spec
-  helpers MOVED OUT (private dropped): 11 pure/bit lemmas → BitMath.lean end section
-  (left/right_val_arith, left_bits_lt, right_bits, right_val_le, parent_bits_val,
-  parent_val_lt_two_pow_30, eq_root_of_tones_eq, tones_lt_of_ne_root, parent_val_lt_size,
-  level_res_eq_zero); 3 monadic helpers → PureSpecs.lean (mul2_ok, lca_tail_aux, lca_level_one).
-  Loop machinery STAYS in Proofs.lean (user ruling).
-- **File-layout changes (2026-07-28)**: PureSpecs.lean now also hosts the transparent-function
-  value triples (to_tree_index ×2, TNI.u32, leaf_count — MOVED from PartialSpecs, single @[spec]
-  each, user ruling "single spec attribute, home them in PureSpecs"); PartialSpecs' partialSpec
-  combinators were DE-PRIVATIZED for cross-file use; Proofs.lean imports PureSpecs.
-- Admitted surface: 12 contracts in `AdmittedCoreSpecs.lean` (unchanged). For the next package:
-  `deref`/`Vec.append`/`Slice.iter` are REAL CoreModels defs (specs provable in
-  MissingCoreSpecs); only `all` and slice-iter `map`+`collect` (our FunsExternal axioms) need
-  ADMITTED contracts — drafts presented to user at the stop-line report, awaiting validation.
-- R-slice playbook additions: check the STATEMENT against ProofObligationsExplicit before
-  debugging tactics; `lean_goal` at the mvcgen line for binder counts (never guess);
-  lean_diagnostic_messages is UNUSABLE while the file has any error — use lean_verify (axiom
-  list, no sorryAx) + lean_goal (`goals_after: []`) per theorem; `case tag n₁…nₙ` names the
-  LAST n inaccessible hypotheses (like rename_i); omega treats `2^k` as an atom (safe where
-  scalar_tac loops) but needs products generalized (`∃ Q, … = Q`) and explicit upper bounds on
-  pow atoms; `native_decide` in helpers leaks a `_native…ax` axiom — use scalar_tac.
+## Architecture (user-ruled — do not deviate without their validation)
 
-## Architecture (user-ruled, do not deviate without their validation)
+- **One theorem per obligation**, statements verbatim 1:1 with
+  `Openmls/Extraction/ProofObligationsExplicit.lean` (hand-derived reference, 19 entries,
+  not imported, proofs stay `sorry` there).
+- **Import DAG / file charters** (README has the table):
+  `Common ← BitMath ← {MissingCoreSpecs, AdmittedCoreSpecs, PartialSpecs} ← PureSpecs ← Proofs`.
+  Common: loop driver + triple helpers (`loop_spec_measure`, `triple_in_hypothesis`,
+  `triple_noThrow_exists_ok`, `vecLen`). BitMath: pure-Nat/u32 bit lemmas (`tones`,
+  parent/left/right value arithmetic) + scalar_tac/simp registrations. MissingCoreSpecs:
+  PROVED core/alloc contracts. AdmittedCoreSpecs: the 10 TRUSTED contracts. PartialSpecs:
+  mvcgen/partial-correctness triples for extracted helpers + the (de-privatized) partialSpec
+  combinators. PureSpecs: value triples of the transparent fns + monadic helpers
+  (`mul2_ok`, `lca_*`) + pure list lemmas (`dropLast_entries_ne_max_root`). Proofs: the 19
+  obligations, loop machinery (USER RULING: loop specs/invariants stay here), companion
+  specs, sibling `.holds` helpers (`sibling_pre_leaf/parent`, `ptti_ok`, `max_*_eq`), the
+  raw `attribute [spec]` block.
+- **Transparency ruling**: `to_tree_index` ×2 / `TreeNodeIndex.u32` / `leaf_count` carry
+  exactly ONE `@[spec]` each — the value-carrying mvcgen triples in PureSpecs.
+- **Registered-spec landscape** (fires in every mvcgen): PartialSpecs `valid`/`u32`/`log2`/
+  `MAX_*` triples (NOTE `TreeSize.valid` decide-shape is `1 ≤ s ∧ s ≤ 2^30 − 1 ∧
+  s = 2^(log₂ s + 1) − 1` — consumers must match); MissingCoreSpecs proved specs
+  (`trailing_ones_spec ⇓ r => ↑r = tones ↑x`, `vec_{len,new,with_capacity,is_empty,pop,
+  append}`, `vec_deref_slice`, `slice_iter_of_slice`, `leading_zeros`, `u32_pow`, …);
+  AdmittedCoreSpecs: `slice_iter_all_spec` IS registered; `slice_iter_map_collect_spec` and
+  `into_map_collect_spec` are NOT (hand-applied — see playbook 9); BitMath registrations
+  (never register on a bare `2 ^ e` pattern — measured regression).
 
-- **One theorem per obligation**, 1:1 with `ProofObligationsExplicit.lean` (hand-derived
-  reference, not imported, proofs stay `sorry` there). Extraction files
-  (`Extraction/{Types,Funs,Specs}.lean`) are FROZEN hand-overridden generated code — never
-  regenerate without re-applying overrides (`Specs.lean` `direct_path.post` is hand-rewritten;
-  the old `TreeNodeIndex.new.post` override is retired since the Rust bool-encoding).
-- **Stepping = `hax_mvcgen`** (fallback plain `mvcgen` + local massaging); residual goals must
-  be pure arithmetic. **Loop invariants are separate named defs** + one `*_loop_spec` per loop
-  via `Common.loop_spec_measure`.
-- **Registered spec landscape** (fires automatically in every mvcgen):
-  - `PartialSpecs.lean` (19 `@[spec]` mvcgen-style triples): `TreeSize.valid` (direct-instantiation
-    `willYield (decide C) Q` shape), `log2`, `TreeSize.{u32,leaf_count,parent_count}`, 3 index
-    `valid`s, `LNI/PNI.u32`, fallible `to_tree_index` pair, `TreeNodeIndex.u32`, 6 `MAX_*` value
-    specs; + private combinators (`partialSpec_bind(_fail)`, `partialSpec_imp`, …).
-  - `MissingCoreSpecs.lean`: proved totals (`u32_pow_spec`, `leading_zeros_spec`, vec ops, …) +
-    `@[spec]` mvcgen triples for CoreModels `pow`/`leading_zeros`/`is_multiple_of` + `@[step]`
-    partialSpecs for `UScalar.cast`, 4 shifts, `massert` (upstream-PR candidates).
-  - `Proofs.lean` attribute block: raw-def registrations for constants and small helpers.
-  - BitMath registrations: `@[scalar_tac Nat.log 2 x] log2_le_30_or`,
-    `@[simp] one_shiftLeft_mod_eq_zero_iff`, `@[scalar_tac 1<<<k % U32.size]` rule,
-    `@[scalar_tac] level_ge_one(')`. NEVER register on the bare `2 ^ e` pattern (measured
-    regression; `two_pow_le_u32_max_or` stays manual).
-- **Sorry style**: explicit bullet/case + `-- TODO(arith): …`; bare `all_goals sorry` only when
-  ALL residuals are sorried; never a `sorry` inside `first | … |` chains; never sorry a
-  wp/triple/`.holds` goal (means stepping is broken). Census may only decrease.
+## Playbook (hard-won; violations have cost at least one slice each)
 
-## Playbook (hard-won; violations have cost multiple slices each)
-
-1. **Folded-post trap**: always `unfold f.pre f.post` before `hax_mvcgen [f]` — a folded post
-   leaves un-steppable monadic obligations (this alone was the "blows up" quarantine cause for
-   parent/root/cdp).
-2. **`scalar_tac` hazards** (see `Openmls/Issues/*.lean` for verified reproducers):
-   (a) self-referential `Nat.log` hypothesis (`TreeSize.valid`-shaped) ⇒ uncatchable maxRecDepth
-   loop — cure: destructure term-level (`of_decide_eq_true`), then
-   `set L := Nat.log 2 s; clear_value L` until NO `Nat.log` occurs (exemplar: `root.spec.proof`);
-   (b) cyclic hyp graph (`e ← log2 self`, `self ← 2^e − 1`) ⇒ divergence — `clear` the pow hyp;
-   (c) goals carrying `2^(Nat.log 2 s + 1) − 1` numerals — use explicit lemmas
-   (`UScalar.eq_of_val_eq`, `Nat.log_mono_right`, `Nat.log_pow`) instead. Raising maxRecDepth
-   only trades abort for heartbeat timeout.
+1. **Folded-post trap**: `unfold f.pre f.post` before `hax_mvcgen [f]`.
+2. **scalar_tac hazards** (reproducers in `Openmls/Issues/`): (a) self-referential `Nat.log`
+   hypothesis ⇒ maxRecDepth loop — destructure term-level (`of_decide_eq_true`), then
+   `set L := Nat.log 2 s; clear_value L`, `clear` every pow hypothesis before scalar_tac
+   (`root.spec.proof` is the exemplar). When NO value from the decide is needed, cheaper:
+   `rename_i` it a name and `clear` it. (b) cyclic hyp graphs diverge — clear the pow hyp.
+   (c) goals with `2^(Nat.log 2 s + 1) − 1` numerals: explicit lemmas, not scalar_tac.
+   (d) scalar_tac can also maxRecDepth near HUGE triple hypotheses (copath-scale contexts):
+   use omega with materialized bounds (`v.property : v.val.length ≤ Usize.max`).
+   (e) `set L := …` reverts/re-introduces every `Nat.log`-mentioning hypothesis at the END
+   of the context — later `rename_i` lists budget +2 slots.
 3. **decide-pairs**: term-level only (`decide_eq_decide.mpr`, `decide_eq_false`,
    `of_decide_eq_true`); never simp a decide-vs-decide.
-4. **Never `cases`-split into a folded monadic hypothesis** (whnf timeout — see sibling's
-   in-proof comment). `cases x` BEFORE mvcgen is fine and sometimes required (parent.spec_value:
-   the dependent match-pre breaks the matcher splitter otherwise).
-5. **Erasure recipe** (how to use an unregistered spec at one call site):
-   `mvcgen [the_spec, - registered_competitor, <defs to unfold>]`. Explicit-pass WITHOUT the
-   erasure does NOT override the registry; `attribute [local spec]` doesn't either.
-   Exemplar: `direct_path_loop_spec` uses `[parent.spec_value, - parent.spec.proof,
-   TreeNodeIndex.new, LeafNodeIndex.from_tree_index, ParentNodeIndex.from_tree_index,
-   vec_push_spec]`.
-6. **Exact forms matter**: `IScalar.toNat` not `.toNat`; `UScalar.size UScalarTy.U32` not
-   `U32.size` (irreducible_def; pretty-print twins don't unify). `one_shiftLeft_mod_eq` does
-   NOT rw against mvcgen-produced `MAX_*` hypotheses — closed numerals via
-   `first | decide | native_decide`. `loop_spec_measure`'s `post :=` needs an explicit result
-   type ascription. omega is blind to `% U32.size`, `2^…numBits`, `Nat.log` atoms, literal
-   coercions — normalize first (`u32_lt_nat`/`usize_lt_nat` in `Common.lean` are the
-   scalar_tac-free comparison bridges).
-7. **mvcgen self-spec circularity**: when probing an already-registered sorried spec from an
-   imported olean, `mvcgen [f]` can discharge `f` with its own spec — keep `unfold f` in the
-   proof to prevent rot.
-8. `rename_i` with full binder lists is stable while extraction is frozen; shift-result
-   hypotheses arrive as BARE equations (not conjunctions) since the re-extraction.
+4. **Never `cases`-split into a folded monadic hypothesis** (whnf blowup). `cases x` BEFORE
+   mvcgen is fine and sometimes required. The guard
+   `first | scalar_tac | (cases i <;> simp_all <;> scalar_tac)` is safe: it can only reach
+   pre-VCs (no folded post present).
+5. **Erasure recipe**: `mvcgen [the_spec, - registered_competitor, <unfolds>]` — the ONLY
+   way to override a registration at one call site. **Self-spec hazard**: any
+   `*.spec.proof` whose proof steps its own function must carry `- <self>.spec.proof`
+   (the sorried/proved olean registration would discharge it circularly). Weak registered
+   posts (root, direct_path) force erasure + the value route (`spec_value`/`spec_pure`).
+6. **Exact forms**: `IScalar.toNat` not `.toNat`; `UScalar.size UScalarTy.U32` not
+   `U32.size`; `vecLen v` is `rfl`-equal to `v.1.length`; `(↑v : List T)` ascriptions FAIL
+   to elaborate — write `v.1`/`v.val`; `loop_spec_measure`'s `post :=` needs an explicit
+   result-type ascription; omega treats `2^k` as an opaque atom (safe where scalar_tac
+   loops) but needs products generalized first (`obtain ⟨Q, hQ⟩ : ∃ Q, 2^k * (x/2^k) = Q :=
+   ⟨_, rfl⟩`) and EXPLICIT upper bounds on pow atoms; closed numerals: `first | decide |
+   native_decide` — but `native_decide` in a lemma leaks a `_native…ax_*` axiom into
+   lean_verify: prefer scalar_tac/norm_num in reusable helpers.
+7. **Statement first**: diff a failing theorem's STATEMENT against
+   `ProofObligationsExplicit.lean` before debugging tactics (a stale statement mimics
+   tactic failure). Then one `lean_goal` (no column) at the mvcgen line: full VC list with
+   binder counts — never guess `rename_i`/`case` arities. Case tags DUPLICATE across
+   `TreeNodeIndex` constructor branches (positional first-match: Leaf blocks before
+   Parent). `case t n₁…nₙ` names the LAST n inaccessible hypotheses (like rename_i).
+8. **Multi-step admitted contracts are INERT in mvcgen lists** (frame matcher only sees
+   head calls; single-call triples like `spec_pure` work fine in the list). Hand-apply:
+   `have h := <contract> args hsafe; obtain ⟨v, hv⟩ := triple_noThrow_exists_ok h;
+   rw [← Std.Do.WP.bind, hv]` — add `← bind_assoc` (×k) ONLY if the do-block shape
+   mismatches; for copath's final trio NO bind_assoc is correct. Close `(wp⟦ok v⟧ …).down`
+   with `trivial`.
+9. **`into_vec` / vec-literal stepping**: `alloc.slice.Slice.into_vec` goes through a
+   lifted twin `alloc.slice.Dummy.into_vec` (generated by `@[rust_fun … -lift]`, exists in
+   no source file — don't grep). Incantation: `simp only [alloc.slice.Slice.into_vec]`
+   THEN `mvcgen [alloc.slice.Dummy.into_vec, rust_primitives.sequence.seq_from_boxed_slice,
+   alloc.vec.from_seq]`.
+10. **Verification tooling**: trust `lake build` over the LSP; after edits to an imported
+    file, ONE `lean_build` MCP call (build + LSP restart) before working downstream —
+    the LSP silently serves stale oleans otherwise (even `#check` lies).
+    `lean_diagnostic_messages` is UNUSABLE while the file has any error — per-theorem
+    verification is `lean_verify` (axiom list; no sorryAx beyond admitted contracts, no
+    unexpected `_native…ax_*`) + `lean_goal` at the last tactic line (`goals_after: []`).
+    `lean_multi_attempt` doubles as a redundancy probe (`first | current | fallback` —
+    "never executed" on the fallback proves current suffices).
 
-## Pending user decisions / parked items
+## Parked / optional (nothing blocks anything)
 
-1. RETIRED: `vec_index_spec` strengthening — the new membership-form `direct_path.post`
-   (iter().all) removed the need; `direct_path.spec_pure` (validated) is the consumption route.
-2. `copath`/`direct_path` package steps 1-4 DONE (2026-07-28 evening, user-directed):
-   - Recon: `Iter T` = `Seq T` = `Aeneas.Std.Slice T` (CONCRETE); pop/is_empty/append/deref/
-     Slice.iter are real CoreModels defs; SharedAVec-into_iter + Iter.next axioms were dead
-     (deleted from FunsExternal with their admitted contracts).
-   - Spec layer: MissingCoreSpecs gained PROVED vec_is_empty/vec_pop (post: dropLast +
-     getLast decomposition)/vec_deref_slice/slice_iter_of_slice/vec_append specs;
-     AdmittedCoreSpecs = 10 contracts (−4 retired, +2 user-validated slice_iter_all_spec /
-     slice_iter_map_collect_spec); sliceIterElems is now a REAL def (it.val), not opaque.
-     Side effect: the new registered specs let hax_mvcgen step the new copath body — its
-     old `all_goals sorry` scaffold elaborates again (gate 0 errors).
-   - direct_path_loop_inv/_spec STRENGTHENED with the positional clause
-     (`∀ i < len, tones (2·l[i]+1) = i+1`); `direct_path.spec_pure` MOVED to Proofs.lean
-     (user ruling (a); placed after the loop spec, unregistered) and PROVED — root's VALUE
-     needed the erasure recipe (`- root.spec.proof, root, TreeNodeIndex.new,
-     from_tree_index ×2`) and manual `mspec` application of the loop spec (explicit s/L);
-     `set L := Nat.log …` re-introduces Nat.log hypotheses at the END of the context
-     (rename_i budgets +2 slots).
-   - `dropLast_entries_ne_max_root` PROVED in PureSpecs (popped entries ≠ max-root, via
-     tones_pow_sub_one; instantiates verbatim with spec_pure clauses 1+3).
-   Step 5 DONE (2026-07-28 night): `direct_path.spec.proof` PROVED (hax_mvcgen with
-   `- direct_path.spec.proof` erasure + spec_pure in the list; `unfold direct_path.post`
-   first; slice_iter_all_spec's non-inferable P arrives as a bare `vc1.P : Bool` goal;
-   hcall by unfold-the-closure + MAX_* `= ok` rewrites + UScalar.div_spec ∃-triple + split).
-   `copath.spec.proof` PROVED (5b+5c): key mechanics — mvcgen is INERT on multi-step admitted
-   contracts (slice_iter_map_collect_spec / into_map_collect_spec): apply by hand via
-   `have h := <contract> …; obtain ⟨v,hv⟩ := triple_noThrow_exists_ok h;
-   rw [← Std.Do.WP.bind, hv]` (bind_assoc only if shapes mismatch — for the final trio NO
-   bind_assoc); `into_vec` steps only via `simp only [alloc.slice.Slice.into_vec]` then
-   `mvcgen [alloc.slice.Dummy.into_vec, seq_from_boxed_slice, alloc.vec.from_seq]` (lifted
-   Dummy twin, exists in no source file); hsafe per element from sibling.spec.proof +
-   new helpers `sibling_pre_leaf`/`sibling_pre_parent`/`ptti_ok`/`max_*_eq` (Proofs.lean,
-   sibling section) + dropLast_entries_ne_max_root + spec_pure clauses.
-
-## FINAL STATE: 19/19 obligations proved, gate 0 errors, ZERO work-sorries.
-   Sorry census = exactly the 10 admitted contracts in AdmittedCoreSpecs.lean.
-   Optional cleanups parked: promote ptti_ok to PureSpecs next to mul2_ok; share the
-   max_*_eq constants (direct_path.spec.proof has an inline duplicate of max_parent_eq);
-   delete Proof_bck.lean (its useful blocks are lifted); the 4 cosmetic linter warnings.
-3. Rust backport (option C part 2): parent's value ensures phrased via in-crate `level`
-   (NOT `trailing_ones` — CoreModels has no model). Retires `parent.spec_value` after
-   re-extraction. The domain-constants refactor + `TreeNodeIndex::new` off-by-one fix are
-   already in `treemath.rs` (user PR upstream: openmls/openmls#2136 for MAX_TREE_SIZE).
-4. Upstream contributions queue: `trailing_ones` CoreModels model; file the two `scalar_tac`
-   issues (`Openmls/Issues/`, repros ready); the `@[step]`/mvcgen-triple partial specs in
-   `MissingCoreSpecs.lean` (PR to Aeneas/hax per README TODO).
-5. `sorryAx` localization in parent's closure (name the trusted supplier).
-6. `left`/`right` still state weakened `True` posts vs the reference's real posts
-   (reference-conformance only; nothing downstream needs the values).
-7. Retirement review of now-unused BitMath `parent_*` lemmas — NOT `parent_bits_val`/`parent_lt`/
-   `tones_*` (used by parent.spec_value & direct_path_loop_spec); check `parent_val_arith`,
-   `parent_val_u32`, `parent_val_lt` usage before deleting anything.
+1. Cosmetic: promote `ptti_ok` to PureSpecs next to `mul2_ok`; share the `max_*_eq`
+   constants (an inline duplicate sits in `direct_path.spec.proof`); delete
+   `Proof_bck.lean` (its useful blocks were lifted 2026-07-28); 4 linter warnings.
+2. Trusted-surface shrink (10 → ~7): model `all` / slice-iter `map` / `collect`
+   concretely (CoreModels-style) — the three composed-iterator contracts become provable.
+   `vec_push_spec`: provable from `seq_push` modulo the vecLen/Seq representation question.
+3. Upstream queue: `trailing_ones` CoreModels model + spec (proved here, PR-ready);
+   MissingCoreSpecs PR; the two scalar_tac issues (reproducers ready in `Openmls/Issues/`);
+   `tones` → `trailing_ones` rename (user TODO); spurious hax_lib const; Rust-side
+   `direct_path` spec upgrade to carry the positional/level clause (user plans to phrase
+   it via `level`).
 
 ## Process norms (user-imposed, standing)
 
-- Orchestrator + sub-agents (model ≠ Fable; Opus used throughout), one proof task per capped
-  slice (8–15 min; timers + TaskStop; stabilize checkpoint ~2 min before the buzzer: revert
-  broken work, REPORT — a lost report costs more than a lost leaf).
-- In-slice verification via lean-lsp MCP ONLY (`lean_diagnostic_messages` ~2 min/full pass;
-  `lean_multi_attempt` is single-line and breaks on stale imports); the ORCHESTRATOR runs the
-  authoritative gate after each slice. `lean_build` once at slice start when imports changed.
-- Lean definition lookup via MCP, never bash grep. Serialize editors per file (never two
-  agents editing `Proofs.lean`); read-only recons may run parallel.
-- User validation gates: new specs (pure/value/registered), admitted-surface changes, Rust
-  edits, deleting user-authored content. Status report to the user every ~15 min of active
-  work. Never replace user proof bodies without consent. No git mutations (user commits).
-- Upstream issues → `Openmls/Issues/`, one per file, intentionally failing, imported by nothing.
+- Orchestrator + sub-agents (model ≠ Fable; Opus used throughout), one task per hard
+  time-boxed slice (8–15 min normal, up to ~25 on explicit user budget; timers + TaskStop;
+  stabilize-and-report ~2 min before the buzzer — a lost report costs more than a lost leaf).
+- In-slice verification via lean-lsp MCP ONLY; the ORCHESTRATOR runs the authoritative
+  gate after every slice. Lean definition lookup via MCP, never bash grep.
+- Serialize editors per file; read-only recons may run parallel.
+- User validation gates: new specs of any kind (pure/value/registered), admitted-surface
+  changes, Rust edits, deleting user-authored content. Status report every ~15 min of
+  active work; pause at work-package boundaries. No git mutations (user commits).
+- Upstream issues → `Openmls/Issues/`, one per file, intentionally failing, imported by
+  nothing.

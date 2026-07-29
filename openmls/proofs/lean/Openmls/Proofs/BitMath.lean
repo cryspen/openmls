@@ -259,7 +259,7 @@ theorem parent_val_lt (v : Nat) (hv : v < 2 ^ 31) (hk : tones v ≤ 30) :
     have h1 : 1 ≤ (2 : Nat) ^ (30 + 1) := Nat.one_le_two_pow
     omega
 
-/-! ### `U32`-level shift/mask helpers (moved from `Proofs.lean`, WP0 scaffolding) -/
+/-! ### `U32`-level shift/mask helpers -/
 
 /-- Powers of two up to `2^31` fit in a `u32` (the `u32::pow` side condition shape). -/
 theorem two_pow_le_u32_max (m : Nat) (h : m ≤ 31) : 2 ^ m ≤ Aeneas.Std.U32.max := by
@@ -381,7 +381,7 @@ theorem two_pow_le_u32_max_or (e : Nat) : 2 ^ e ≤ Aeneas.Std.U32.max ∨ 31 < 
   · exact Or.inr (by omega)
 
 /-! ### Value lemmas for `left` / `right` / `parent` / the `direct_path` walk
-(moved here from `Proofs.lean`: pure-`Nat` / `u32`-bit facts, no monad). -/
+(pure-`Nat` / `u32`-bit facts, no monad). -/
 
 /-- Bit lemma for `left`: with the low `j+2` bits of `v` equal to `2^(j+1) − 1`, xor-ing with `2^j`
     CLEARS bit `j`, so the value drops by `2^j`.  Delivered in `+`/`·` form for `omega`. -/

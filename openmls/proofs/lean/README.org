@@ -48,6 +48,7 @@ from the extraction). Pure companion spec =direct_path.spec_pure= (validated, pr
 ** Contributions
 
 - Change the ~MAX_TREE_SIZE~ constant https://github.com/openmls/openmls/pull/2136
+- Fix ~level~ https://github.com/openmls/openmls/pull/2137
 
 * High-level tasks
 

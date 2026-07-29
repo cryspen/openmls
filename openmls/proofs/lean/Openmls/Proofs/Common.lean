@@ -17,6 +17,96 @@ set_option linter.unusedVariables false
 set_option maxHeartbeats 1000000
 set_option maxRecDepth 2048
 
+/-! ### `subst_vals` — `subst` for machine-scalar value equations
+
+`mvcgen` leaves chains of hypotheses `h : ↑x = e` whose left-hand side is a scalar value
+projection (`UScalar.val x` / `IScalar.val x` / `IScalar.toNat x`), which `subst` rejects
+(the LHS is not a variable). `subst_vals` substitutes them anyway: it rewrites `↑x → e` in
+every other hypothesis and the goal, then drops `h` and `x` when `x` is otherwise dead.
+Two design guarantees, both load-bearing in this development:
+
+* **Occurs-check**: a self-referential equation (`↑size = 2 ^ (Nat.log 2 ↑size + 1) − 1`,
+  the `TreeSize.valid` shape on which `scalar_tac`'s preprocessing diverges) is left
+  untouched — `subst_vals` is quarantine-safe by construction.
+* **No information loss**: when the goal still mentions the scalar itself at scalar level
+  (e.g. `decide (x < y) = true`), the — by then fully substituted — equation is kept for
+  `scalar_tac`.
+
+Works on inaccessible hypotheses (no `rename_i` needed). Limitation: fires only when the
+projected operand is a plain local variable (`IScalar.toNat p.2` is skipped). -/
+section subst_vals
+
+open Lean Meta Elab Tactic
+
+/-- The fvar `x` when `e` is a machine-scalar value projection
+    (`UScalar.val x` / `IScalar.val x` / `IScalar.toNat x`) of a local variable `x`. -/
+private def valProjFVar? (e : Expr) : Option FVarId := do
+  let .const n _ := e.getAppFn | none
+  guard (n == ``Aeneas.Std.UScalar.val || n == ``Aeneas.Std.IScalar.val
+      || n == ``Aeneas.Std.IScalar.toNat)
+  guard (e.getAppNumArgs ≥ 1)
+  let x := e.appArg!
+  guard x.isFVar
+  return x.fvarId!
+
+/-- Work loop of `subst_vals`: pick an unvisited `h : ↑x = e` with `x ∉ e`, rewrite
+    `↑x → e` everywhere else (`simpGoal` with `h` as the only rule), drop `h`/`x` if `x`
+    is then dead, recurse. `visited` is keyed on `x`, whose `FVarId` is stable (never
+    simplified); `none` means the substitution closed the goal. -/
+private partial def substValsLoop (g : MVarId) (visited : Std.HashSet FVarId := {}) :
+    MetaM (Option MVarId) := do
+  let found ← g.withContext do
+    let lctx ← getLCtx
+    let mut res := none
+    for d in lctx do
+      if d.isImplementationDetail then continue
+      let ty ← instantiateMVars d.type
+      if let some (_, lhs, rhs) := ty.eq? then
+        if let some x := valProjFVar? lhs then
+          if !visited.contains x && !(rhs.containsFVar x) then
+            res := some (d.fvarId, x); break
+    pure res
+  match found with
+  | none => return some g
+  | some (h, x) =>
+    let g' ← g.withContext do
+      let thms ← ({} : SimpTheorems).add (.fvar h) #[] (mkFVar h)
+      let ctx ← Simp.mkContext (config := {}) (simpTheorems := #[thms])
+        (congrTheorems := ← getSimpCongrTheorems)
+      let fvars := (← g.getNondepPropHyps).filter (· != h)
+      let s ← saveState
+      try
+        let (res, _) ← simpGoal g ctx (fvarIdsToSimp := fvars)
+        match res with
+        | some (_, g') => pure (some g')
+        | none => pure none
+      catch _ =>
+        -- `↑x` occurs nowhere else: nothing to rewrite ("simp made no progress").
+        restoreState s; pure (some g)
+    match g' with
+    | none => return none
+    | some g' =>
+      -- Speculative `clear` must backtrack the FULL state: `MVarId.clear` assigns the
+      -- old goal even when we abandon its result.
+      let g' ← do
+        let s ← saveState
+        try
+          let g₂ ← g'.clear h
+          g₂.clear x
+        catch _ =>
+          restoreState s
+          pure g'
+      substValsLoop g' (visited.insert x)
+
+/-- Substitute every hypothesis `↑x = e` (machine-scalar value equation with `x ∉ e`) as
+    `subst` would; see the section docstring. -/
+elab "subst_vals" : tactic => do
+  match ← substValsLoop (← getMainGoal) with
+  | some g => replaceMainGoal [g]
+  | none => replaceMainGoal []
+
+end subst_vals
+
 noncomputable section
 
 namespace openmls
