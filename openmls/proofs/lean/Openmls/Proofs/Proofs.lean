@@ -202,38 +202,6 @@ theorem level.spec_pure (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 30) :
   simp_all
   grind [tones_le_30, tones_mod]
 
-set_option maxHeartbeats 400000 in
-/-- Consumer-tailored companion to `level.spec_pure` for `left` / `right`: under the precondition
-    those callers already carry (an odd parent tree index `≤ 2^30 − 3`), it hands back all eight
-    facts their VCs need as omega-ready `Nat` (in)equalities — the `≤ 30` bound, the trailing-ones
-    characterization, `1 ≤ r`, the two `2^(r−1)` power bounds, BOTH xor values in the syntax the
-    extraction actually produces (`_ <<< (r − 1) % UScalar.size UScalarTy.U32`), and the
-    `≤ 2^30 − 2` range.  All arithmetic content is discharged by `level_v4_facts`.
-
-    NOT `@[spec]`-registered — it is erasure-consumed by design, so that registering it alongside
-    `level.spec_pure` cannot make `mvcgen` pick nondeterministically.  Consume at the use site as
-    `hax_mvcgen [f, level.spec_v4, - level.spec_pure]`.  Statement user-validated 2026-08-03. -/
-theorem level.spec_v4 (index : Std.U32) (hidx : (↑index : Nat) ≤ 2 ^ 30 - 3)
-    (hodd : (↑index : Nat) % 2 = 1) :
-    ⦃ ⌜ True ⌝ ⦄
-    level index
-    ⦃ ⇓ r => ⌜ (↑r : Nat) ≤ 30
-        ∧ (↑index : Nat) % 2 ^ ((↑r : Nat) + 1) = 2 ^ (↑r : Nat) - 1
-        ∧ 1 ≤ (↑r : Nat)
-        ∧ 1 ≤ 2 ^ ((↑r : Nat) - 1)
-        ∧ 2 ^ ((↑r : Nat) - 1) ≤ (↑index : Nat)
-        ∧ (↑index : Nat) ^^^ (1 <<< ((↑r : Nat) - 1) % UScalar.size UScalarTy.U32)
-            = (↑index : Nat) - 2 ^ ((↑r : Nat) - 1)
-        ∧ (↑index : Nat) ^^^ (3 <<< ((↑r : Nat) - 1) % UScalar.size UScalarTy.U32)
-            = (↑index : Nat) + 2 ^ ((↑r : Nat) - 1)
-        ∧ (↑index : Nat) + 2 ^ ((↑r : Nat) - 1) ≤ 2 ^ 30 - 2 ⌝ ⦄ := by
-  mvcgen [level]
-  case vc1.hidx => omega
-  case vc2.success =>
-    intro h30 hchar
-    obtain ⟨a, b, c, d, e, f⟩ := level_v4_facts _ _ hidx hodd h30 hchar
-    exact ⟨h30, hchar, a, b, c, d, e, f⟩
-
 @[spec]
 theorem root.spec.proof (size : TreeSize) :
   (root.pre size).holds →
@@ -246,29 +214,50 @@ theorem root.spec.proof (size : TreeSize) :
     have ⟨L, _, _, _, _, _, _, _⟩ := valid_mask_destruct size ?_
     <;> scalar_tac
 
--- The erasure `- level.spec_pure` swaps the globally registered spec for the consumer-tailored
--- `level.spec_v4`: its odd-index precondition is discharged by parity of `2 · p + 1`, and its xor
--- clauses are stated as omega-ready `Nat` VALUES, so `subst_vals; scalar_tac` closes every VC.
--- No case blocks, no `BitVec`/`bv_decide` route.
+-- The registered `level.spec_pure` fires by default (no erasure): its trailing-ones post is fed to
+-- the pure `trailing_ones_xor_vals`, whose `1 <<< (k−1)` xor clause makes the result DROP by
+-- `2^(k−1)`.  A cheap `scalar_tac` sweep takes every VC that needs no bit reasoning; the four that
+-- remain (`res < index` and the two range-check branches, per `from_tree_index` parity) are closed
+-- by the one `have`.  `hchar` is `trailing_ones_xor_vals`'
+-- FIRST argument so that `by assumption` pins `x`/`k` before the remaining `by scalar_tac` side
+-- goals elaborate.
 set_option maxHeartbeats 400000 in
 @[spec]
 theorem left.spec.proof (index : ParentNodeIndex) :
   (left.pre index).holds →
   ⦃ ⌜ True ⌝ ⦄ left index ⦃ ⇓ res => ⌜ (left.post index res).holds ⌝ ⦄
   := by
-  hax_mvcgen [left, level.spec_v4, - level.spec_pure]
-  all_goals (subst_vals; scalar_tac)
+  hax_mvcgen [left]
+  all_goals set_option maxHeartbeats 1_000 in (try scalar_tac)
+  guard_goal_nums 4
+  all_goals
+    (casesm* _ ∧ _
+     have := trailing_ones_xor_vals _ _ (by assumption) (by scalar_tac) (by scalar_tac) (by scalar_tac)
+     obtain ⟨_, _, _, _, _, _⟩ := this
+     subst_vals
+     scalar_tac)
 
--- Mirror of `left.spec.proof` on the same V4 route; the `3 <<< (k−1)` xor clause makes the result
--- RISE by `2^(k−1)`.
+-- The registered `level.spec_pure` fires by default (no erasure): its trailing-ones post is fed to
+-- the pure `trailing_ones_xor_vals`, whose `3 <<< (k−1)` xor clause makes the result RISE by
+-- `2^(k−1)`.  A cheap `scalar_tac` sweep takes every VC that needs no bit reasoning; the four that
+-- remain (`res > index` and the two range-check branches, per `from_tree_index` parity) are closed
+-- by the one `have`.  `hchar` is `trailing_ones_xor_vals`' FIRST argument so that `by assumption`
+-- pins `x`/`k` before the remaining `by scalar_tac` side goals elaborate.
 set_option maxHeartbeats 400000 in
 @[spec]
 theorem right.spec.proof (index : ParentNodeIndex) :
   (right.pre index).holds →
   ⦃ ⌜ True ⌝ ⦄ right index ⦃ ⇓ res => ⌜ (right.post index res).holds ⌝ ⦄
   := by
-  hax_mvcgen [right, level.spec_v4, - level.spec_pure]
-  all_goals (subst_vals; scalar_tac)
+  hax_mvcgen [right]
+  all_goals set_option maxHeartbeats 1_000 in (try scalar_tac)
+  guard_goal_nums 4
+  all_goals
+    (casesm* _ ∧ _
+     have := trailing_ones_xor_vals _ _ (by assumption) (by scalar_tac) (by scalar_tac) (by scalar_tac)
+     obtain ⟨_, _, _, _, _, _⟩ := this
+     subst_vals
+     scalar_tac)
 
 /-- Value-carrying spec for `parent` (user-validated exception, mirrors `level.spec_pure`): with `v`
     the tree index of `x` and `tones v` its trailing-ones count, the parent's tree index is the

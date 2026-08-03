@@ -455,13 +455,20 @@ theorem right_val_le (Q m : Nat) (hdvd : 2 ^ (m + 2) ∣ Q)
   have hB30 : (2 : Nat) ^ 30 = 1073741824 := by norm_num
   omega
 
-/-- Pure-`Nat` driver of `level.spec_v4`'s six derived clauses: from an odd tree index `x ≤ 2^30 − 3`
-    whose low `k+1` bits are `2^k − 1`, it yields `1 ≤ k`, the two `2^(k−1)` power bounds, the two
-    xor VALUES in the extracted shift-residue syntax (`_ <<< (k−1) % UScalar.size UScalarTy.U32`),
-    and the `x + 2^(k−1) ≤ 2^30 − 2` range.  Combines `right_val_arith` / `right_val_le` with
-    `one_shiftLeft_mod_eq` and `xor_two_pow_of_testBit`. -/
-theorem level_v4_facts (x k : Nat) (hx : x ≤ 2 ^ 30 - 3) (hodd : x % 2 = 1) (hk30 : k ≤ 30)
-    (hchar : x % 2 ^ (k + 1) = 2 ^ k - 1) :
+/-- Pure trailing-ones xor-value facts: from an odd `x ≤ 2^30 − 3` whose low `k+1` bits are
+    `2^k − 1`, it yields `1 ≤ k`, the two `2^(k−1)` power bounds, the two xor VALUES in the
+    extracted shift-residue syntax (`_ <<< (k−1) % UScalar.size UScalarTy.U32`), and the
+    `x + 2^(k−1) ≤ 2^30 − 2` range.  Combines `right_val_arith` / `right_val_le` with
+    `one_shiftLeft_mod_eq` and `xor_two_pow_of_testBit`.  Consumed inside the proofs of `left` /
+    `right`, where the trailing-ones characterization comes from `level.spec_pure`'s post.
+
+    `hchar` comes FIRST deliberately: it is the unification anchor.  Call sites instantiate as
+    `trailing_ones_xor_vals _ _ (by assumption) …`, and unifying that first argument pins `x` and
+    `k` before the later `by`-blocks elaborate (elaboration-order discipline) — with `hchar` last,
+    those blocks would run against unassigned metavariables. -/
+theorem trailing_ones_xor_vals (x k : Nat)
+    (hchar : x % 2 ^ (k + 1) = 2 ^ k - 1)
+    (hx : x ≤ 2 ^ 30 - 3) (hodd : x % 2 = 1) (hk30 : k ≤ 30) :
     1 ≤ k ∧ 1 ≤ 2 ^ (k - 1) ∧ 2 ^ (k - 1) ≤ x
       ∧ x ^^^ (1 <<< (k - 1) % UScalar.size UScalarTy.U32) = x - 2 ^ (k - 1)
       ∧ x ^^^ (3 <<< (k - 1) % UScalar.size UScalarTy.U32) = x + 2 ^ (k - 1)
