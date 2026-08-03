@@ -263,21 +263,13 @@ theorem log2_two_pow_sub_one (k : Nat) : Nat.log 2 (2 ^ (k + 1) - 1) = k := by
 
 /-! ### Registered forward rules for the `Nat.log` / shift residue
 
-Every `TreeSize`-flavoured obligation (`root`, `inc`, `dec`, `leaf_count`) ends in the same two
-residual shapes, because `TreeSize.valid` is `1 ≤ s ∧ s ≤ 2^30 ∧ s = 2^(log2 s + 1) − 1` and the
-extracted `log2` is `31 - leading_zeros`:
+`TreeSize`-flavoured obligations leave two nonlinear atoms (`Nat.log 2 s` and `2 ^ e`) in otherwise
+linear goals.  The idiom below hands `scalar_tac` their bounds as UNCONDITIONAL disjunctions (as
+`level_ge_one` does): the rule fires on the pattern with no side goal, and `omega` kills the wrong
+disjunct from the surrounding linear facts — so no hand-written preamble is needed. -/
 
-* a `u32::pow` side condition `2 ^ (31 - (31 - Nat.log 2 s) + 1) ≤ u32::MAX`, and
-* a shift-nonzero obligation on `1 <<< (31 - m) % U32.size`.
-
-Both are *linear* once the nonlinear atoms `Nat.log 2 s` and `2 ^ e` are bounded, so we hand
-`scalar_tac` the bounds as UNCONDITIONAL disjunctions (the `level_ge_one` idiom): the rule fires on
-the pattern with no side goal, and `omega` kills the wrong disjunct from the surrounding linear
-facts.  This is what lets `scalar_tac` close such goals with no hand-written preamble. -/
-
-/-- `log₂ x ≤ 30` unless `x` exceeds `MAX_TREE_SIZE = 2^30`.  Registered on the `Nat.log` pattern:
-    with `s ≤ 2^30` in context (from `TreeSize.valid`) `scalar_tac` gets `Nat.log 2 s ≤ 30`, which
-    is the bound every `TreeSize` exponent computation needs. -/
+/-- `log₂ x ≤ 30` unless `x` exceeds `MAX_TREE_SIZE = 2^30`.  Registered on the `Nat.log` pattern,
+    so `s ≤ 2^30` in context yields the exponent bound every `TreeSize` computation needs. -/
 @[scalar_tac Nat.log 2 x]
 theorem log2_le_30_or (x : Nat) : Nat.log 2 x ≤ 30 ∨ 2 ^ 30 < x := by
   by_cases h : x < 2 ^ 31
@@ -290,11 +282,10 @@ theorem log2_le_30_or (x : Nat) : Nat.log 2 x ≤ 30 ∨ 2 ^ 30 < x := by
     have h31 : (2:Nat) ^ 30 < 2 ^ 31 := by norm_num
     omega
 
-/-- A `u32` `1 <<< k` is zero exactly when the shift amount is out of range.  Unconditional `iff`, so
-    it is safe as `@[simp]`: it turns the `h_fail` obligations of `1#u32 <<< log2 size` into the
-    linear `32 ≤ k`, which `omega` then kills from `k = 31 - _`.  This is the registration that lets
-    such goals close without `scalar_tac` (unusable there: its `simp` preprocessing hits
-    `maxRecDepth` whenever a symbolic `↑r = 2 ^ ↑e` hypothesis is in context). -/
+/-- A `u32` `1 <<< k` is zero exactly when the shift amount is out of range.  Unconditional `iff`,
+    hence safe as `@[simp]`: it reduces the `h_fail` obligations of `1#u32 <<< log2 size` to the
+    linear `32 ≤ k`.  Needed because `scalar_tac` is unusable on those goals — its `simp`
+    preprocessing hits `maxRecDepth` on a symbolic `↑r = 2 ^ ↑e` hypothesis. -/
 @[simp] theorem one_shiftLeft_mod_eq_zero_iff (k : Nat) :
     1 <<< k % Aeneas.Std.U32.size = 0 ↔ 32 ≤ k := by
   have hsz : Aeneas.Std.U32.size = 2 ^ 32 := by native_decide
@@ -324,65 +315,58 @@ theorem one_le_one_shiftLeft_mod_or (k : Nat) :
   · exact Or.inr (by omega)
 
 /-- `2 ^ e ≤ u32::MAX` unless the exponent exceeds `31`.  Disjunctive (`scalar_tac`-shaped) form of
-    `two_pow_le_u32_max`, kept for manual use.
+    `two_pow_le_u32_max`, for manual use.
 
-    DELIBERATELY NOT REGISTERED: `@[scalar_tac 2 ^ e]` was tried and REVERTED.  The pattern `2 ^ e`
-    matches essentially every power in the development (including the `2 ^ (k+1)` of the trailing-ones
-    characterization), so the extra disjunction per occurrence blows up `omega`'s case split and
-    *regresses* previously-green goals — concretely it broke `left.spec.proof`'s
-    `hax_mvcgen [left] <;> scalar_tac`.  Apply it by hand instead. -/
+    NOT REGISTERED: `@[scalar_tac 2 ^ e]` was tried and REVERTED — the pattern matches nearly every
+    power here, and the extra disjunction per occurrence blows up `omega`'s case split, regressing
+    green goals (it broke `left.spec.proof`). -/
 theorem two_pow_le_u32_max_or (e : Nat) : 2 ^ e ≤ Aeneas.Std.U32.max ∨ 31 < e := by
   by_cases h : e ≤ 31
   · exact Or.inl (two_pow_le_u32_max e h)
   · exact Or.inr (by omega)
 
-/-! ### Generic single-bit `xor` lemmas
+/-! ### `bvify` bridges for the `1 <<< j` shift residue
 
-Xor-ing a natural with a single power of two toggles exactly that bit, so it either *subtracts*
-`2^j` (bit already set) or *adds* it (bit clear).  Mathlib only has the `j = 0` instance
-(`Nat.xor_one_of_odd`); the general pair below is stated for arbitrary `j` and is an upstream
-candidate.  Deliberately NOT `@[simp]` / `@[scalar_tac]`: the `x ^^^ 2 ^ j` pattern is far too
-common in the extracted bit code for an unconditional rewrite to be safe. -/
+`bvify 32` (hence `bv_tac 32`) cannot lift the extracted shift residue
+`BitVec.ofNat 32 (1 <<< ↑j % UScalar.size UScalarTy.U32)` (`j : Usize`): the unconditional lift is
+FALSE at `↑j = 2 ^ 32`, where the left side is `0#32` but `1#32 <<< BitVec.ofNat 32 (2 ^ 32) = 1#32`.
+A conditional `@[bvify]` registration would be dead weight too — `bvify`'s discharger runs at
+`maxDischargeDepth 0` and could never prove `↑j < 32`.  Hence the by-hand bridge below. -/
 
-/-- Xor-ing with a power of two whose bit is CLEAR adds it. -/
-theorem xor_two_pow_of_not_testBit (x j : Nat) (h : x.testBit j = false) :
-    x ^^^ 2 ^ j = x + 2 ^ j := by
-  have hb1 : x % 2 ^ j < 2 ^ j := Nat.mod_lt _ (Nat.two_pow_pos j)
-  have hpow : (2 : Nat) ^ (j + 1) = 2 * 2 ^ j := by ring
-  have hb2 : 2 ^ j * 1 + x % 2 ^ j < 2 ^ (j + 1) := by omega
-  -- bit `j` clear ⇒ the low `j+1` bits are just the low `j` bits
-  have hmodj : x % 2 ^ (j + 1) = x % 2 ^ j := by
-    refine Nat.eq_of_testBit_eq fun i => ?_
-    rw [Nat.testBit_mod_two_pow, Nat.testBit_mod_two_pow]
-    rcases Nat.lt_trichotomy i j with hi | hi | hi
-    · simp [hi, show i < j + 1 by omega]
-    · subst hi; simp [h]
-    · simp [show ¬ (i < j) by omega, show ¬ (i < j + 1) by omega]
-  have step : x ^^^ 2 ^ j = ((x >>> (j + 1)) <<< (j + 1)) ||| (2 ^ j * 1 ||| (x % 2 ^ j)) := by
-    refine Nat.eq_of_testBit_eq fun i => ?_
-    simp only [Nat.mul_one, Nat.testBit_lor, Nat.testBit_xor, Nat.testBit_two_pow,
-      Nat.testBit_shiftLeft, Nat.testBit_shiftRight, Nat.testBit_mod_two_pow, ge_iff_le]
-    rcases Nat.lt_trichotomy i j with hi | hi | hi
-    · simp [hi, show ¬ (j = i) by omega, show ¬ (j + 1 ≤ i) by omega]
-    · subst hi; simp [h, show ¬ (i + 1 ≤ i) by omega]
-    · simp [show j + 1 ≤ i by omega, show ¬ (j = i) by omega, show ¬ (i < j) by omega,
-        show j + 1 + (i - (j + 1)) = i by omega]
-  have hdm := Nat.div_add_mod x (2 ^ (j + 1))
-  rw [step, Nat.shiftRight_eq_div_pow, Nat.shiftLeft_eq, mul_comm,
-    ← Nat.two_pow_add_eq_or_of_lt hb1, ← Nat.two_pow_add_eq_or_of_lt hb2, Nat.mul_one]
-  omega
+/-- Conditional lift of the raw `ofNat` shift residue, shaped for consumers: `hr1` is the `mvcgen`
+    binding of the extracted `1u32 << level` step, and the conclusion is a `BitVec 32` equation
+    whose shift amount is a *`BitVec 32` term* (`BitVec.setWidth 32 j.bv`) — natively blastable,
+    unlike a `Nat`-indexed amount.  Use immediately before `bv_decide` / `bv_tac 32`:
+    `have hbv := bv_of_one_shiftLeft_mod _ _ (by scalar_tac) (by assumption); bv_tac 32`.
+    Not `@[bvify]`; see the section note. -/
+theorem bv_of_one_shiftLeft_mod (r1 : Std.U32) (j : Std.Usize) (h : (↑j : Nat) < 32)
+    (hr1 : (↑r1 : Nat) = 1 <<< (↑j : Nat) % UScalar.size UScalarTy.U32) :
+    r1.bv = 1#32 <<< BitVec.setWidth 32 j.bv := by
+  have hjv : j.bv.toNat = (↑j : Nat) := rfl
+  have hj : (↑j : Nat) % 4294967296 = (↑j : Nat) := Nat.mod_eq_of_lt (by omega)
+  have hlt : (2:Nat) ^ (↑j : Nat) < 2 ^ 32 := Nat.pow_lt_pow_right (by norm_num) h
+  have hp : (2:Nat) ^ (↑j : Nat) % 4294967296 = 2 ^ (↑j : Nat) := by
+    apply Nat.mod_eq_of_lt; norm_num at hlt; omega
+  apply BitVec.eq_of_toNat_eq
+  rw [show r1.bv.toNat = (↑r1 : Nat) from rfl, hr1, UScalar.size_UScalarTyU32,
+    one_shiftLeft_mod_eq _ h]
+  simp [BitVec.toNat_shiftLeft, BitVec.toNat_setWidth, hjv, hj, Nat.shiftLeft_eq, hp]
 
-/-- Xor-ing with a power of two whose bit is SET subtracts it.  Corollary of
-    `xor_two_pow_of_not_testBit` by involutivity of `(· ^^^ 2 ^ j)`. -/
-theorem xor_two_pow_of_testBit (x j : Nat) (h : x.testBit j = true) :
-    x ^^^ 2 ^ j = x - 2 ^ j := by
-  have hy : (x ^^^ 2 ^ j).testBit j = false := by
-    simp [Nat.testBit_xor, h]
-  have hinv : (x ^^^ 2 ^ j) ^^^ 2 ^ j = x := by
-    rw [Nat.xor_assoc, Nat.xor_self, Nat.xor_zero]
-  have h3 := xor_two_pow_of_not_testBit (x ^^^ 2 ^ j) j hy
-  rw [hinv] at h3
-  omega
+/-- `bvify` lift of a halving applied to a `U32` *value*: `↑a / 2` becomes `a.bv >>> 1`.
+
+    Unconditionally true (the `% 2 ^ 32` truncation is the identity since `↑a < 2 ^ 32`), hence safe
+    as `@[bvify]`.  The `U32`-argument form is ESSENTIAL: the generalization to arbitrary `x : Nat`
+    is FALSE (`(x % 2 ^ 32) / 2 ≠ (x / 2) % 2 ^ 32` once `x ≥ 2 ^ 32`), which is why `bvify` ships
+    no `/ 2` rule and used to abstract `↑(r ^^^ r') / 2` as an opaque variable. -/
+@[bvify]
+theorem ofNat_val_div_two (a : Std.U32) :
+    BitVec.ofNat 32 ((↑a : Nat) / 2) = a.bv >>> 1 := by
+  have hv : a.bv.toNat = (↑a : Nat) := rfl
+  have hlt : a.bv.toNat < 2 ^ 32 := a.bv.isLt
+  apply BitVec.eq_of_toNat_eq
+  rw [BitVec.toNat_ushiftRight, hv, BitVec.toNat_ofNat, Nat.shiftRight_eq_div_pow]
+  simp only [pow_one]
+  exact Nat.mod_eq_of_lt (by omega)
 
 /-! ### Value lemmas for `left` / `right` / `parent` / the `direct_path` walk
 (pure-`Nat` / `u32`-bit facts, no monad). -/
@@ -433,35 +417,6 @@ theorem right_val_arith (v j : Nat) (hchar : v % 2 ^ (j + 2) = 2 ^ (j + 1) - 1) 
       rw [Nat.mul_one],
     ← Nat.two_pow_add_eq_or_of_lt hb1, Nat.mul_one]
 
-/-- `xor_two_pow_of_testBit` in the shape `left`'s VCs present it (`v` the tree index, `k` its
-    level, `j = k − 1`, `r1 = 1 <<< j`): the xor STRICTLY DECREASES the value. -/
-theorem left_bits_lt (v r1 : U32) (k j : Usize)
-    (hk30 : (↑k : Nat) ≤ 30) (hkpos : 1 ≤ (↑k : Nat))
-    (hchar : (↑v : Nat) % 2 ^ ((↑k : Nat) + 1) = 2 ^ (↑k : Nat) - 1)
-    (hj : (↑j : Nat) = (↑k : Nat) - (↑(1#usize) : Nat))
-    (hr1 : (↑r1 : Nat) = (↑(1#u32) : Nat) <<< (↑j : Nat) % UScalar.size UScalarTy.U32) :
-    (↑(v ^^^ r1) : Nat) < (↑v : Nat) := by
-  have e1 : (↑(1#usize) : Nat) = 1 := by simp
-  have e1' : (↑(1#u32) : Nat) = 1 := by simp
-  rw [e1] at hj
-  -- the shift doesn't wrap, so `r1` is exactly the single bit `2 ^ j`
-  have hr1' : (↑r1 : Nat) = 2 ^ (↑j : Nat) := by
-    rw [hr1, e1', UScalar.size_UScalarTyU32, one_shiftLeft_mod_eq _ (by omega)]
-  -- bit `j = k − 1` is one of the `k` trailing ones of `v`, hence SET
-  have hbit : (↑v : Nat).testBit (↑j : Nat) = true := by
-    have h1 := Nat.testBit_mod_two_pow (↑v : Nat) ((↑k : Nat) + 1) (↑j : Nat)
-    rw [hchar, Nat.testBit_two_pow_sub_one] at h1
-    simp only [show (↑j : Nat) < (↑k : Nat) from by omega,
-      show (↑j : Nat) < (↑k : Nat) + 1 from by omega, decide_true] at h1
-    exact h1.symm
-  have hval : (↑(v ^^^ r1) : Nat) = (↑v : Nat) - 2 ^ (↑j : Nat) := by
-    rw [UScalar.val_xor, hr1', xor_two_pow_of_testBit _ _ hbit]
-  have hmod_le : 2 ^ (↑k : Nat) - 1 ≤ (↑v : Nat) := by rw [← hchar]; exact Nat.mod_le _ _
-  have hkj : (2 : Nat) ^ (↑k : Nat) = 2 * 2 ^ (↑j : Nat) := by
-    rw [show (↑k : Nat) = (↑j : Nat) + 1 from by omega]; ring
-  have h1 : 1 ≤ (2 : Nat) ^ (↑j : Nat) := Nat.one_le_two_pow
-  omega
-
 /-- Range half of `right`'s VCs, pure-`Nat`: with `Q` the high part (divisible by `2^(m+2)`), the
     result `Q + (2^(m+1) + (2^m − 1)) = v + 2^m` still fits `MAX_TREE_INDEX = 2^30 − 2`. -/
 theorem right_val_le (Q m : Nat) (hdvd : 2 ^ (m + 2) ∣ Q)
@@ -495,7 +450,7 @@ theorem right_val_le (Q m : Nat) (hdvd : 2 ^ (m + 2) ∣ Q)
   have hB30 : (2 : Nat) ^ 30 = 1073741824 := by norm_num
   omega
 
-/-- `right_val_arith` in the shape `right`'s VCs present it (the `left_bits_lt` twin), delivering
+/-- `right_val_arith` in the shape `right`'s VCs present it, delivering
     both facts they need: the result exceeds the tree index, and it stays `≤ 2^30 − 2`. -/
 theorem right_bits (v r1 : U32) (k j : Usize)
     (hk30 : (↑k : Nat) ≤ 30) (hkpos : 1 ≤ (↑k : Nat))
@@ -624,5 +579,81 @@ theorem level_res_eq_zero {v k : Nat} (hv : v % 2 = 0)
   have hmm : v % 2 ^ (k + 1) % 2 = v % 2 := Nat.mod_mod_of_dvd v h2dvd
   rw [hmod, hv] at hmm
   omega
+
+/-! ### The all-ones mask characterization
+
+`TreeSize::valid`'s third conjunct is extracted as the *fixpoint* equation
+`s = 2^(log₂ s + 1) − 1`, self-referential in `s` and a `scalar_tac` divergence trigger (reproducer:
+`Openmls/Issues/ScalarTacNatLogLoop.lean`).  The two lemmas below convert it to the non-looping mask
+test `s &&& (s+1) = 0`; direction B yields a *fresh* existential `∃ k, s = 2^(k+1) − 1`, so no
+self-reference reaches `scalar_tac` (with `log2_two_pow_sub_one` the fixpoint is recoverable). -/
+
+/-- Direction A: an all-ones value has no bit in common with its successor. -/
+theorem and_succ_eq_zero_of_all_ones (k : Nat) :
+    (2 ^ (k + 1) - 1) &&& (2 ^ (k + 1) - 1 + 1) = 0 := by
+  have h1 : (1 : Nat) ≤ 2 ^ (k + 1) := Nat.one_le_two_pow
+  rw [show 2 ^ (k + 1) - 1 + 1 = 2 ^ (k + 1) from by omega]
+  refine Nat.eq_of_testBit_eq fun j => ?_
+  simp only [Nat.testBit_and, Nat.testBit_two_pow_sub_one, Nat.testBit_two_pow,
+    Nat.zero_testBit, Bool.and_eq_false_iff, decide_eq_false_iff_not]
+  by_cases hj : j < k + 1
+  · right; omega
+  · left; omega
+
+/-- Direction B: `s &&& (s+1) = 0` with `s ≥ 1` forces `s` to be all-ones of some width `k+1`.
+    The existential witness is a fresh variable, which is what makes this form safe to feed to
+    `scalar_tac` (unlike the fixpoint equation `s = 2^(log₂ s + 1) − 1`). -/
+theorem all_ones_of_and_succ_eq_zero (s : Nat) (h1 : 1 ≤ s) (h : s &&& (s + 1) = 0) :
+    ∃ k, s = 2 ^ (k + 1) - 1 := by
+  set m := tones s with hm
+  have hmod : s % 2 ^ (m + 1) = 2 ^ m - 1 := tones_mod s
+  have hspec : s.testBit m = false := Nat.find_spec (tones_ex s)
+  have hpow : (1 : Nat) ≤ 2 ^ m := Nat.one_le_two_pow
+  have hpow' : (2 : Nat) ^ m < 2 ^ (m + 1) := by
+    have : (2 : Nat) ^ (m + 1) = 2 * 2 ^ m := by rw [pow_succ]; ring
+    omega
+  -- `s = 2^(m+1)·q + (2^m − 1)`, hence `s + 1 = 2^(m+1)·q + 2^m`, and both shift to `q`.
+  have hdm := Nat.div_add_mod s (2 ^ (m + 1))
+  have hq : (s + 1) / 2 ^ (m + 1) = s / 2 ^ (m + 1) := by
+    have hsplit : s + 1 = 2 ^ (m + 1) * (s / 2 ^ (m + 1)) + 2 ^ m := by omega
+    rw [hsplit, Nat.mul_add_div (by positivity), Nat.div_eq_of_lt hpow', Nat.add_zero]
+  -- every bit at or above `m` is clear
+  have hhigh : ∀ j, m ≤ j → s.testBit j = false := by
+    intro j hj
+    rcases Nat.eq_or_lt_of_le hj with rfl | hlt
+    · exact hspec
+    · have hkey : s.testBit j = (s + 1).testBit j := by
+        have e1 : s.testBit ((m + 1) + (j - (m + 1))) = (s >>> (m + 1)).testBit (j - (m + 1)) :=
+          (Nat.testBit_shiftRight _).symm
+        have e2 : (s + 1).testBit ((m + 1) + (j - (m + 1)))
+            = ((s + 1) >>> (m + 1)).testBit (j - (m + 1)) := (Nat.testBit_shiftRight _).symm
+        rw [show (m + 1) + (j - (m + 1)) = j from by omega] at e1 e2
+        rw [e1, e2, Nat.shiftRight_eq_div_pow, Nat.shiftRight_eq_div_pow, hq]
+      have hz : (s &&& (s + 1)).testBit j = false := by rw [h]; simp
+      rw [Nat.testBit_and, ← hkey, Bool.and_self] at hz
+      exact hz
+  have hself : s = 2 ^ m - 1 := by
+    rw [← hmod]
+    refine (Nat.eq_of_testBit_eq fun j => ?_).symm
+    rw [Nat.testBit_mod_two_pow]
+    by_cases hj : j < m + 1
+    · simp [hj]
+    · rw [hhigh j (by omega)]; simp [hj]
+  refine ⟨m - 1, ?_⟩
+  have hm1 : 1 ≤ m := by
+    by_contra hc
+    have hm0 : m = 0 := by omega
+    rw [hm0, pow_zero] at hself
+    omega
+  rw [hself, show m - 1 + 1 = m from by omega]
+
+/-- The equivalence used to restate `TreeSize::valid`: under `s ≥ 1`, the extracted fixpoint
+    equation and the mask test agree. -/
+theorem all_ones_iff_and_succ_eq_zero (s : Nat) (h1 : 1 ≤ s) :
+    (s = 2 ^ (Nat.log 2 s + 1) - 1) ↔ s &&& (s + 1) = 0 := by
+  refine ⟨fun hfix => ?_, fun hmask => ?_⟩
+  · rw [hfix]; exact and_succ_eq_zero_of_all_ones _
+  · obtain ⟨k, hk⟩ := all_ones_of_and_succ_eq_zero s h1 hmask
+    rw [hk, log2_two_pow_sub_one]
 
 end openmls

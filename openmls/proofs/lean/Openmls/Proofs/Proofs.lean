@@ -44,23 +44,19 @@ attribute [spec]
   TreeSize.u32
   TreeSize.leaf_count
   TreeSize.parent_count
-  -- TreeSize.valid
   --
   TreeNodeIndex.new
   TreeNodeIndex.u32
-  -- TreeNodeIndex.valid
   --
   LeafNodeIndex.new
   LeafNodeIndex.u32
   LeafNodeIndex.to_tree_index
   LeafNodeIndex.from_tree_index
-  -- LeafNodeIndex.valid
   --
   ParentNodeIndex.new
   ParentNodeIndex.u32
   ParentNodeIndex.to_tree_index
   ParentNodeIndex.from_tree_index
-  -- ParentNodeIndex.valid
 
 /-! ### Value specs for the treemath constants -/
 
@@ -206,35 +202,123 @@ theorem level.spec_pure (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 30) :
   simp_all
   grind [tones_le_30, tones_mod]
 
+/-- Mask-form companion to `level.spec_pure`: the same trailing-ones fact as two same-width
+    `BitVec 32` mask equations (low `r` bits set, bit `r` clear) — the shape `bv_decide` digests
+    directly, so consumers need no `Nat`-side bridge lemma.  The `≤ 30` clause is load-bearing:
+    both mask clauses are vacuous without a shift bound.
+
+    NOT `@[spec]`-registered — registering both would make `mvcgen` pick nondeterministically.
+    Consume by erasure at the use site: `mvcgen [level.spec_bv, - level.spec_pure]`. -/
+theorem level.spec_bv (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 30) :
+    ⦃ ⌜ True ⌝ ⦄
+    level index
+    ⦃ ⇓ r => ⌜ (↑r : Nat) ≤ 30
+        ∧ index.bv &&& ((1#32 <<< BitVec.ofNat 32 (↑r : Nat)) - 1#32)
+            = (1#32 <<< BitVec.ofNat 32 (↑r : Nat)) - 1#32
+        ∧ index.bv &&& (1#32 <<< BitVec.ofNat 32 (↑r : Nat)) = 0#32 ⌝ ⦄ := by
+  mvcgen [level]
+  simp_all
+  rename_i r
+  intro h30 hchar
+  have hk : (↑r : Nat) % 4294967296 = (↑r : Nat) := Nat.mod_eq_of_lt (by omega)
+  rw [hk]
+  have hsl : (1 : Nat) <<< (↑r : Nat) = 2 ^ (↑r : Nat) := by rw [Nat.shiftLeft_eq, one_mul]
+  have hp30 : (2 : Nat) ^ (↑r : Nat) ≤ 2 ^ 30 := Nat.pow_le_pow_right (by norm_num) h30
+  have hppos : 0 < (2 : Nat) ^ (↑r : Nat) := Nat.two_pow_pos _
+  have hvb : index.bv.toNat = (↑index : Nat) := rfl
+  have hmodp : (2 : Nat) ^ (↑r : Nat) % 4294967296 = 2 ^ (↑r : Nat) :=
+    Nat.mod_eq_of_lt (by omega)
+  refine ⟨BitVec.eq_of_toNat_eq ?_, BitVec.eq_of_toNat_eq ?_⟩
+  · -- low `r` bits all set: fold the `2^(r+1)` characterization down to `2^r`
+    have hlow : (↑index : Nat) % 2 ^ (↑r : Nat) = 2 ^ (↑r : Nat) - 1 := by
+      have h := Nat.mod_mod_of_dvd (↑index : Nat) (pow_dvd_pow 2 (Nat.le_succ (↑r : Nat)))
+      rw [hchar, Nat.mod_eq_of_lt (by omega)] at h
+      exact h.symm
+    simp only [BitVec.toNat_umod, BitVec.toNat_sub, BitVec.toNat_shiftLeft, BitVec.toNat_ofNat,
+      BitVec.toNat_pow, Nat.reducePow, Nat.reduceMod, hsl, hmodp, hvb]
+    omega
+  · -- bit `r` clear: it is the lowest clear bit of `index`
+    have hbit : (↑index : Nat).testBit (↑r : Nat) = false := by
+      have h1 := Nat.testBit_mod_two_pow (↑index : Nat) ((↑r : Nat) + 1) (↑r : Nat)
+      rw [hchar, Nat.testBit_two_pow_sub_one] at h1
+      simpa using h1.symm
+    simp only [BitVec.toNat_and, BitVec.toNat_shiftLeft, BitVec.toNat_ofNat, Nat.reducePow,
+      Nat.reduceMod, hsl, hmodp, BitVec.toNat_ofNat, Nat.zero_mod, hvb]
+    refine Nat.eq_of_testBit_eq fun i => ?_
+    simp only [Nat.testBit_and, Nat.testBit_two_pow, Nat.zero_testBit, Bool.and_eq_false_imp]
+    intro hi
+    refine decide_eq_false ?_
+    rintro rfl
+    simp [hbit] at hi
+
 @[spec]
 theorem root.spec.proof (size : TreeSize) :
   (root.pre size).holds →
   ⦃ ⌜ True ⌝ ⦄ root size ⦃ ⇓ res => ⌜ (root.post size res).holds ⌝ ⦄
   := by
-  hax_mvcgen [root] <;> scalar_tac_preprocess (simpAllMaxSteps := 0)
-  set_option maxHeartbeats 100 in
-    all_goals grind
+  unfold root.pre root.post
+  hax_mvcgen [root]
+  all_goals
+    (obtain ⟨hs1, hs2, hmask⟩ :=
+        of_decide_eq_true
+          (show decide (1 ≤ (↑size : Nat) ∧ (↑size : Nat) ≤ 2 ^ 30 - 1 ∧
+              (↑size : Nat) &&& ((↑size : Nat) + 1) = 0) = true by assumption)
+     obtain ⟨L, hL⟩ := all_ones_of_and_succ_eq_zero _ (by omega) hmask
+     have hlog : Nat.log 2 (↑size : Nat) = L := by rw [hL]; exact log2_two_pow_sub_one L
+     have hL29 : L ≤ 29 := by
+       by_contra hc
+       have : (2 : Nat) ^ 31 ≤ 2 ^ (L + 1) := Nat.pow_le_pow_right (by omega) (by omega)
+       omega
+     have hp1 : (1 : Nat) ≤ 2 ^ L := Nat.one_le_two_pow
+     have hp29 : (2 : Nat) ^ L ≤ 2 ^ 29 := Nat.pow_le_pow_right (by omega) hL29
+     have hpow : (2 : Nat) ^ (L + 1) = 2 * 2 ^ L := by rw [pow_succ]; ring
+     have hsh : 1 <<< L % Aeneas.Std.U32.size = 2 ^ L := one_shiftLeft_mod_eq L (by omega)
+     try scalar_tac)
 
 @[spec]
 theorem left.spec.proof (index : ParentNodeIndex) :
   (left.pre index).holds →
   ⦃ ⌜ True ⌝ ⦄ left index ⦃ ⇓ res => ⌜ (left.post index res).holds ⌝ ⦄
   := by
-  hax_mvcgen [left]
+  hax_mvcgen [left, level.spec_bv, - level.spec_pure]
   set_option maxHeartbeats 100 in
     all_goals try scalar_tac
-  -- The four remaining value VCs (`x.u32 < index.to_tree_index` + the `TreeNodeIndex.new` validity
-  -- checks, once per constructor branch, twice per `TreeNodeIndex.new` branch); they differ ONLY in
-  -- how many `mvcgen` bindings pad the context, so one uniform closer handles all four: `casesm`
-  -- splits the level characterization out of its conjunction and the arguments of `left_bits_lt`
-  -- are then all found by `assumption` (which also fixes `v`/`r1`/`k`/`j`), avoiding per-case
-  -- `rename_i`/`case … gᵢ` padding lists that must be counted by hand.
-
+  -- PIPELINE for the two surviving goal families: all bit content travels in `BitVec 32` form, from
+  -- `level.spec_bv`'s mask post straight into `bv_decide` — no `Nat`-side reconstruction lemma.
+  -- `casesm* _ ∧ _` splits that post out of its conjunction, so the `by assumption` side-goals below
+  -- pick it up without hand-counted `rename_i` padding.  In BOTH `have` wrappers the *unifying*
+  -- hypothesis comes FIRST: in the other order the metavariables reach `scalar_tac` unassigned.
+  -- `bvify` cannot lift the extracted `1u32 << _` on its own (see `BitMath`'s section note for the
+  -- counterexample); the `/ 2u32` lift IS registered (`@[bvify] ofNat_val_div_two`).
+  --
+  -- (1) The `massert level > 0` branch: `2 * index + 1` is odd, so at `level = 0` the mask conjunct
+  -- `v.bv &&& 1 <<< 0 = 0` is contradictory.
+  case vc2.h =>
+    casesm* _ ∧ _
+    have hpos : ∀ (x : Std.U32) (k : Std.Usize),
+        x.bv &&& 1#32 <<< BitVec.ofNat 32 (↑k : Nat) = 0#32 →
+        (↑x : Nat) % 2 = 1 → 0 < (↑k : Nat) := by
+      intro x k hbit hodd
+      rcases Nat.eq_zero_or_pos (↑k : Nat) with h0 | h1
+      · rw [h0] at hbit
+        have hz : x &&& 1#u32 = 0#u32 := by bv_tac 32
+        simp only [u32_and_one_eq_zero] at hz
+        omega
+      · exact h1
+    have := hpos _ _ (by assumption) (by scalar_tac)
+    scalar_tac
+  -- (2) The four value VCs (`x.u32 < index.to_tree_index` plus the `TreeNodeIndex.new` range checks,
+  -- once per constructor branch); they differ only in context padding, so one closer serves all
+  -- four.  `key` wraps `bv_of_one_shiftLeft_mod` to swap its argument order; the `try` is for the
+  -- pre-shift VCs, which carry no such term.  Bit-blasts in ~150-350ms per VC.
   all_goals
     casesm* _ ∧ _
-    have hlt := left_bits_lt _ _ _ _ (by assumption) (by scalar_tac) (by assumption)
-      (by assumption) (by assumption)
-    scalar_tac
+    have key : ∀ (r1 : Std.U32) (j : Std.Usize),
+        (↑r1 : Nat) = 1 <<< (↑j : Nat) % UScalar.size UScalarTy.U32 →
+        (↑j : Nat) < 32 → r1.bv = 1#32 <<< BitVec.setWidth 32 j.bv :=
+      fun r1 j hr1 hj => bv_of_one_shiftLeft_mod r1 j hj hr1
+    try (have hbv := key _ _ (by assumption) (by scalar_tac))
+    bv_tac 32
 
 @[spec]
 theorem right.spec.proof (index : ParentNodeIndex) :
@@ -756,16 +840,16 @@ theorem direct_path.spec_pure (node_index : LeafNodeIndex) (size : TreeSize)
   hax_mvcgen [direct_path.pre, direct_path, - root.spec.proof, root, TreeNodeIndex.new,
     LeafNodeIndex.from_tree_index, ParentNodeIndex.from_tree_index,
     - direct_path_loop_spec]
-  -- Same `Nat.log`-quarantine preamble as `root.spec.proof`: make `L := Nat.log 2 ↑size` opaque
-  -- (term-level `of_decide_eq_true`, then `clear_value`) BEFORE any `scalar_tac` runs.
+  -- Same mask-form preamble as `root.spec.proof`: `all_ones_of_and_succ_eq_zero` turns the bit-form
+  -- validity decide into a FRESH existential `L` with `hL : ↑size = 2^(L+1) − 1`; `hlog` bridges the
+  -- `Nat.log 2 ↑size` terms the stepped `log2` body produces.
   all_goals
-    (obtain ⟨hs1, hs2, hs3⟩ :=
+    (obtain ⟨hs1, hs2, hmask⟩ :=
         of_decide_eq_true
           (show decide (1 ≤ (↑size : Nat) ∧ (↑size : Nat) ≤ 2 ^ 30 - 1 ∧
-              (↑size : Nat) = 2 ^ (Nat.log 2 (↑size : Nat) + 1) - 1) = true by assumption)
-     set L := Nat.log 2 (↑size : Nat) with hLdef
-     clear hLdef
-     clear_value L
+              (↑size : Nat) &&& ((↑size : Nat) + 1) = 0) = true by assumption)
+     obtain ⟨L, hL⟩ := all_ones_of_and_succ_eq_zero _ (by omega) hmask
+     have hlog : Nat.log 2 (↑size : Nat) = L := by rw [hL]; exact log2_two_pow_sub_one L
      have hL29 : L ≤ 29 := by
        by_contra hc
        have : (2 : Nat) ^ 31 ≤ 2 ^ (L + 1) := Nat.pow_le_pow_right (by omega) (by omega)
@@ -777,12 +861,10 @@ theorem direct_path.spec_pure (node_index : LeafNodeIndex) (size : TreeSize)
      try scalar_tac)
   -- The two surviving goals are the loop call, once per `TreeNodeIndex.new` branch: `2^L − 1` is
   -- even only for `L = 0` (the singleton tree), odd otherwise, and BOTH reconstructions collapse
-  -- back to `↑rt = 2^L − 1` by `omega`.  The last EIGHT inaccessible hypotheses sit at the same
-  -- depth in both branches — root value, `Vec::new`, `to_tree_index`, then the two hypotheses the
-  -- `set L` above re-introduced at the very end (`hdec`/`hlog`); the `rename_i` count must cover
-  -- those two as well or the names slide by two slots.
+  -- back to `↑rt = 2^L − 1` by `omega`.  The last SIX inaccessible hypotheses sit at the same depth
+  -- in both branches — root value, `Vec::new`, `to_tree_index`.
   all_goals
-    (rename_i rt hrt dv hdv xv hxv hdec hlog
+    (rename_i rt hrt dv hdv xv hxv
      have hx2 : (↑xv : Nat) = 2 * (↑node_index : Nat) := by scalar_tac
      have hxt : tones (↑xv : Nat) = 0 := tones_even _ (by omega)
      have hinv : direct_path_loop_inv (↑size : Nat) L (dv, xv) := by
@@ -1054,12 +1136,10 @@ theorem common_direct_path.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex)
   case vc3.hQ => simp
   case vc1.hQ =>
     intro _
-    -- Keep this `unfold`: without it the goal matches `common_direct_path.spec.proof` itself
-    -- and `mvcgen` discharges it circularly with the very spec we are proving.
+    -- SELF-SPEC HAZARD: without this `unfold` the goal matches `common_direct_path.spec.proof`
+    -- itself and `mvcgen` discharges it circularly with the spec being proved.
     unfold common_direct_path
     mvcgen
-    -- `size` is `TreeSize.valid`-shaped here, so `scalar_tac` diverges; go through
-    -- `u32_lt_nat`/`omega` instead (see `Common.lean`).
     case vc1.hQ => simp only [decide_eq_true_eq, u32_lt_nat] at * ; omega
     case vc3.hQ => simp only [decide_eq_true_eq, u32_lt_nat] at * ; omega
     case vc5.hx => omega
@@ -1153,8 +1233,8 @@ theorem TreeSize.new.spec.proof
   -- Discharge the purely-integer VCs; what survives is the `Nat.log`/shift residue.
   all_goals try scalar_tac
 
-  -- QUARANTINE: blanket closers abort with an uncatchable `maximum recursion depth` here, so the
-  -- one surviving VC (`vc1.h_ok`, `valid (1 <<< (log₂ nodes + 1) − 1)`) gets an explicit script.
+  -- HAZARD: blanket closers abort here with an UNCATCHABLE `maximum recursion depth`, so the one
+  -- surviving VC (`vc1.h_ok`, `valid (1 <<< (log₂ nodes + 1) − 1)`) gets an explicit script.
   case vc1.h_ok =>
     rename_i r3 r2 r1 r hnodes hL hr2 hr1 hrv hge1
     -- `nodes < 2^30` gives `log₂ nodes ≤ log₂ (2^30 − 1) = 29`, hence the shift `e = L + 1 ≤ 30`
@@ -1163,8 +1243,7 @@ theorem TreeSize.new.spec.proof
     have hle : (↑nodes : Nat) ≤ 2 ^ (29 + 1) - 1 := by omega
     have hm := Nat.log_mono_right (b := 2) hle
     rw [log2_two_pow_sub_one 29] at hm
-    rw [one_shiftLeft_mod_eq (Nat.log 2 (↑nodes : Nat) + 1) (by omega),
-      log2_two_pow_sub_one]
+    rw [one_shiftLeft_mod_eq (Nat.log 2 (↑nodes : Nat) + 1) (by omega)]
     -- Remaining: `2 ≤ 2^(L+1) ≤ 2^30`, both from `L ≤ 29`.
     have hge : 2 ≤ (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) := by
       rw [pow_succ]
@@ -1173,7 +1252,15 @@ theorem TreeSize.new.spec.proof
     have hb : (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) ≤ 2 ^ 30 :=
       Nat.pow_le_pow_right (by omega) (by omega)
     have h30 : (2 : Nat) ^ 30 = 1073741824 := by norm_num
-    exact ⟨by omega, by omega, rfl⟩
+    -- The validity conjunct is now the all-ones mask test.  The returned value IS all-ones of
+    -- width `L + 1`, so `and_succ_eq_zero_of_all_ones L` supplies it directly; the only bridging
+    -- is that mvcgen already collapsed `(2^(L+1) − 1) + 1` to `2^(L+1)` in the goal.
+    have hmask : (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) - 1 &&&
+        (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) = 0 := by
+      have h := and_succ_eq_zero_of_all_ones (Nat.log 2 (↑nodes : Nat))
+      rwa [show (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) - 1 + 1
+        = 2 ^ (Nat.log 2 (↑nodes : Nat) + 1) from by omega] at h
+    exact ⟨by omega, by omega, hmask⟩
 
 @[spec]
 theorem TreeSize.inc.spec.proof (self : TreeSize) :
@@ -1183,42 +1270,34 @@ theorem TreeSize.inc.spec.proof (self : TreeSize) :
   ⦃ ⇓ res => ⌜ (TreeSize.inc.post self res).holds ⌝ ⦄
   := by
   hax_mvcgen [inc]
-  all_goals try scalar_tac (simpAllMaxSteps := 0)
+  all_goals try scalar_tac
   case vc4.hQ =>
-    -- The real content: `valid (2·self + 1)`.  The new pre only gives `self < 2^30 − 1`, so the
+    -- The real content: `valid (2·self + 1)`.  The pre only gives `self < 2^30 − 1`, so the
     -- `self ≤ 2^29 − 1` bound must come from validity: `self = 2^(L+1) − 1 < 2^30 − 1` forces
     -- `2^(L+1) ≤ 2^30 − 1`, hence `L + 1 ≤ 29`.  Then `2·self + 1 = 2^(L+2) − 1 ≤ 2^30 − 1` and
-    -- `log₂ (2^(L+2) − 1) = L + 1` (`log2_two_pow_sub_one`), so the failure hypothesis is absurd.
+    -- its mask test holds by `and_succ_eq_zero_of_all_ones (L+1)`, so the failure hypothesis is
+    -- absurd.
     exfalso
     rename_i hv1 rM hrM hlt r1 hr1 r hr hvr
     subst hrM
+    obtain ⟨hs1, hs2, hmask⟩ := of_decide_eq_true hv1
+    obtain ⟨L, hL⟩ := all_ones_of_and_succ_eq_zero _ (by omega) hmask
+    have hlt' := of_decide_eq_true hlt
     have h2u : ((2#u32 : Std.U32) : Nat) = 2 := by rfl
     have h1u : ((1#u32 : Std.U32) : Nat) = 1 := by rfl
-    -- Extract the numeric pre-bound while no symbolic `2 ^ e` is in context (`scalar_tac` hazard).
-    have hltn : (↑self : Nat) < 1073741823 := by
-      clear hv1 hvr
-      have hlt' := of_decide_eq_true hlt
-      scalar_tac
-    apply hvr
-    simp only [decide_eq_true_eq] at hv1 ⊢
-    obtain ⟨k1, k2, k3⟩ := hv1
-    set L := Nat.log 2 (↑self : Nat) with hLdef
     have hp1 : 1 ≤ (2 : Nat) ^ (L + 1) := Nat.one_le_two_pow
-    have hpow : (2 : Nat) ^ (L + 2) = 2 ^ (L + 1) * 2 := by ring
+    have hpow : (2 : Nat) ^ (L + 1 + 1) = 2 ^ (L + 1) * 2 := pow_succ 2 (L + 1)
     have h30 : (2 : Nat) ^ 30 = 1073741824 := by norm_num
-    have hrval : (↑r : Nat) = 2 ^ (L + 2) - 1 := by
-      rw [hr, hr1, h2u, h1u, hpow]; omega
-    have hlog : Nat.log 2 (↑r : Nat) = L + 1 := by
-      rw [hrval]; exact log2_two_pow_sub_one (L + 1)
+    have hltn : (↑self : Nat) < 1073741823 := by scalar_tac
     have hL29 : L + 1 ≤ 29 := by
       by_contra hc
       have h30le : (2 : Nat) ^ 30 ≤ 2 ^ (L + 1) := Nat.pow_le_pow_right (by omega) (by omega)
       omega
-    have hb30 : (2 : Nat) ^ (L + 2) ≤ 2 ^ 30 := Nat.pow_le_pow_right (by omega) (by omega)
-    refine ⟨?_, ?_, ?_⟩
-    · rw [hrval]; omega
-    · rw [hrval]; omega
-    · rw [hlog]; exact hrval
+    have hb30 : (2 : Nat) ^ (L + 1 + 1) ≤ 2 ^ 30 := Nat.pow_le_pow_right (by omega) (by omega)
+    have hrval : (↑r : Nat) = 2 ^ (L + 1 + 1) - 1 := by
+      rw [hr, hr1, h2u, h1u, hpow]; omega
+    exact hvr (decide_eq_true ⟨by rw [hrval]; omega, by rw [hrval]; omega,
+      by rw [hrval]; exact and_succ_eq_zero_of_all_ones (L + 1)⟩)
 
 @[spec]
 theorem TreeSize.dec.spec.proof (self : TreeSize) :
@@ -1228,47 +1307,44 @@ theorem TreeSize.dec.spec.proof (self : TreeSize) :
   ⦃ ⇓ res => ⌜ (TreeSize.dec.post self res).holds ⌝ ⦄
   := by
   hax_mvcgen [dec, TreeSize.dec.pre, TreeSize.dec.post]
-  all_goals try scalar_tac (simpAllMaxSteps := 0)
+  all_goals try scalar_tac
 
-  -- QUARANTINE: `scalar_tac`/`simp … at *` abort uncatchably while a symbolic `2 ^ e` hypothesis
-  -- is in context — every `scalar_tac` below runs after the `valid` hypotheses are `clear`ed.
   case vc1.h =>
-    -- `MIN_TREE_SIZE = 1 < self` gives `self ≥ 2`.  Pow-free once `valid` is dropped.
-    rename_i hv1 hmin
-    clear hv1
-    have hmin' := of_decide_eq_true hmin
-    unfold MIN_TREE_SIZE at hmin'
+    -- `MIN_TREE_SIZE = 1 < self` gives `self ≥ 2`.
+    simp only [MIN_TREE_SIZE] at *
     scalar_tac
+  case vc1.hQ =>
+    -- `divCeil self 2 − 1 = self / 2`: needs `self` ODD, which under the mask spec must be derived
+    -- explicitly (`all_ones_of_and_succ_eq_zero` + `pow_succ`).
+    rename_i hv1 hmin ru hge1 hge2 rc hrc rd hrdv hrc1 hvok rh hrh
+    obtain ⟨hs1, hs30, hmask⟩ := of_decide_eq_true hv1
+    obtain ⟨L, hL⟩ := all_ones_of_and_succ_eq_zero _ (by omega) hmask
+    have hpow : (2 : Nat) ^ (L + 1) = 2 ^ L * 2 := pow_succ 2 L
+    have hp1 : 1 ≤ (2 : Nat) ^ L := Nat.one_le_two_pow
+    exact decide_eq_true (Aeneas.Std.UScalar.eq_of_val_eq (by scalar_tac))
   case vc3.hQ =>
-    -- The real content: `valid (self / 2)`.  `self = 2^(L+1) − 1` with `self ≥ 2` forces `L ≥ 1`,
-    -- and `divCeil self 2 − 1 = 2^L − 1 = 2^((L−1)+1) − 1`, whose `log₂` is `L − 1`
-    -- (`log2_two_pow_sub_one`).  So the failure hypothesis is absurd.
+    -- The real content: `valid (divCeil self 2 − 1)`.  `self = 2^(L+1) − 1` with `self ≥ 2`
+    -- forces `L ≥ 1`, and `divCeil self 2 − 1 = 2^L − 1 = 2^((L−1)+1) − 1`, whose mask test is
+    -- `and_succ_eq_zero_of_all_ones (L−1)`.  So the failure hypothesis is absurd.
     exfalso
     rename_i hv1 hmin ru hge1 hge2 rc hrc rd hrdv hrc1 hvd
+    obtain ⟨hs1, hs30, hmask⟩ := of_decide_eq_true hv1
+    obtain ⟨L, hL⟩ := all_ones_of_and_succ_eq_zero _ (by omega) hmask
     have h2u : ((2#u32 : Std.U32) : Nat) = 2 := by rfl
     have h1u : ((1#u32 : Std.U32) : Nat) = 1 := by rfl
-    have hs2 : 2 ≤ (↑self : Nat) := by clear hv1 hvd; scalar_tac
-    apply hvd
-    simp only [decide_eq_true_eq] at hv1 ⊢
-    obtain ⟨k1, k2, k3⟩ := hv1
-    set L := Nat.log 2 (↑self : Nat) with hLdef
-    rw [pow_succ] at k3
-    have h30 : (2 : Nat) ^ 30 = 1073741824 := by norm_num
+    have hs2 : 2 ≤ (↑self : Nat) := by scalar_tac
+    have hpow : (2 : Nat) ^ (L + 1) = 2 ^ L * 2 := pow_succ 2 L
+    have hp1 : 1 ≤ (2 : Nat) ^ L := Nat.one_le_two_pow
     have hpow2 : (2 : Nat) ≤ 2 ^ L := by omega
     have hL1 : 1 ≤ L := by
       rcases Nat.eq_zero_or_pos L with h | h
       · simp [h] at hpow2
       · exact h
     have hL' : L - 1 + 1 = L := by omega
+    have h30 : (2 : Nat) ^ 30 = 1073741824 := by norm_num
     have hrdval : (↑rd : Nat) = 2 ^ L - 1 := by rw [hrdv, hrc, h2u, h1u]; omega
-    have hlog : Nat.log 2 (↑rd : Nat) = L - 1 := by
-      rw [hrdval]
-      have h := log2_two_pow_sub_one (L - 1)
-      rwa [hL'] at h
-    refine ⟨?_, ?_, ?_⟩
-    · rw [hrdval]; omega
-    · rw [hrdval]; omega
-    · rw [hlog, hL']; exact hrdval
+    exact hvd (decide_eq_true ⟨by rw [hrdval]; omega, by rw [hrdval]; omega,
+      by rw [hrdval, ← hL']; exact and_succ_eq_zero_of_all_ones (L - 1)⟩)
 
 
 end binary_tree.array_representation.treemath

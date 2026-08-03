@@ -21,6 +21,7 @@ import Openmls.Extraction.Types
 import Openmls.Extraction.Funs
 import Openmls.Extraction.Specs
 import Openmls.Proofs.Common
+import Openmls.Proofs.BitMath
 open CoreModels Aeneas
 open Aeneas.Std hiding namespace core alloc
 open Result ControlFlow Error
@@ -40,24 +41,13 @@ set_option hax_mvcgen.warnings false
 
 namespace binary_tree.array_representation.treemath
 
-/-- Bridge from a partial-correctness fact to the generic `mvcgen`-compatible triple: the same
-reduction `@[step]` performs when deriving a `.mvcgen_spec`. Done by hand because the subjects
-below are project-local extraction outputs we do not want to register in the global `step` set. -/
-theorem triple_of_partialSpec {α} {x : Result α}
-    {p_ok : α → Prop} {p_fail : Aeneas.Std.Error → Prop} {p_div : Prop}
-    (h : Aeneas.Std.WP.partialSpec x p_ok p_fail p_div)
-    (Q : PostCond α Aeneas.Std.WP.Result.postShape)
-    (h_ok : ∀ r, p_ok r → Aeneas.Std.WP.willYield r Q)
-    (h_fail : ∀ e, p_fail e → Aeneas.Std.WP.willFail e Q)
-    (h_div : p_div → Aeneas.Std.WP.willDiverge Q) :
-    ⦃ ⌜ True ⌝ ⦄ x ⦃ Q ⦄ := by
-  cases x <;>
-    simp_all [Aeneas.Std.WP.partialSpec, Triple, _root_.Std.Do.WP.wp, PredTrans.apply,
-      Aeneas.Std.WP.willYield, Aeneas.Std.WP.willFail, Aeneas.Std.WP.willDiverge]
+-- The generic bridge `triple_of_partialSpec`, used throughout, lives in `Openmls.Proofs.Common`.
 
-/-- Specialisation of `triple_of_partialSpec` for the (common) case of a total operation whose
-body has already been reduced to `ok v`: the triple is exactly `willYield v Q`. -/
-theorem triple_of_ok {α} (v : α) (Q : PostCond α Aeneas.Std.WP.Result.postShape)
+/-- Specialisation of `openmls.triple_of_partialSpec` for the (common) case of a total operation
+whose body has already been reduced to `ok v`: the triple is exactly `willYield v Q`.
+Named apart from `openmls.triple_of_ok` (the `x = ok v` / plain-`Prop` postcondition flavour in
+`Common`), which it would otherwise shadow inside this namespace. -/
+theorem triple_of_ok_willYield {α} (v : α) (Q : PostCond α Aeneas.Std.WP.Result.postShape)
     (h_ok : Aeneas.Std.WP.willYield v Q) :
     ⦃ ⌜ True ⌝ ⦄ (ok v : Result α) ⦃ Q ⦄ := by
   simpa [Triple, _root_.Std.Do.WP.wp, PredTrans.apply, Aeneas.Std.WP.willYield] using h_ok
@@ -86,7 +76,7 @@ theorem LeafNodeIndex.valid_mvcgen_spec (self : LeafNodeIndex)
     unfold MAX_LEAF MAX_TREE_INDEX MAX_TREE_SIZE; rfl
   unfold LeafNodeIndex.valid
   rw [hc]
-  exact triple_of_ok _ Q (h_ok _ (by norm_num))
+  exact triple_of_ok_willYield _ Q (h_ok _ (by norm_num))
 
 /-- `ParentNodeIndex::valid` is `self ≤ MAX_PARENT = 2^29 − 2`. Total, as for `LeafNodeIndex`. -/
 @[spec]
@@ -99,7 +89,7 @@ theorem ParentNodeIndex.valid_mvcgen_spec (self : ParentNodeIndex)
     unfold MAX_PARENT MAX_LEAF MAX_TREE_INDEX MAX_TREE_SIZE; rfl
   unfold ParentNodeIndex.valid
   rw [hc]
-  exact triple_of_ok _ Q (h_ok _ (by norm_num))
+  exact triple_of_ok_willYield _ Q (h_ok _ (by norm_num))
 
 /-- `TreeNodeIndex::valid` dispatches on the constructor to the leaf/parent bound. Total. -/
 @[spec]
@@ -122,7 +112,7 @@ theorem TreeSize.u32_mvcgen_spec (self : TreeSize)
     (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) → Aeneas.Std.WP.willYield r Q) :
     ⦃ ⌜ True ⌝ ⦄ TreeSize.u32 self ⦃ Q ⦄ := by
   unfold TreeSize.u32
-  exact triple_of_ok _ Q (h_ok _ rfl)
+  exact triple_of_ok_willYield _ Q (h_ok _ rfl)
 
 /-- `TreeSize::parent_count` is `self / 2`. Total: the divisor is the literal `2`, so the
 division cannot fail. -/
@@ -163,7 +153,7 @@ theorem LeafNodeIndex.u32_mvcgen_spec (self : LeafNodeIndex)
     (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) → Aeneas.Std.WP.willYield r Q) :
     ⦃ ⌜ True ⌝ ⦄ LeafNodeIndex.u32 self ⦃ Q ⦄ := by
   unfold LeafNodeIndex.u32
-  exact triple_of_ok _ Q (h_ok _ rfl)
+  exact triple_of_ok_willYield _ Q (h_ok _ rfl)
 
 /-- `ParentNodeIndex::u32` is the identity injection. Total. -/
 @[spec]
@@ -172,14 +162,11 @@ theorem ParentNodeIndex.u32_mvcgen_spec (self : ParentNodeIndex)
     (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) → Aeneas.Std.WP.willYield r Q) :
     ⦃ ⌜ True ⌝ ⦄ ParentNodeIndex.u32 self ⦃ Q ⦄ := by
   unfold ParentNodeIndex.u32
-  exact triple_of_ok _ Q (h_ok _ rfl)
+  exact triple_of_ok_willYield _ Q (h_ok _ rfl)
 
--- The value specs for the `MAX_*` / `MIN_TREE_SIZE` constants live in `Proofs.lean`
--- (`MAX_*.spec_value`): one spec theorem per constant, no `willYield` layer.
-
--- MOVED to `Openmls/Proofs/PureSpecs.lean` (user ruling 2026-07-28: single `@[spec]` per
--- now-transparent function, homed with the pure companion specs): the fallible
--- `to_tree_index` pair, `TreeNodeIndex.u32_mvcgen_spec`, and `TreeSize.leaf_count_mvcgen_spec`.
+-- Elsewhere: the `MAX_*` / `MIN_TREE_SIZE` value specs are in `Proofs.lean` (`MAX_*.spec_value`,
+-- one per constant, no `willYield` layer); the `to_tree_index` pair, `TreeNodeIndex.u32` and
+-- `TreeSize.leaf_count` triples are in `PureSpecs.lean` (single `@[spec]` per transparent function).
 
 /-! ### Sequencing helper and `CoreModels` partial contracts used below -/
 
@@ -284,9 +271,13 @@ a `TreeSize.valid` in hypothesis position produces no side goal.
 The body decides `self = i5` on `U32`; the characterization states the third conjunct on `Nat`,
 which is equivalent by `UScalar` value injectivity. The postcondition is instantiated directly
 (rather than universally quantified over the returned `Bool`) so that no `Decidable` instance is
-ever forced open during elaboration. -/
-@[spec]
-theorem TreeSize.valid_mvcgen_spec (self : TreeSize)
+ever forced open during elaboration.
+
+**Internal stepping stone only** — the raw body-walk in the `Nat.log` fixpoint shape the extracted
+code computes. `private` and NOT `@[spec]`-registered: that equation is self-referential in `self`
+and makes `scalar_tac` diverge in consumers. The registered rule is `TreeSize.valid_mask_spec`
+below, which transports this through `all_ones_iff_and_succ_eq_zero`. -/
+private theorem TreeSize.valid_log_characterization (self : TreeSize)
     (Q : PostCond Bool Aeneas.Std.WP.Result.postShape)
     (h_ok : Aeneas.Std.WP.willYield
       (decide (1 ≤ (↑self : Nat) ∧ (↑self : Nat) ≤ 2 ^ 30 - 1 ∧
@@ -360,7 +351,38 @@ theorem TreeSize.valid_mvcgen_spec (self : TreeSize)
       rintro ⟨ha, -, -⟩; scalar_tac
     exact (decide_eq_false hnot).symm
 
--- (`TreeSize.leaf_count_mvcgen_spec` moved to PureSpecs.lean with the to_tree_index pair.)
+/-- **The** spec for `TreeSize::valid` (the `@[spec]`-registered rule). Decides
+`1 ≤ s ∧ s ≤ 2^30 − 1 ∧ s &&& (s+1) = 0`: the third conjunct is the all-ones bit test, NOT the
+`Nat.log` fixpoint equation the extracted body computes (equivalent under `1 ≤ s` by
+`all_ones_iff_and_succ_eq_zero`). The mask shape is the `scalar_tac`-safe one — no `Nat.log` reaches
+a consumer's context, so no `set`/`clear_value` quarantine preamble is needed anywhere.
+
+CONSUMER RECIPE: fires under plain `hax_mvcgen [...]`, no erasure pair. To *use* a mask hypothesis
+quantitatively go through `all_ones_of_and_succ_eq_zero` (fresh existential witness); to *produce*
+one from a known all-ones value use `and_succ_eq_zero_of_all_ones`. `&&&` is opaque to `omega`, so
+an explicit `pow_succ`-expanded `have` is usually needed alongside.
+
+**Total** (as the underlying body walk): no `willFail` hypothesis, so stepping this in hypothesis
+position produces no side goal. -/
+@[spec]
+theorem TreeSize.valid_mask_spec (self : TreeSize)
+    (Q : PostCond Bool Aeneas.Std.WP.Result.postShape)
+    (h_ok : Aeneas.Std.WP.willYield
+      (decide (1 ≤ (↑self : Nat) ∧ (↑self : Nat) ≤ 2 ^ 30 - 1 ∧
+        (↑self : Nat) &&& ((↑self : Nat) + 1) = 0)) Q) :
+    ⦃ ⌜ True ⌝ ⦄ TreeSize.valid self ⦃ Q ⦄ := by
+  refine TreeSize.valid_log_characterization self Q ?_
+  have hiff : (1 ≤ (↑self : Nat) ∧ (↑self : Nat) ≤ 2 ^ 30 - 1 ∧
+      (↑self : Nat) = 2 ^ (Nat.log 2 (↑self : Nat) + 1) - 1) ↔
+      (1 ≤ (↑self : Nat) ∧ (↑self : Nat) ≤ 2 ^ 30 - 1 ∧
+        (↑self : Nat) &&& ((↑self : Nat) + 1) = 0) := by
+    constructor
+    · rintro ⟨ha, hb, hc⟩
+      exact ⟨ha, hb, (all_ones_iff_and_succ_eq_zero _ ha).mp hc⟩
+    · rintro ⟨ha, hb, hc⟩
+      exact ⟨ha, hb, (all_ones_iff_and_succ_eq_zero _ ha).mpr hc⟩
+  rw [decide_eq_decide.mpr hiff]
+  exact h_ok
 
 end binary_tree.array_representation.treemath
 

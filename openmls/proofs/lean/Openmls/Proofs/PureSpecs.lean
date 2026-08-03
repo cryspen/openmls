@@ -36,10 +36,9 @@ namespace binary_tree.array_representation.treemath
 /-! ### Value specs for the verification-transparent functions
 
 The Rust `to_tree_index` / `leaf_count` (and the `u32` dispatcher over them) carry no
-`ensures` any more — their postcondition *is* their one-line body (user ruling 2026-07-28:
-"transparent to verification"). Each keeps exactly ONE `@[spec]` registration: the
-value-carrying mvcgen triple below (moved here from `PartialSpecs.lean`; proof combinators
-still live there). -/
+`ensures` — their postcondition *is* their one-line body (user ruling 2026-07-28: "transparent
+to verification"). Each keeps exactly ONE `@[spec]` registration: the value-carrying mvcgen
+triple below. The `partialSpec` proof combinators they use live in `PartialSpecs.lean`. -/
 
 /-- `LeafNodeIndex::to_tree_index` is `self * 2`. **Fallible:** the multiplication overflows when
 `2·self > u32::MAX`, so the contract carries a `willFail Error.integerOverflow` hypothesis — in
@@ -135,7 +134,7 @@ theorem TreeSize.leaf_count_mvcgen_spec (self : TreeSize)
   · simp only [hq]; scalar_tac
   · intro a ha; rw [ha, hq]; scalar_tac
 
-/-! ### Monadic helpers about the extracted functions (moved here from `Proofs.lean`) -/
+/-! ### Monadic helpers about the extracted functions -/
 
 /-- Shared arithmetic for the `from_tree_index ((xn << k) + (1 << (k-1)) - 1)` tail of
     `lowest_common_ancestor`, given `loop0`'s postcondition (`2 ≤ k ≤ 30`, `xn·2^k < 2^30`):
@@ -203,8 +202,5 @@ theorem dropLast_entries_ne_max_root (l : List ParentNodeIndex)
   omega
 
 end binary_tree.array_representation.treemath
-
--- NOTE: `direct_path.spec_pure` used to live here; it moved to `Openmls/Proofs/Proofs.lean`
--- (right after `direct_path_loop_spec`, which is what proves it) — user ruling 2026-07-28.
 
 end openmls

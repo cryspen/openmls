@@ -25,9 +25,9 @@ projection (`UScalar.val x` / `IScalar.val x` / `IScalar.toNat x`), which `subst
 every other hypothesis and the goal, then drops `h` and `x` when `x` is otherwise dead.
 Two design guarantees, both load-bearing in this development:
 
-* **Occurs-check**: a self-referential equation (`↑size = 2 ^ (Nat.log 2 ↑size + 1) − 1`,
-  the `TreeSize.valid` shape on which `scalar_tac`'s preprocessing diverges) is left
-  untouched — `subst_vals` is quarantine-safe by construction.
+* **Occurs-check**: a self-referential equation (e.g. the `Nat.log` fixpoint shape
+  `↑size = 2 ^ (Nat.log 2 ↑size + 1) − 1`, on which `scalar_tac`'s preprocessing diverges) is
+  left untouched — `subst_vals` is quarantine-safe by construction.
 * **No information loss**: when the goal still mentions the scalar itself at scalar level
   (e.g. `decide (x < y) = true`), the — by then fully substituted — equation is kept for
   `scalar_tac`.
@@ -186,15 +186,36 @@ theorem loop_spec_measure {α β : Type} (body : α → Result (ControlFlow α �
 
 end loop_measure_helpers
 
+/-! ### Partial-correctness → Triple bridge
+
+   Generic (nothing treemath- or `CoreModels`-specific), and needed by DAG siblings
+   `MissingCoreSpecs` and `PartialSpecs` alike, hence its home here. -/
+
+/-- Bridge from a partial-correctness fact to the generic `mvcgen`-compatible triple: the same
+reduction `@[step]` performs when deriving a `.mvcgen_spec`. Done by hand because the subjects
+at the use sites are `CoreModels` operations / project-local extraction outputs that we do not
+want to register in the global `step` set. -/
+theorem triple_of_partialSpec {α} {x : Result α}
+    {p_ok : α → Prop} {p_fail : Aeneas.Std.Error → Prop} {p_div : Prop}
+    (h : Aeneas.Std.WP.partialSpec x p_ok p_fail p_div)
+    (Q : PostCond α Aeneas.Std.WP.Result.postShape)
+    (h_ok : ∀ r, p_ok r → Aeneas.Std.WP.willYield r Q)
+    (h_fail : ∀ e, p_fail e → Aeneas.Std.WP.willFail e Q)
+    (h_div : p_div → Aeneas.Std.WP.willDiverge Q) :
+    ⦃ ⌜ True ⌝ ⦄ x ⦃ Q ⦄ := by
+  cases x <;>
+    simp_all [Aeneas.Std.WP.partialSpec, Triple, _root_.Std.Do.WP.wp, PredTrans.apply,
+      Aeneas.Std.WP.willYield, Aeneas.Std.WP.willFail, Aeneas.Std.WP.willDiverge]
+
 /-- `vecLen v` is the length of `v`'s underlying list. -/
 theorem vecLen_eq_length {T : Type} (v : alloc.vec.Vec T) : vecLen v = v.1.length := rfl
 
 /-! ### `scalar_tac`-free escape hatch for `Nat.log`-poisoned contexts
 
-   `scalar_tac`'s preprocessing loops on `TreeSize.valid`-shaped hypotheses (they carry
-   `Nat.log`/`2 ^ (…) - 1` terms), so goals living in such a context must be closed by `omega`
-   on plain `Nat`s instead. This `rfl` lets `simp only` rewrite a machine-word `<` into
-   the `Nat` `<` that `omega` understands, without invoking `scalar_tac` at all. -/
+   `scalar_tac`'s preprocessing loops on hypotheses carrying a `Nat.log` fixpoint / `2 ^ (…) - 1`
+   shape (reproducer: `Openmls/Issues/ScalarTacNatLogLoop.lean`), so goals in such a context must be
+   closed by `omega` on plain `Nat`s instead. This `rfl` lets `simp only` rewrite a machine-word `<`
+   into the `Nat` `<` that `omega` understands, with no `scalar_tac` call at all. -/
 
 theorem u32_lt_nat (u v : Std.U32) : (u < v) = ((↑u : Nat) < ↑v) := rfl
 

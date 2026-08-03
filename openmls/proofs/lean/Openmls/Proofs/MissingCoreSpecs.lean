@@ -344,21 +344,7 @@ end Aeneas.Std
 
 namespace openmls
 
-/-- Bridge from a partial-correctness fact to the generic `mvcgen`-compatible triple. This is
-the same reduction `@[step]` performs when it derives a `.mvcgen_spec`; we do it by hand
-because the subjects below are `CoreModels` operations we do not want to register globally
-in the `step` set. -/
-private theorem triple_of_partialSpec {α} {x : Result α}
-    {p_ok : α → Prop} {p_fail : Aeneas.Std.Error → Prop} {p_div : Prop}
-    (h : Aeneas.Std.WP.partialSpec x p_ok p_fail p_div)
-    (Q : PostCond α Aeneas.Std.WP.Result.postShape)
-    (h_ok : ∀ r, p_ok r → Aeneas.Std.WP.willYield r Q)
-    (h_fail : ∀ e, p_fail e → Aeneas.Std.WP.willFail e Q)
-    (h_div : p_div → Aeneas.Std.WP.willDiverge Q) :
-    ⦃ ⌜ True ⌝ ⦄ x ⦃ Q ⦄ := by
-  cases x <;>
-    simp_all [Aeneas.Std.WP.partialSpec, Triple, _root_.Std.Do.WP.wp, PredTrans.apply,
-      Aeneas.Std.WP.willYield, Aeneas.Std.WP.willFail, Aeneas.Std.WP.willDiverge]
+-- `triple_of_partialSpec` (the bridge used three times below) lives in `Openmls.Proofs.Common`.
 
 /-- `u32::pow` (the `CoreModels` model our extraction calls, not `Aeneas.Std`'s): computes
 `x ^ exp` exactly, and fails with `integerOverflow` only when the result does not fit in a
