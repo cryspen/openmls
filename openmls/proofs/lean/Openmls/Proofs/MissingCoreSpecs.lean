@@ -157,16 +157,26 @@ theorem is_multiple_of_spec (x y : Std.U32) :
   mvcgen
   grind
 
-/-- `u32::leading_zeros` returns the number of leading zero bits: `32` for `0`,
-    else `31 - ⌊log₂ x⌋`. Total (the `CoreModels` model is a pure `ok`), so proved here. -/
-@[spec]
-theorem leading_zeros_spec (x : Std.U32) :
-    ⦃ ⌜ True ⌝ ⦄
-    core.num.U32.leading_zeros x
-    ⦃ ⇓ r => ⌜ (↑r : Nat) = if x.val = 0 then 32 else 31 - Nat.log 2 x.val ⌝ ⦄ := by
+/-! ### Body walks for the `CoreModels` `u32` models
+
+`leading_zeros` and `pow` are the only two `CoreModels` operations whose semantics needs a
+real walk through the model's body. The two (three, counting the `pow` corollary) theorems
+here are the **single source of truth** for that walk: the total `⇓` specs immediately below,
+the generic `@[spec]` mvcgen contracts at the end of this file, and the `log2` /
+`TreeSize.valid` walks in `PartialSpecs.lean` are all derived from them.
+
+Deliberately *unregistered* (no `@[spec]`, no `@[step]`): they are plumbing for the specs, not
+rules for the automation. -/
+
+/-- `u32::leading_zeros` (the `CoreModels` model) as a partial-contract. The model is a pure
+`ok`, so the failure and divergence predicates are `False`. -/
+theorem u32_leading_zeros_partialSpec (x : Std.U32) :
+    Aeneas.Std.WP.partialSpec (core.num.U32.leading_zeros x)
+      (fun r => (↑r : Nat) = if x.val = 0 then 32 else 31 - Nat.log 2 x.val)
+      (fun _ => False) False := by
   unfold CoreModels.core.num.U32.leading_zeros
     CoreModels.rust_primitives.arithmetic.leading_zeros_u32
-  mvcgen
+  simp only [Aeneas.Std.WP.partialSpec_ok]
   unfold Aeneas.Std.core.num.U32.leading_zeros Aeneas.Std.BitVec.leadingZeros
   simp only [Aeneas.Std.UScalar.val]
   have hbv : (x.bv = 0) ↔ (x.bv.toNat = 0) := by
@@ -180,6 +190,45 @@ theorem leading_zeros_spec (x : Std.U32) :
     rw [BitVec.toNat_ofNat]
     omega
 
+/-- `u32::pow` (the `CoreModels` model) as a partial-contract: computes `x ^ exp` exactly, and
+fails — with `integerOverflow`, and only then — when the result does not fit in a `u32`. -/
+theorem u32_pow_partialSpec (x exp : Std.U32) :
+    Aeneas.Std.WP.partialSpec (core.num.U32.pow x exp)
+      (fun r => (↑r : Nat) = (↑x : Nat) ^ (↑exp : Nat))
+      (fun e => e = Aeneas.Std.Error.integerOverflow ∧
+        Std.UScalar.max .U32 < (↑x : Nat) ^ (↑exp : Nat))
+      False := by
+  unfold CoreModels.core.num.U32.pow CoreModels.rust_primitives.arithmetic.pow_u32
+  have heq := Std.UScalar.tryMk_eq Std.UScalarTy.U32 ((↑x : Nat) ^ (↑exp : Nat))
+  cases hc : Std.UScalar.tryMk Std.UScalarTy.U32 ((↑x : Nat) ^ (↑exp : Nat)) <;>
+    simp_all [Std.UScalar.inBounds]
+  refine ⟨?_, by scalar_tac⟩
+  have hne : ¬ ((↑x : Nat) ^ (↑exp : Nat) < 4294967296) := by omega
+  simp_all [Std.UScalar.tryMk, Result.ofOption, Std.UScalar.tryMkOpt]
+
+/-- `u32::pow` under the hypothesis that the result fits: the failure branch of
+`u32_pow_partialSpec` is ruled out, so the contract becomes total. -/
+theorem u32_pow_partialSpec_total (x exp : Std.U32)
+    (h : (↑x : Nat) ^ (↑exp : Nat) ≤ Std.UScalar.max .U32) :
+    Aeneas.Std.WP.partialSpec (core.num.U32.pow x exp)
+      (fun r => (↑r : Nat) = (↑x : Nat) ^ (↑exp : Nat))
+      (fun _ => False) False := by
+  have hp := u32_pow_partialSpec x exp
+  revert hp
+  cases core.num.U32.pow x exp <;> simp_all [Aeneas.Std.WP.partialSpec]
+
+/-- `u32::leading_zeros` returns the number of leading zero bits: `32` for `0`,
+    else `31 - ⌊log₂ x⌋`. Total (the `CoreModels` model is a pure `ok`), so proved here.
+    Derived from `u32_leading_zeros_partialSpec`. -/
+@[spec]
+theorem leading_zeros_spec (x : Std.U32) :
+    ⦃ ⌜ True ⌝ ⦄
+    core.num.U32.leading_zeros x
+    ⦃ ⇓ r => ⌜ (↑r : Nat) = if x.val = 0 then 32 else 31 - Nat.log 2 x.val ⌝ ⦄ := by
+  refine triple_of_partialSpec (u32_leading_zeros_partialSpec x) _ ?_ (by simp) (by simp)
+  intro r hr
+  simpa [Aeneas.Std.WP.willYield] using hr
+
 /-- `u32::trailing_ones` returns the trailing-ones count `tones ↑x`. Total: the
     `FunsExternal` model is `Nat.find` of the lowest-clear-bit predicate — definitionally
     the same `Nat.find` as `tones` (proof irrelevance), so this is proved, not admitted.
@@ -192,19 +241,18 @@ theorem trailing_ones_spec (x : Std.U32) :
   unfold core.num.U32.trailing_ones
   mvcgen
 
-/-- `u32::pow` computes `x ^ exp` exactly, as long as the result fits in a `u32`. -/
+/-- `u32::pow` computes `x ^ exp` exactly, as long as the result fits in a `u32`.
+    Derived from `u32_pow_partialSpec_total`. -/
 @[spec]
 theorem u32_pow_spec (x exp : Std.U32) :
     ⦃ ⌜ (↑x : Nat) ^ (↑exp : Nat) ≤ Std.UScalar.max .U32 ⌝ ⦄
     core.num.U32.pow x exp
     ⦃ ⇓ r => ⌜ (↑r : Nat) = (↑x : Nat) ^ (↑exp : Nat) ⌝ ⦄ := by
-  unfold CoreModels.core.num.U32.pow CoreModels.rust_primitives.arithmetic.pow_u32
-  mvcgen
   intro h
-  have heq := Std.UScalar.tryMk_eq Std.UScalarTy.U32 ((↑x : Nat) ^ (↑exp : Nat))
-  cases hc : Std.UScalar.tryMk Std.UScalarTy.U32 ((↑x : Nat) ^ (↑exp : Nat)) <;>
-    simp_all [Std.UScalar.inBounds, _root_.Std.Do.WP.wp, PredTrans.apply]
-  scalar_tac
+  refine triple_of_partialSpec (u32_pow_partialSpec_total x exp h) _ ?_ (by simp) (by simp)
+    trivial
+  intro r hr
+  simpa [Aeneas.Std.WP.willYield] using hr
 
 end openmls
 
@@ -344,7 +392,8 @@ end Aeneas.Std
 
 namespace openmls
 
--- `triple_of_partialSpec` (the bridge used three times below) lives in `Openmls.Proofs.Common`.
+-- `triple_of_partialSpec` (the bridge each of the three contracts below goes through) lives in
+-- `Openmls.Proofs.Common`; the `partialSpec` facts they are built from are earlier in this file.
 
 /-- `u32::pow` (the `CoreModels` model our extraction calls, not `Aeneas.Std`'s): computes
 `x ^ exp` exactly, and fails with `integerOverflow` only when the result does not fit in a
@@ -363,18 +412,7 @@ theorem u32_pow_mvcgen_spec (x exp : Std.U32)
     (h_fail : Std.UScalar.max .U32 < (↑x : Nat) ^ (↑exp : Nat) →
       Aeneas.Std.WP.willFail Aeneas.Std.Error.integerOverflow Q) :
     ⦃ ⌜ True ⌝ ⦄ core.num.U32.pow x exp ⦃ Q ⦄ := by
-  have hp : Aeneas.Std.WP.partialSpec (core.num.U32.pow x exp)
-      (fun r => (↑r : Nat) = (↑x : Nat) ^ (↑exp : Nat))
-      (fun e => e = Aeneas.Std.Error.integerOverflow ∧
-        Std.UScalar.max .U32 < (↑x : Nat) ^ (↑exp : Nat))
-      False := by
-    unfold CoreModels.core.num.U32.pow CoreModels.rust_primitives.arithmetic.pow_u32
-    have heq := Std.UScalar.tryMk_eq Std.UScalarTy.U32 ((↑x : Nat) ^ (↑exp : Nat))
-    cases hc : Std.UScalar.tryMk Std.UScalarTy.U32 ((↑x : Nat) ^ (↑exp : Nat)) <;>
-      simp_all [Std.UScalar.inBounds]
-    refine ⟨?_, by scalar_tac⟩
-    have hne : ¬ ((↑x : Nat) ^ (↑exp : Nat) < 4294967296) := by omega
-    simp_all [Std.UScalar.tryMk, Result.ofOption, Std.UScalar.tryMkOpt]
+  have hp := u32_pow_partialSpec x exp
   refine triple_of_partialSpec hp Q h_ok ?_ (by simp)
   rintro e ⟨rfl, hlt⟩
   exact h_fail hlt
@@ -392,25 +430,7 @@ theorem u32_leading_zeros_mvcgen_spec (x : Std.U32)
       (↑r : Nat) = (if x.val = 0 then 32 else 31 - Nat.log 2 x.val) →
       Aeneas.Std.WP.willYield r Q) :
     ⦃ ⌜ True ⌝ ⦄ core.num.U32.leading_zeros x ⦃ Q ⦄ := by
-  have hp : Aeneas.Std.WP.partialSpec (core.num.U32.leading_zeros x)
-      (fun r => (↑r : Nat) = if x.val = 0 then 32 else 31 - Nat.log 2 x.val)
-      (fun _ => False) False := by
-    unfold CoreModels.core.num.U32.leading_zeros
-      CoreModels.rust_primitives.arithmetic.leading_zeros_u32
-    simp only [Aeneas.Std.WP.partialSpec_ok]
-    unfold Aeneas.Std.core.num.U32.leading_zeros Aeneas.Std.BitVec.leadingZeros
-    simp only [Aeneas.Std.UScalar.val]
-    have hbv : (x.bv = 0) ↔ (x.bv.toNat = 0) := by
-      rw [BitVec.toNat_eq]; rfl
-    rcases eq_or_ne x.bv.toNat 0 with h | h
-    · rw [if_pos (hbv.mpr h), if_pos h]
-      show (BitVec.ofNat 32 32).toNat = 32
-      rw [BitVec.toNat_ofNat]
-    · rw [if_neg (fun hc => h (hbv.mp hc)), if_neg h]
-      show (BitVec.ofNat 32 (32 - Nat.log 2 x.bv.toNat - 1)).toNat = 31 - Nat.log 2 x.bv.toNat
-      rw [BitVec.toNat_ofNat]
-      omega
-  exact triple_of_partialSpec hp Q h_ok (by simp) (by simp)
+  exact triple_of_partialSpec (u32_leading_zeros_partialSpec x) Q h_ok (by simp) (by simp)
 
 /-- `u32::is_multiple_of` is a total divisibility test, so again there is no failure
 hypothesis.

@@ -1118,7 +1118,7 @@ theorem lowest_common_ancestor.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex
       hle2 tx htx ty hty hne2 p hp i6 hi6 i7 hi7 i8 hi8 hovf
     obtain ⟨hk2, hk30, hbnd⟩ := hp
     obtain ⟨hsum, -, -, -⟩ := lca_tail_aux hk2 hk30 hbnd hi6 hi7 hi8
-    have hmax : UScalar.max UScalarTy.U32 = 2 ^ 32 - 1 := by native_decide
+    have hmax : UScalar.max UScalarTy.U32 = 2 ^ 32 - 1 := by simp [Aeneas.Std.U32.max_eq]
     exfalso ; omega
 
 

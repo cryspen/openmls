@@ -126,11 +126,12 @@ theorem TreeSize.leaf_count_mvcgen_spec (self : TreeSize)
   refine triple_of_partialSpec (p_fail := fun _ => False) (p_div := False) ?_ Q h_ok
     (by simp) (by simp)
   unfold TreeSize.leaf_count
-  refine partialSpec_bind
+  refine partialSpec_bind_fail
     (partialSpec_of_spec (Std.U32.div_spec.step_spec (x := self) (y := 2#u32) (by simp))) ?_
   intro q hq
-  refine partialSpec_imp
+  refine partialSpec_weaken
     (partialSpec_of_spec (Std.U32.add_spec.step_spec (x := q) (y := 1#u32) ?_)) ?_
+    (fun _ he => he)
   · simp only [hq]; scalar_tac
   · intro a ha; rw [ha, hq]; scalar_tac
 
@@ -149,7 +150,7 @@ theorem lca_tail_aux {p : Std.U32 × Std.I32} {i6 i8 : Std.U32} {i7 : Std.I32}
     (↑i6 : Nat) + ↑i8 < 2 ^ 32 ∧ 2 ∣ (↑i6 : Nat) ∧ 2 ≤ (↑i8 : Nat) ∧ 2 ∣ (↑i8 : Nat) := by
   have hi7t1 : 1 ≤ IScalar.toNat i7 := by scalar_tac
   have hi7t : IScalar.toNat i7 ≤ 29 := by scalar_tac
-  have hsz : (2 : Nat) ^ 31 < UScalar.size UScalarTy.U32 := by native_decide
+  have hsz : (2 : Nat) ^ 31 < UScalar.size UScalarTy.U32 := by simp [Aeneas.Std.U32.size_eq]
   have h1u : (↑(1#u32) : Nat) = 1 := rfl
   have hi6val : (↑i6 : Nat) = ↑p.1 * 2 ^ IScalar.toNat p.2 := by
     rw [hi6v, Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]

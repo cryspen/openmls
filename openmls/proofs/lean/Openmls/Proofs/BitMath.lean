@@ -28,7 +28,7 @@ set_option hax_mvcgen.warnings false
 theorem one_le_one_shiftLeft_mod (k : Nat) (h : k < 32) :
     1 ≤ 1 <<< k % Aeneas.Std.U32.size := by
   have e : 1 <<< k = 2 ^ k := by simp [Nat.shiftLeft_eq]
-  have h2 : (2 : Nat) ^ 31 < Aeneas.Std.U32.size := by native_decide
+  have h2 : (2 : Nat) ^ 31 < Aeneas.Std.U32.size := by simp [Aeneas.Std.U32.size_eq]
   have hle : (2 : Nat) ^ k ≤ 2 ^ 31 := Nat.pow_le_pow_right (by norm_num) (by omega)
   rw [e, Nat.mod_eq_of_lt (by omega)]
   exact Nat.one_le_two_pow
@@ -115,7 +115,7 @@ theorem parent_val_u32 (x : Std.U32) (k : Nat) (hk30 : k ≤ 30)
     ((↑x : Nat) ||| 1 <<< k % U32.size) ^^^
       (((↑x : Nat) >>> (k + 1) &&& 1) <<< (k + 1) % U32.size)
       = 2 ^ (k + 2) * ((↑x : Nat) / 2 ^ (k + 2)) + (2 ^ (k + 1) - 1) := by
-  have hsz31 : (2 : Nat) ^ 31 < U32.size := by native_decide
+  have hsz31 : (2 : Nat) ^ 31 < U32.size := by simp [Aeneas.Std.U32.size_eq]
   have e1 : (1 : Nat) <<< k < U32.size := by
     rw [Nat.shiftLeft_eq, one_mul]
     exact lt_of_le_of_lt (Nat.pow_le_pow_right (by norm_num) (by omega)) hsz31
@@ -220,7 +220,7 @@ theorem tones_le_30 (v : Nat) (hv : v < 2 ^ 31 - 1) : tones v ≤ 30 := by
 /-- Powers of two up to `2^31` fit in a `u32` (the `u32::pow` side condition shape). -/
 theorem two_pow_le_u32_max (m : Nat) (h : m ≤ 31) : 2 ^ m ≤ Aeneas.Std.U32.max := by
   have h1 : (2 : Nat) ^ m ≤ 2 ^ 31 := Nat.pow_le_pow_right (by norm_num) h
-  have h2 : (2 : Nat) ^ 31 ≤ Aeneas.Std.U32.max := by native_decide
+  have h2 : (2 : Nat) ^ 31 ≤ Aeneas.Std.U32.max := by simp [Aeneas.Std.U32.max_eq]
   omega
 
 /-- `1 <<< k % U32.size = 2^k` for `k < 32` (the shift doesn't wrap). -/
@@ -288,7 +288,7 @@ theorem log2_le_30_or (x : Nat) : Nat.log 2 x ≤ 30 ∨ 2 ^ 30 < x := by
     preprocessing hits `maxRecDepth` on a symbolic `↑r = 2 ^ ↑e` hypothesis. -/
 @[simp] theorem one_shiftLeft_mod_eq_zero_iff (k : Nat) :
     1 <<< k % Aeneas.Std.U32.size = 0 ↔ 32 ≤ k := by
-  have hsz : Aeneas.Std.U32.size = 2 ^ 32 := by native_decide
+  have hsz : Aeneas.Std.U32.size = 2 ^ 32 := by exact Aeneas.Std.U32.size_eq
   have e : 1 <<< k = 2 ^ k := by simp [Nat.shiftLeft_eq]
   rw [e, hsz]
   constructor
