@@ -186,6 +186,25 @@ theorem lca_level_one {xn : Nat} {xv : Std.U32} {k k1 : Std.Usize}
   rw [hk1', hxv, h2, Nat.shiftRight_eq_div_pow, pow_one]
   omega
 
+/-- Collision of the two shifted leaf recoveries is absurd: on even tree indices both `level`s
+    are `0`, so equal shifted values force equal leaf indices, contradicting distinctness. One
+    `exact` replaces each of `lowest_common_ancestor`'s four early-return contradiction blocks. -/
+theorem lca_shift_ne {xn yn : Nat} {xv yv sx sy : Std.U32} {k1 : Std.Usize}
+    (heq : sx = sy) (hxy : ¬ xn = yn)
+    (hxv : (↑xv : Nat) = xn * (↑(2#u32) : Nat))
+    (hyv : (↑yv : Nat) = yn * (↑(2#u32) : Nat))
+    (hk1 : (↑k1 : Nat) = 1)
+    (hsx : (↑sx : Nat) = (↑xv : Nat) >>> (↑k1 : Nat))
+    (hsy : (↑sy : Nat) = (↑yv : Nat) >>> (↑k1 : Nat)) : False := by
+  have h2 : (↑(2#u32) : Nat) = 2 := rfl
+  have hxs : (↑xv : Nat) >>> (↑k1 : Nat) = xn := by
+    rw [hk1, hxv, h2, Nat.shiftRight_eq_div_pow, pow_one]; omega
+  have hys : (↑yv : Nat) >>> (↑k1 : Nat) = yn := by
+    rw [hk1, hyv, h2, Nat.shiftRight_eq_div_pow, pow_one]; omega
+  have hval : (↑sx : Nat) = ↑sy := by rw [heq]
+  rw [hsx, hsy, hxs, hys] at hval
+  exact hxy hval
+
 /-- No non-final `direct_path` entry is the maximal tree's root: entry `i` has
     `tones (2·e+1) = i+1 ≤ 28` on the popped list, while the root value `2^29 − 1` has
     `tones = 29`. Feeds `sibling.pre` in `copath.spec.proof`. -/

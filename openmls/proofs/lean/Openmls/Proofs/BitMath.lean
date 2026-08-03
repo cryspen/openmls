@@ -507,6 +507,45 @@ theorem parent_bits_val
     UScalar.size_UScalarTyU32]
   exact parent_val_u32 v _ hk30 hchar
 
+/-- Positivity corollary of `parent_bits_val`, shaped for `parent`'s VC blocks: one `have` +
+    `scalar_tac` replaces the per-block preamble. -/
+theorem parent_bits_pos
+    (v r1 r2 rr : U32) (k k1 : Usize)
+    (hk30 : (↑k : Nat) ≤ 30)
+    (hchar : (↑v : Nat) % 2 ^ ((↑k : Nat) + 1) = 2 ^ (↑k : Nat) - 1)
+    (hk1 : (↑k1 : Nat) = (↑k : Nat) + (↑(1#usize) : Nat))
+    (hr2 : (↑r2 : Nat) = (↑v : Nat) >>> (↑k1 : Nat))
+    (hr1 : (↑r1 : Nat) = (↑(1#u32) : Nat) <<< (↑k : Nat) % UScalar.size UScalarTy.U32)
+    (hrr : (↑rr : Nat)
+      = (↑(r2 &&& 1#u32) : Nat) <<< (↑k1 : Nat) % UScalar.size UScalarTy.U32) :
+    2 ^ ((↑k : Nat) + 1) - 1 ≤ (↑((v ||| r1) ^^^ rr) : Nat)
+      ∧ 0 < (↑((v ||| r1) ^^^ rr) : Nat) := by
+  have hval := parent_bits_val v r1 r2 rr k k1 hk30 hchar hk1 hr2 hr1 hrr
+  have hge : 2 ^ ((↑k : Nat) + 1) - 1 ≤ (↑((v ||| r1) ^^^ rr) : Nat) := by
+    rw [hval]; exact Nat.le_add_left _ _
+  have h2 : (2 : Nat) ^ ((↑k : Nat) + 1) = 2 * 2 ^ (↑k : Nat) := by ring
+  have h3 : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
+  omega
+
+/-- Parity corollary of `parent_bits_val`, shaped for `parent`'s VC blocks: one `have` +
+    `scalar_tac` replaces the per-block preamble. -/
+theorem parent_bits_odd
+    (v r1 r2 rr : U32) (k k1 : Usize)
+    (hk30 : (↑k : Nat) ≤ 30)
+    (hchar : (↑v : Nat) % 2 ^ ((↑k : Nat) + 1) = 2 ^ (↑k : Nat) - 1)
+    (hk1 : (↑k1 : Nat) = (↑k : Nat) + (↑(1#usize) : Nat))
+    (hr2 : (↑r2 : Nat) = (↑v : Nat) >>> (↑k1 : Nat))
+    (hr1 : (↑r1 : Nat) = (↑(1#u32) : Nat) <<< (↑k : Nat) % UScalar.size UScalarTy.U32)
+    (hrr : (↑rr : Nat)
+      = (↑(r2 &&& 1#u32) : Nat) <<< (↑k1 : Nat) % UScalar.size UScalarTy.U32) :
+    (↑((v ||| r1) ^^^ rr) : Nat) % 2 = 1 := by
+  have hval := parent_bits_val v r1 r2 rr k k1 hk30 hchar hk1 hr2 hr1 hrr
+  have hdvd : 2 ∣ 2 ^ ((↑k : Nat) + 2) * ((↑v : Nat) / 2 ^ ((↑k : Nat) + 2)) :=
+    Dvd.dvd.mul_right (dvd_pow_self 2 (by omega)) _
+  have h2 : (2 : Nat) ^ ((↑k : Nat) + 1) = 2 * 2 ^ (↑k : Nat) := by ring
+  have h3 : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
+  omega
+
 /-- A node value below `2^30 − 1` has its parent value below `2^30` (the `MAX_PARENT` bound; the
     strict hypothesis is needed since `V = 2^30 − 1` has `k = 30`). -/
 theorem parent_val_lt_two_pow_30 (V k : Nat) (hV : V < 2 ^ 30 - 1)
@@ -655,5 +694,27 @@ theorem all_ones_iff_and_succ_eq_zero (s : Nat) (h1 : 1 ≤ s) :
   · rw [hfix]; exact and_succ_eq_zero_of_all_ones _
   · obtain ⟨k, hk⟩ := all_ones_of_and_succ_eq_zero s h1 hmask
     rw [hk, log2_two_pow_sub_one]
+
+/-- Packages the consumer-side destructuring of the registered mask spec: from the three conjuncts
+    of `TreeSize::valid`'s bit form, one `obtain` yields the fresh width `L` together with every
+    derived fact the `TreeSize` obligations need (log₂ bridge, `L ≤ 29`, the two power bounds, the
+    `pow_succ` doubling, and the shift residue) — replacing the per-site preamble. -/
+theorem valid_mask_destruct (s : Nat)
+    (h : 1 ≤ s ∧ s ≤ 2 ^ 30 - 1 ∧ s &&& (s + 1) = 0) :
+    ∃ L, s = 2 ^ (L + 1) - 1 ∧ Nat.log 2 s = L ∧ L ≤ 29
+      ∧ 1 ≤ 2 ^ L ∧ 2 ^ L ≤ 2 ^ 29 ∧ 2 ^ (L + 1) = 2 * 2 ^ L
+      ∧ 1 <<< L % Aeneas.Std.U32.size = 2 ^ L := by
+  obtain ⟨h1, h2, hmask⟩ := h
+  obtain ⟨L, hL⟩ := all_ones_of_and_succ_eq_zero _ (by omega) hmask
+  have hlog : Nat.log 2 s = L := by rw [hL]; exact log2_two_pow_sub_one L
+  have hL29 : L ≤ 29 := by
+    by_contra hc
+    have : (2 : Nat) ^ 31 ≤ 2 ^ (L + 1) := Nat.pow_le_pow_right (by omega) (by omega)
+    omega
+  have hp1 : (1 : Nat) ≤ 2 ^ L := Nat.one_le_two_pow
+  have hp29 : (2 : Nat) ^ L ≤ 2 ^ 29 := Nat.pow_le_pow_right (by omega) hL29
+  have hpow : (2 : Nat) ^ (L + 1) = 2 * 2 ^ L := by rw [pow_succ]; ring
+  have hsh : 1 <<< L % Aeneas.Std.U32.size = 2 ^ L := one_shiftLeft_mod_eq L (by omega)
+  exact ⟨L, hL, hlog, hL29, hp1, hp29, hpow, hsh⟩
 
 end openmls

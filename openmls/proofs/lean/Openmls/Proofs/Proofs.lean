@@ -256,24 +256,12 @@ theorem root.spec.proof (size : TreeSize) :
   (root.pre size).holds →
   ⦃ ⌜ True ⌝ ⦄ root size ⦃ ⇓ res => ⌜ (root.post size res).holds ⌝ ⦄
   := by
-  unfold root.pre root.post
-  hax_mvcgen [root]
+  hax_mvcgen [root] <;> simp at *
+  all_goals set_option maxHeartbeats 1_000 in (try scalar_tac)
+  guard_goal_nums 5
   all_goals
-    (obtain ⟨hs1, hs2, hmask⟩ :=
-        of_decide_eq_true
-          (show decide (1 ≤ (↑size : Nat) ∧ (↑size : Nat) ≤ 2 ^ 30 - 1 ∧
-              (↑size : Nat) &&& ((↑size : Nat) + 1) = 0) = true by assumption)
-     obtain ⟨L, hL⟩ := all_ones_of_and_succ_eq_zero _ (by omega) hmask
-     have hlog : Nat.log 2 (↑size : Nat) = L := by rw [hL]; exact log2_two_pow_sub_one L
-     have hL29 : L ≤ 29 := by
-       by_contra hc
-       have : (2 : Nat) ^ 31 ≤ 2 ^ (L + 1) := Nat.pow_le_pow_right (by omega) (by omega)
-       omega
-     have hp1 : (1 : Nat) ≤ 2 ^ L := Nat.one_le_two_pow
-     have hp29 : (2 : Nat) ^ L ≤ 2 ^ 29 := Nat.pow_le_pow_right (by omega) hL29
-     have hpow : (2 : Nat) ^ (L + 1) = 2 * 2 ^ L := by rw [pow_succ]; ring
-     have hsh : 1 <<< L % Aeneas.Std.U32.size = 2 ^ L := one_shiftLeft_mod_eq L (by omega)
-     try scalar_tac)
+    have ⟨L, _, _, _, _, _, _, _⟩ := valid_mask_destruct size ?_
+    <;> scalar_tac
 
 @[spec]
 theorem left.spec.proof (index : ParentNodeIndex) :
@@ -377,40 +365,20 @@ theorem parent.spec_value (x : TreeNodeIndex)
   all_goals try scalar_tac
   case vc2.h =>
     rename_i v hv k hk k1 hk1 r2 hr2 r1 hr1 rr hrr
-    have hval := parent_bits_val v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
-    have hge : 2 ^ ((↑k : Nat) + 1) - 1 ≤ (↑((v ||| r1) ^^^ rr) : Nat) := by
-      rw [hval]; exact Nat.le_add_left _ _
-    have h2 : (2 : Nat) ^ ((↑k : Nat) + 1) = 2 * 2 ^ (↑k : Nat) := by ring
-    have h3 : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
-    have hpos : 0 < (↑((v ||| r1) ^^^ rr) : Nat) := by omega
+    obtain ⟨hge, hpos⟩ := parent_bits_pos v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
     scalar_tac
   case vc2.h =>
     rename_i v hv k hk k1 hk1 r2 hr2 r1 hr1 rr hrr
-    have hval := parent_bits_val v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
-    have hge : 2 ^ ((↑k : Nat) + 1) - 1 ≤ (↑((v ||| r1) ^^^ rr) : Nat) := by
-      rw [hval]; exact Nat.le_add_left _ _
-    have h2 : (2 : Nat) ^ ((↑k : Nat) + 1) = 2 * 2 ^ (↑k : Nat) := by ring
-    have h3 : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
-    have hpos : 0 < (↑((v ||| r1) ^^^ rr) : Nat) := by omega
+    obtain ⟨hge, hpos⟩ := parent_bits_pos v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
     scalar_tac
   -- `X` is odd: `2 ∣ 2^(k+2)·q` and `2^(k+1) − 1` is odd.
   case vc3.h =>
     rename_i v hv k hk k1 hk1 r2 hr2 r1 hr1 rr hrr u1 hposX m hm
-    have hval := parent_bits_val v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
-    have hdvd : 2 ∣ 2 ^ ((↑k : Nat) + 2) * ((↑v : Nat) / 2 ^ ((↑k : Nat) + 2)) :=
-      Dvd.dvd.mul_right (dvd_pow_self 2 (by omega)) _
-    have h2 : (2 : Nat) ^ ((↑k : Nat) + 1) = 2 * 2 ^ (↑k : Nat) := by ring
-    have h3 : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
-    have hodd : (↑((v ||| r1) ^^^ rr) : Nat) % 2 = 1 := by omega
+    have hodd := parent_bits_odd v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
     scalar_tac
   case vc3.h =>
     rename_i v hv k hk k1 hk1 r2 hr2 r1 hr1 rr hrr u1 hposX m hm
-    have hval := parent_bits_val v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
-    have hdvd : 2 ∣ 2 ^ ((↑k : Nat) + 2) * ((↑v : Nat) / 2 ^ ((↑k : Nat) + 2)) :=
-      Dvd.dvd.mul_right (dvd_pow_self 2 (by omega)) _
-    have h2 : (2 : Nat) ^ ((↑k : Nat) + 1) = 2 * 2 ^ (↑k : Nat) := by ring
-    have h3 : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
-    have hodd : (↑((v ||| r1) ^^^ rr) : Nat) % 2 = 1 := by omega
+    have hodd := parent_bits_odd v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
     scalar_tac
   -- The value equation itself: `trailing_unique` pins `k = tones ↑v`, `parent_bits_val` supplies
   -- the right-hand side, and `from_tree_index` returns `(X − 1)/2` with `X` odd.
@@ -469,21 +437,11 @@ theorem parent.spec.proof
   -- `Leaf` branch --------------------------------------------------------------------------------
   case vc2.h =>
     rename_i v hv k hk k1 hk1 r2 hr2 r1 hr1 rr hrr
-    have hval := parent_bits_val v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
-    have hge : 2 ^ ((↑k : Nat) + 1) - 1 ≤ (↑((v ||| r1) ^^^ rr) : Nat) := by
-      rw [hval]; exact Nat.le_add_left _ _
-    have h2 : (2 : Nat) ^ ((↑k : Nat) + 1) = 2 * 2 ^ (↑k : Nat) := by ring
-    have h3 : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
-    have hpos : 0 < (↑((v ||| r1) ^^^ rr) : Nat) := by omega
+    obtain ⟨hge, hpos⟩ := parent_bits_pos v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
     scalar_tac
   case vc3.h =>
     rename_i v hv k hk k1 hk1 r2 hr2 r1 hr1 rr hrr u hposX m hm
-    have hval := parent_bits_val v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
-    have hdvd : 2 ∣ 2 ^ ((↑k : Nat) + 2) * ((↑v : Nat) / 2 ^ ((↑k : Nat) + 2)) :=
-      Dvd.dvd.mul_right (dvd_pow_self 2 (by omega)) _
-    have h2 : (2 : Nat) ^ ((↑k : Nat) + 1) = 2 * 2 ^ (↑k : Nat) := by ring
-    have h3 : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
-    have hodd : (↑((v ||| r1) ^^^ rr) : Nat) % 2 = 1 := by omega
+    have hodd := parent_bits_odd v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
     scalar_tac
   -- Level successor (post clause 2): `tones t2 = k+1` by `tones_parent`, and `trailing_unique` pins
   -- both `level` results, so `lvl2 = k+1 = lvl1+1`.
@@ -533,21 +491,11 @@ theorem parent.spec.proof
   -- `Parent` branch ------------------------------------------------------------------------------
   case vc14.h =>
     rename_i v0 hv0 v hv k hk k1 hk1 r2 hr2 r1 hr1 rr hrr
-    have hval := parent_bits_val v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
-    have hge : 2 ^ ((↑k : Nat) + 1) - 1 ≤ (↑((v ||| r1) ^^^ rr) : Nat) := by
-      rw [hval]; exact Nat.le_add_left _ _
-    have h2 : (2 : Nat) ^ ((↑k : Nat) + 1) = 2 * 2 ^ (↑k : Nat) := by ring
-    have h3 : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
-    have hpos : 0 < (↑((v ||| r1) ^^^ rr) : Nat) := by omega
+    obtain ⟨hge, hpos⟩ := parent_bits_pos v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
     scalar_tac
   case vc15.h =>
     rename_i v0 hv0 v hv k hk k1 hk1 r2 hr2 r1 hr1 rr hrr u hposX m hm
-    have hval := parent_bits_val v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
-    have hdvd : 2 ∣ 2 ^ ((↑k : Nat) + 2) * ((↑v : Nat) / 2 ^ ((↑k : Nat) + 2)) :=
-      Dvd.dvd.mul_right (dvd_pow_self 2 (by omega)) _
-    have h2 : (2 : Nat) ^ ((↑k : Nat) + 1) = 2 * 2 ^ (↑k : Nat) := by ring
-    have h3 : 1 ≤ (2 : Nat) ^ (↑k : Nat) := Nat.one_le_two_pow
-    have hodd : (↑((v ||| r1) ^^^ rr) : Nat) % 2 = 1 := by omega
+    have hodd := parent_bits_odd v r1 r2 rr k k1 hk.1 hk.2 hk1 hr2 hr1 hrr
     scalar_tac
   -- Same level-successor argument; the `Parent` shape adds the `2·p+1` step for `x.u32`.
   case vc3.hQ =>
@@ -848,16 +796,8 @@ theorem direct_path.spec_pure (node_index : LeafNodeIndex) (size : TreeSize)
         of_decide_eq_true
           (show decide (1 ≤ (↑size : Nat) ∧ (↑size : Nat) ≤ 2 ^ 30 - 1 ∧
               (↑size : Nat) &&& ((↑size : Nat) + 1) = 0) = true by assumption)
-     obtain ⟨L, hL⟩ := all_ones_of_and_succ_eq_zero _ (by omega) hmask
-     have hlog : Nat.log 2 (↑size : Nat) = L := by rw [hL]; exact log2_two_pow_sub_one L
-     have hL29 : L ≤ 29 := by
-       by_contra hc
-       have : (2 : Nat) ^ 31 ≤ 2 ^ (L + 1) := Nat.pow_le_pow_right (by omega) (by omega)
-       omega
-     have hp1 : (1 : Nat) ≤ 2 ^ L := Nat.one_le_two_pow
-     have hp29 : (2 : Nat) ^ L ≤ 2 ^ 29 := Nat.pow_le_pow_right (by omega) hL29
-     have hpow : (2 : Nat) ^ (L + 1) = 2 * 2 ^ L := by rw [pow_succ]; ring
-     have hsh : 1 <<< L % Aeneas.Std.U32.size = 2 ^ L := one_shiftLeft_mod_eq L (by omega)
+     obtain ⟨L, hL, hlog, hL29, hp1, hp29, hpow, hsh⟩ :=
+        valid_mask_destruct _ ⟨hs1, hs2, hmask⟩
      try scalar_tac)
   -- The two surviving goals are the loop call, once per `TreeNodeIndex.new` branch: `2^L − 1` is
   -- even only for `L = 0` (the singleton tree), odd otherwise, and BOTH reconstructions collapse
@@ -1021,42 +961,22 @@ theorem lowest_common_ancestor.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex
   case vc3.h =>
     rename_i hx hy hxy xv hxv yv hyv kx hkx kx1 hkx1 ky hky ky1 hky1 hle sx hsx sy hsy heq
     exfalso
-    obtain ⟨hkx1', hxs⟩ := lca_level_one hxv hkx hkx1
-    obtain ⟨hky1', hys⟩ := lca_level_one hyv hky hky1
-    rw [hkx1'] at hxs ; rw [hky1'] at hys
-    have hval : (↑sx : Nat) = ↑sy := by rw [heq]
-    rw [hsx, hsy, hky1', hxs, hys] at hval
-    exact hxy hval
+    exact lca_shift_ne heq hxy hxv hyv (lca_level_one hyv hky hky1).1 hsx hsy
   case vc4.h =>
     rename_i hx hy hxy xv hxv yv hyv kx hkx kx1 hkx1 ky hky ky1 hky1 hle sx hsx sy hsy heq
       u hpos m hm
     exfalso
-    obtain ⟨hkx1', hxs⟩ := lca_level_one hxv hkx hkx1
-    obtain ⟨hky1', hys⟩ := lca_level_one hyv hky hky1
-    rw [hkx1'] at hxs ; rw [hky1'] at hys
-    have hval : (↑sx : Nat) = ↑sy := by rw [heq]
-    rw [hsx, hsy, hky1', hxs, hys] at hval
-    exact hxy hval
+    exact lca_shift_ne heq hxy hxv hyv (lca_level_one hyv hky hky1).1 hsx hsy
   case vc9.h =>
     rename_i hx hy hxy xv hxv yv hyv kx hkx kx1 hkx1 ky hky ky1 hky1 hle sx hsx sy hsy hne
       hle2 tx htx ty hty heq
     exfalso
-    obtain ⟨hkx1', hxs⟩ := lca_level_one hxv hkx hkx1
-    obtain ⟨hky1', hys⟩ := lca_level_one hyv hky hky1
-    rw [hkx1'] at hxs ; rw [hky1'] at hys
-    have hval : (↑tx : Nat) = ↑ty := by rw [heq]
-    rw [htx, hty, hkx1', hxs, hys] at hval
-    exact hxy hval
+    exact lca_shift_ne heq hxy hxv hyv (lca_level_one hxv hkx hkx1).1 htx hty
   case vc10.h =>
     rename_i hx hy hxy xv hxv yv hyv kx hkx kx1 hkx1 ky hky ky1 hky1 hle sx hsx sy hsy hne
       hle2 tx htx ty hty heq u hpos m hm
     exfalso
-    obtain ⟨hkx1', hxs⟩ := lca_level_one hxv hkx hkx1
-    obtain ⟨hky1', hys⟩ := lca_level_one hyv hky hky1
-    rw [hkx1'] at hxs ; rw [hky1'] at hys
-    have hval : (↑tx : Nat) = ↑ty := by rw [heq]
-    rw [htx, hty, hkx1', hxs, hys] at hval
-    exact hxy hval
+    exact lca_shift_ne heq hxy hxv hyv (lca_level_one hxv hkx hkx1).1 htx hty
   case vc36.h_ok.isFalse.isFalse =>
     rename_i hx hy hxy xv hxv yv hyv kx hkx kx1 hkx1 ky hky ky1 hky1 hle sx hsx sy hsy hne hnle
     exfalso
