@@ -23,7 +23,6 @@ set_option linter.dupNamespace false
 set_option linter.hashCommand false
 set_option linter.unusedVariables false
 
-set_option maxHeartbeats 1000000
 -- set_option maxRecDepth 2048
 
 noncomputable section
@@ -61,12 +60,12 @@ attribute [spec]
 /-! ### Value specs for the treemath constants -/
 
 @[spec]
-theorem MAX_TREE_SIZE.spec :
+theorem MAX_TREE_SIZE.spec_value :
     ⦃ ⌜ True ⌝ ⦄ MAX_TREE_SIZE ⦃ ⇓ r => ⌜ r = 1073741823#u32 ⌝ ⦄ := by
   hax_mvcgen [MAX_TREE_SIZE] <;> scalar_tac
 
 @[spec]
-theorem MAX_TREE_INDEX.spec :
+theorem MAX_TREE_INDEX.spec_value :
     ⦃ ⌜ True ⌝ ⦄ MAX_TREE_INDEX ⦃ ⇓ r => ⌜ r = 1073741822#u32 ⌝ ⦄ := by
   hax_mvcgen [MAX_TREE_INDEX] <;> scalar_tac
 

@@ -45,6 +45,12 @@ Loop specs: all proved (=lca_loop0_spec=, =common_direct_path_loop_spec=,
 from the extraction). Pure companion spec =direct_path.spec_pure= (validated, proved) feeds
 =direct_path=/=copath=. Trusted surface: *10* admitted contracts in =AdmittedCoreSpecs.lean=.
 
+Since the 2026-08 refactoring campaign (see =Review.org= for the full status): the 1:1
+statement freeze is machine-checked by =Openmls/Proofs/Verification.lean= (19 conformance
+theorems against the generated =Specs.lean=); every obligation verifies on the standard
+three axioms (no =native_decide=, no =bv_decide= natives — the bv route was retired);
+=left=/=right= derive their xor facts in-proof from =level='s general =spec_pure=.
+
 ** Contributions
 
 - Change the ~MAX_TREE_SIZE~ constant https://github.com/openmls/openmls/pull/2136
@@ -74,12 +80,16 @@ As can be seen in the PureSpecs.lean
 
 - =Openmls/Proofs/HANDOFF.md= — the consolidated session handoff (state, architecture,
   playbook, pending decisions). Single source of truth; superseded episode handoffs deleted.
+- =Review.org= — critical review of structure/TCB + status of the 2026-08 refactoring
+  campaign (what was done, what remains).
 - Root =CLAUDE.md= — the broader FV-target roadmap and pipeline.
 
 ** Module layout
 
 Hand-written proof modules under =Openmls/Proofs/=, import DAG
-=Common ← BitMath ← {MissingCoreSpecs, AdmittedCoreSpecs, PartialSpecs} ← PureSpecs ← Proofs=:
+=Common ← BitMath ← {MissingCoreSpecs, AdmittedCoreSpecs} ← PartialSpecs ← PureSpecs ← Proofs ← Verification=
+(=PartialSpecs= imports BitMath *and* MissingCoreSpecs — edge added 2026-08-03; =AdmittedCoreSpecs=
+is imported by =Proofs= directly):
 
 | File                   | Concern                                                                                     |
 |------------------------+---------------------------------------------------------------------------------------------|
@@ -90,6 +100,7 @@ Hand-written proof modules under =Openmls/Proofs/=, import DAG
 | =PartialSpecs.lean=      | hand-written mvcgen/partial-correctness triples for the extracted helpers + combinators     |
 | =PureSpecs.lean=         | value triples for the verification-transparent fns; monadic helpers; pure companion lemmas  |
 | =Proofs.lean=            | the 19 obligations, loop specs, =level.spec_pure=/=parent.spec_value=/=direct_path.spec_pure=  |
+| =Verification.lean=      | the mechanized statement freeze: 19 =<fn>.spec.conformance= theorems (definitional, no attributes) |
 
 Generated (regenerate freely — builds as generated, no hand overrides since the 2026-07-28
 re-extraction): =Openmls/Extraction/{Types,Funs,Specs,ProofObligations}.lean=;
@@ -103,11 +114,12 @@ the two =scalar_tac= non-termination reproducers (=ScalarTacNatLogLoop.lean=,
 
 ** The proof scheme
 
-- *One theorem per obligation.* =Openmls/Extraction/ProofObligationsExplicit.lean= is the
-  hand-derived reference view of all *19* obligations in explicit Hoare-triple form
-  (=(pre).holds → ⦃⌜True⌝⦄ f args ⦃⇓ res => (post).holds / True⦄=). =Proofs.lean='s theorem
-  statements must correspond 1:1 to it (same names, same triples). The reference file is not
-  imported; its proofs stay =sorry=.
+- *One theorem per obligation.* =Proofs.lean='s theorem statements correspond 1:1 to the
+  generated =<fn>.spec= Props in =Openmls/Extraction/Specs.lean=; the correspondence is
+  *machine-checked* by =Openmls/Proofs/Verification.lean= (a conformance theorem per
+  obligation, proved by definitional unfolding — a re-extraction that changes a spec breaks
+  it at elaboration). =Openmls/Extraction/ProofObligationsExplicit.lean= remains as a
+  hand-derived *readable view* only (not imported; proofs stay =sorry=).
 - *Stepping* is done by =hax_mvcgen= (fallback: plain =mvcgen= + local massaging at spans where
   it misbehaves). After stepping, residual goals must be pure scalar/bit arithmetic.
 - *Loop invariants* are stated separately, one =*_loop_spec= theorem per loop via the generic
@@ -130,4 +142,3 @@ the two =scalar_tac= non-termination reproducers (=ScalarTacNatLogLoop.lean=,
   would make these provable.
 - [ ] =vec_push_spec= — provable from =seq_push=; blocked on the =vecLen= vs CoreModels-=Seq=
   representation mismatch.
-- [ ] Delete =Proof_bck.lean= once its remaining useful blocks are lifted.

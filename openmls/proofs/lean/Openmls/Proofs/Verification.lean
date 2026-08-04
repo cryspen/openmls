@@ -26,8 +26,6 @@ set_option linter.dupNamespace false
 set_option linter.hashCommand false
 set_option linter.unusedVariables false
 
-set_option maxHeartbeats 1000000
-
 noncomputable section
 
 namespace openmls
