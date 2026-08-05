@@ -49,10 +49,10 @@ namespace binary_tree.array_representation.treemath
 whose body has already been reduced to `ok v`: the triple is exactly `willYield v Q`.
 Named apart from `openmls.triple_of_ok` (the `x = ok v` / plain-`Prop` postcondition flavour in
 `Common`), which it would otherwise shadow inside this namespace. -/
-theorem triple_of_ok_willYield {α} (v : α) (Q : PostCond α Aeneas.Std.WP.Result.postShape)
-    (h_ok : Aeneas.Std.WP.willYield v Q) :
+theorem triple_of_ok_willYield {α} (v : α) (Q : PostCond α Aeneas.Std.Result.postShape)
+    (h_ok : Aeneas.Std.willYield v Q) :
     ⦃ ⌜ True ⌝ ⦄ (ok v : Result α) ⦃ Q ⦄ := by
-  simpa [Triple, _root_.Std.Do.WP.wp, PredTrans.apply, Aeneas.Std.WP.willYield] using h_ok
+  simpa [Triple, _root_.Std.Do.WP.wp, PredTrans.apply, Aeneas.Std.willYield] using h_ok
 
 /-- A total `spec` yields the partial contract with empty failure/divergence cases. Lets us reuse
 Aeneas' `@[step]`-derived `.step_spec` lemmas (which discharge the failure side conditions once,
@@ -70,9 +70,9 @@ compares, so there is no failure branch and hence no `willFail` hypothesis — s
 hypothesis position produces no side goal. -/
 @[spec]
 theorem LeafNodeIndex.valid_mvcgen_spec (self : LeafNodeIndex)
-    (Q : PostCond Bool Aeneas.Std.WP.Result.postShape)
+    (Q : PostCond Bool Aeneas.Std.Result.postShape)
     (h_ok : ∀ b : Bool, b = decide ((↑self : Nat) ≤ 2 ^ 29 - 1) →
-      Aeneas.Std.WP.willYield b Q) :
+      Aeneas.Std.willYield b Q) :
     ⦃ ⌜ True ⌝ ⦄ LeafNodeIndex.valid self ⦃ Q ⦄ := by
   have hc : binary_tree.array_representation.treemath.MAX_LEAF = ok 536870911#u32 := by
     unfold MAX_LEAF MAX_TREE_INDEX MAX_TREE_SIZE; rfl
@@ -83,9 +83,9 @@ theorem LeafNodeIndex.valid_mvcgen_spec (self : LeafNodeIndex)
 /-- `ParentNodeIndex::valid` is `self ≤ MAX_PARENT = 2^29 − 2`. Total, as for `LeafNodeIndex`. -/
 @[spec]
 theorem ParentNodeIndex.valid_mvcgen_spec (self : ParentNodeIndex)
-    (Q : PostCond Bool Aeneas.Std.WP.Result.postShape)
+    (Q : PostCond Bool Aeneas.Std.Result.postShape)
     (h_ok : ∀ b : Bool, b = decide ((↑self : Nat) ≤ 2 ^ 29 - 2) →
-      Aeneas.Std.WP.willYield b Q) :
+      Aeneas.Std.willYield b Q) :
     ⦃ ⌜ True ⌝ ⦄ ParentNodeIndex.valid self ⦃ Q ⦄ := by
   have hc : binary_tree.array_representation.treemath.MAX_PARENT = ok 536870910#u32 := by
     unfold MAX_PARENT MAX_LEAF MAX_TREE_INDEX MAX_TREE_SIZE; rfl
@@ -96,11 +96,11 @@ theorem ParentNodeIndex.valid_mvcgen_spec (self : ParentNodeIndex)
 /-- `TreeNodeIndex::valid` dispatches on the constructor to the leaf/parent bound. Total. -/
 @[spec]
 theorem TreeNodeIndex.valid_mvcgen_spec (self : TreeNodeIndex)
-    (Q : PostCond Bool Aeneas.Std.WP.Result.postShape)
+    (Q : PostCond Bool Aeneas.Std.Result.postShape)
     (h_ok : ∀ b : Bool, b = (match self with
         | TreeNodeIndex.Leaf l => decide ((↑l : Nat) ≤ 2 ^ 29 - 1)
         | TreeNodeIndex.Parent p => decide ((↑p : Nat) ≤ 2 ^ 29 - 2)) →
-      Aeneas.Std.WP.willYield b Q) :
+      Aeneas.Std.willYield b Q) :
     ⦃ ⌜ True ⌝ ⦄ TreeNodeIndex.valid self ⦃ Q ⦄ := by
   unfold TreeNodeIndex.valid
   cases self with
@@ -110,8 +110,8 @@ theorem TreeNodeIndex.valid_mvcgen_spec (self : TreeNodeIndex)
 /-- `TreeSize::u32` is the identity injection. Total. -/
 @[spec]
 theorem TreeSize.u32_mvcgen_spec (self : TreeSize)
-    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) → Aeneas.Std.WP.willYield r Q) :
+    (Q : PostCond Std.U32 Aeneas.Std.Result.postShape)
+    (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) → Aeneas.Std.willYield r Q) :
     ⦃ ⌜ True ⌝ ⦄ TreeSize.u32 self ⦃ Q ⦄ := by
   unfold TreeSize.u32
   exact triple_of_ok_willYield _ Q (h_ok _ rfl)
@@ -120,8 +120,8 @@ theorem TreeSize.u32_mvcgen_spec (self : TreeSize)
 division cannot fail. -/
 @[spec]
 theorem TreeSize.parent_count_mvcgen_spec (self : TreeSize)
-    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) / 2 → Aeneas.Std.WP.willYield r Q) :
+    (Q : PostCond Std.U32 Aeneas.Std.Result.postShape)
+    (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) / 2 → Aeneas.Std.willYield r Q) :
     ⦃ ⌜ True ⌝ ⦄ TreeSize.parent_count self ⦃ Q ⦄ := by
   unfold TreeSize.parent_count
   refine triple_of_partialSpec (p_fail := fun _ => False) (p_div := False) ?_ Q h_ok
@@ -151,8 +151,8 @@ theorem partialSpec_bind_fail {α β} {x : Result α} {f : α → Result β}
 /-- `LeafNodeIndex::u32` is the identity injection. Total. -/
 @[spec]
 theorem LeafNodeIndex.u32_mvcgen_spec (self : LeafNodeIndex)
-    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) → Aeneas.Std.WP.willYield r Q) :
+    (Q : PostCond Std.U32 Aeneas.Std.Result.postShape)
+    (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) → Aeneas.Std.willYield r Q) :
     ⦃ ⌜ True ⌝ ⦄ LeafNodeIndex.u32 self ⦃ Q ⦄ := by
   unfold LeafNodeIndex.u32
   exact triple_of_ok_willYield _ Q (h_ok _ rfl)
@@ -160,8 +160,8 @@ theorem LeafNodeIndex.u32_mvcgen_spec (self : LeafNodeIndex)
 /-- `ParentNodeIndex::u32` is the identity injection. Total. -/
 @[spec]
 theorem ParentNodeIndex.u32_mvcgen_spec (self : ParentNodeIndex)
-    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) → Aeneas.Std.WP.willYield r Q) :
+    (Q : PostCond Std.U32 Aeneas.Std.Result.postShape)
+    (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) → Aeneas.Std.willYield r Q) :
     ⦃ ⌜ True ⌝ ⦄ ParentNodeIndex.u32 self ⦃ Q ⦄ := by
   unfold ParentNodeIndex.u32
   exact triple_of_ok_willYield _ Q (h_ok _ rfl)
@@ -234,8 +234,8 @@ code computes. `private` and NOT `@[spec]`-registered: that equation is self-ref
 and makes `scalar_tac` diverge in consumers. The registered rule is `TreeSize.valid_mask_spec`
 below, which transports this through `all_ones_iff_and_succ_eq_zero`. -/
 private theorem TreeSize.valid_log_characterization (self : TreeSize)
-    (Q : PostCond Bool Aeneas.Std.WP.Result.postShape)
-    (h_ok : Aeneas.Std.WP.willYield
+    (Q : PostCond Bool Aeneas.Std.Result.postShape)
+    (h_ok : Aeneas.Std.willYield
       (decide (1 ≤ (↑self : Nat) ∧ (↑self : Nat) ≤ 2 ^ 30 - 1 ∧
         (↑self : Nat) = 2 ^ (Nat.log 2 (↑self : Nat) + 1) - 1)) Q) :
     ⦃ ⌜ True ⌝ ⦄ TreeSize.valid self ⦃ Q ⦄ := by
@@ -322,8 +322,8 @@ an explicit `pow_succ`-expanded `have` is usually needed alongside.
 position produces no side goal. -/
 @[spec]
 theorem TreeSize.valid_mask_spec (self : TreeSize)
-    (Q : PostCond Bool Aeneas.Std.WP.Result.postShape)
-    (h_ok : Aeneas.Std.WP.willYield
+    (Q : PostCond Bool Aeneas.Std.Result.postShape)
+    (h_ok : Aeneas.Std.willYield
       (decide (1 ≤ (↑self : Nat) ∧ (↑self : Nat) ≤ 2 ^ 30 - 1 ∧
         (↑self : Nat) &&& ((↑self : Nat) + 1) = 0)) Q) :
     ⦃ ⌜ True ⌝ ⦄ TreeSize.valid self ⦃ Q ⦄ := by

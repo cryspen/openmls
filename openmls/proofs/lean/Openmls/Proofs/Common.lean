@@ -122,6 +122,15 @@ attribute [spec] uncurry
     `alloc.vec.Vec T` is reducibly `Seq T = Slice T`, so `v` is itself the slice. -/
 def vecLen {T : Type} (v : alloc.vec.Vec T) : Nat := Aeneas.Std.Slice.length v
 
+/-- A slice iterator's remaining elements. **Not trusted**: `CoreModels`' `core.slice.iter.Iter T`
+    is `@[reducible]`-equal to `rust_primitives.sequence.Seq T = Aeneas.Std.Slice T`, a subtype of
+    `List T`, so the remaining elements are literally the underlying list. (This used to be an
+    `opaque`; the new extraction made the iterator type concrete, so it is a real definition and
+    the trusted surface shrank accordingly.) Lives here — next to `vecLen`, its `Vec` twin —
+    because both `MissingCoreSpecs.lean` and `AdmittedCoreSpecs.lean` phrase iterator contracts
+    over it and DAG siblings cannot import each other. -/
+def sliceIterElems {T : Type} (it : core.slice.iter.Iter T) : List T := it.val
+
 /-! ### Generic measure-decreasing loop spec (PostCond-flavoured body obligation)
 
    `Aeneas.Std.loop.spec_decr_nat`'s body obligation is a raw `WP.spec … (fun r => …)`
@@ -197,14 +206,14 @@ want to register in the global `step` set. -/
 theorem triple_of_partialSpec {α} {x : Result α}
     {p_ok : α → Prop} {p_fail : Aeneas.Std.Error → Prop} {p_div : Prop}
     (h : Aeneas.Std.WP.partialSpec x p_ok p_fail p_div)
-    (Q : PostCond α Aeneas.Std.WP.Result.postShape)
-    (h_ok : ∀ r, p_ok r → Aeneas.Std.WP.willYield r Q)
-    (h_fail : ∀ e, p_fail e → Aeneas.Std.WP.willFail e Q)
-    (h_div : p_div → Aeneas.Std.WP.willDiverge Q) :
+    (Q : PostCond α Aeneas.Std.Result.postShape)
+    (h_ok : ∀ r, p_ok r → Aeneas.Std.willYield r Q)
+    (h_fail : ∀ e, p_fail e → Aeneas.Std.willFail e Q)
+    (h_div : p_div → Aeneas.Std.willDiverge Q) :
     ⦃ ⌜ True ⌝ ⦄ x ⦃ Q ⦄ := by
   cases x <;>
     simp_all [Aeneas.Std.WP.partialSpec, Triple, _root_.Std.Do.WP.wp, PredTrans.apply,
-      Aeneas.Std.WP.willYield, Aeneas.Std.WP.willFail, Aeneas.Std.WP.willDiverge]
+      Aeneas.Std.willYield, Aeneas.Std.willFail, Aeneas.Std.willDiverge]
 
 /-- `vecLen v` is the length of `v`'s underlying list. -/
 theorem vecLen_eq_length {T : Type} (v : alloc.vec.Vec T) : vecLen v = v.1.length := rfl

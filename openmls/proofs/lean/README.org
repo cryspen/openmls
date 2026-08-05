@@ -4,17 +4,9 @@
 
 * Overview
 
-This directory holds the Lean 4 / [[https://github.com/AeneasVerif/aeneas][Aeneas]] proof development for the *ratchet-tree math* of
+This directory holds the Lean4 proof development for the *ratchet-tree math* of
 OpenMLS (RFC 9420 §4 / Appendix C, ported to Rust in
 =openmls/src/binary_tree/array_representation/treemath.rs=).
-
-The Rust functions carry =hax_lib= annotations (=requires= / =ensures=); Charon extracts them to
-LLBC and Aeneas to Lean. We discharge, in Lean, the proof obligations Aeneas generates: each
-function is panic-free on its stated precondition and meets its stated postcondition.
-
-Status after the 2026-07-28 re-extraction (inclusive =MAX_TREE_SIZE=, =trailing_ones=-based
-=level=, transparent one-liners, membership-form =direct_path= post — 19 obligations, was 21;
-=level= and =TreeSize.leaf_count= no longer carry specs):
 
 |---------------------------------+-------------------+--------+---------------------------------------------------------------|
 | Obligation                      | Reference post    | Status | Notes                                                         |
@@ -24,7 +16,7 @@ Status after the 2026-07-28 re-extraction (inclusive =MAX_TREE_SIZE=, =trailing_
 | =right=                           | real              | proved | same                                                          |
 | =parent=                          | real (2-clause)   | proved | new pre =≠ MAX_ROOT_INDEX=; quarantine long gone                |
 | =sibling=                         | =True=              | proved |                                                               |
-| =direct_path=                     | real (=iter().all=) | proved | via =direct_path.spec_pure= + admitted =slice_iter_all_spec=      |
+| =direct_path=                     | real (=iter().all=) | proved | via =direct_path.spec_pure= + =slice_iter_all_spec= (now proved)  |
 | =copath=                          | =True=              | proved | =spec_pure= + iterator contracts + =dropLast_entries_ne_max_root= |
 | =lowest_common_ancestor=          | =True=              | proved |                                                               |
 | =common_direct_path=              | =True=              | proved |                                                               |
@@ -40,17 +32,6 @@ Status after the 2026-07-28 re-extraction (inclusive =MAX_TREE_SIZE=, =trailing_
 | =TreeSize.dec=                    | real              | proved |                                                               |
 |---------------------------------+-------------------+--------+---------------------------------------------------------------|
 
-Loop specs: all proved (=lca_loop0_spec=, =common_direct_path_loop_spec=,
-=direct_path_loop_spec= — the latter with a positional =tones= clause; =level='s loop is gone
-from the extraction). Pure companion spec =direct_path.spec_pure= (validated, proved) feeds
-=direct_path=/=copath=. Trusted surface: *10* admitted contracts in =AdmittedCoreSpecs.lean=.
-
-Since the 2026-08 refactoring campaign (see =Review.org= for the full status): the 1:1
-statement freeze is machine-checked by =Openmls/Proofs/Verification.lean= (19 conformance
-theorems against the generated =Specs.lean=); every obligation verifies on the standard
-three axioms (no =native_decide=, no =bv_decide= natives — the bv route was retired);
-=left=/=right= derive their xor facts in-proof from =level='s general =spec_pure=.
-
 ** Contributions
 
 - Change the ~MAX_TREE_SIZE~ constant https://github.com/openmls/openmls/pull/2136
@@ -60,13 +41,22 @@ three axioms (no =native_decide=, no =bv_decide= natives — the bv route was re
 
 ** TODO Empty the =MissingCoreSpecs.lean=
 
-Open a PR with those specs
+Open a PR with those specs (now all discharged against the upstream CoreModels bodies, so
+they can ship with the models: the vec/slice/cmp/iterator family, the
+=trailingOnes_bv_eq_tones= and =slice_iter_all_count_spec= bridges, and the six
+=Aeneas.Std= =@[step]= partialSpec candidates)
 
 ** TODO Upstream missing =CoreModels=
 
-** TODO Remove spurious const introduced by =hax_lib=
+Narrowed 2026-08-04 (new =openmls-core-models= pin): only three iterator
+definitions remain missing for the frozen extraction — flat per-instance
+=slice::Iter…SharedAT.map=, =Map….collect=, and an =IntoIter.map= taking the
+Aeneas-=BuiltinFnMut= family (the CoreModels twin exists but its =FnMut= family
+mismatches the generated call site). Upstream's new =IteratorMethods= structure
+has the semantics; the PR is about exposing it under the Charon flat-naming
+convention.
 
-** TODO Upstream fix for looping ~scalar_tac~
+** TODO Remove spurious const introduced by =hax_lib=
 
 ** TODO Renames ~tones~ into ~trailing_ones~
 
@@ -80,9 +70,14 @@ As can be seen in the PureSpecs.lean
 
 - =Openmls/Proofs/HANDOFF.md= — the consolidated session handoff (state, architecture,
   playbook, pending decisions). Single source of truth; superseded episode handoffs deleted.
-- =Review.org= — critical review of structure/TCB + status of the 2026-08 refactoring
-  campaign (what was done, what remains).
+- =Review.org= — critical review of structure/TCB + status of the 2026-08 campaigns
+  (refactoring, then trusted-surface shrink + CoreModels upgrade; what was done, what remains).
 - Root =CLAUDE.md= — the broader FV-target roadmap and pipeline.
+
+The invariant gate is =~/.elan/bin/lake build Openmls.Proofs.Proofs
+Openmls.Proofs.Verification= — green with exactly 2 =sorry= warnings (both in
+=AdmittedCoreSpecs.lean=) plus the standing linter noise (5 =unusedTactic= from
+=guard_goal_nums=, 2 =unusedSimpArgs= in BitMath).
 
 ** Module layout
 
@@ -91,16 +86,16 @@ Hand-written proof modules under =Openmls/Proofs/=, import DAG
 (=PartialSpecs= imports BitMath *and* MissingCoreSpecs — edge added 2026-08-03; =AdmittedCoreSpecs=
 is imported by =Proofs= directly):
 
-| File                   | Concern                                                                                     |
-|------------------------+---------------------------------------------------------------------------------------------|
-| =Common.lean=            | generic loop driver =loop_spec_measure= + triple helpers, =vecLen=                              |
+| File                   | Concern                                                                                               |
+|------------------------+-------------------------------------------------------------------------------------------------------|
+| =Common.lean=            | generic loop driver =loop_spec_measure= + triple helpers, =vecLen=, =sliceIterElems=                        |
 | =BitMath.lean=           | pure-=Nat=/u32 bit lemmas (=tones=, parent/left/right value arithmetic); =scalar_tac=/=simp= registrations |
-| =MissingCoreSpecs.lean=  | PROVED =@[spec]= contracts for =core=/=alloc= ops (vec ops, =trailing_ones_spec=, …)            |
-| =AdmittedCoreSpecs.lean= | TRUSTED audit surface: 10 admitted =@[spec]= core contracts                                   |
-| =PartialSpecs.lean=      | hand-written mvcgen/partial-correctness triples for the extracted helpers + combinators     |
-| =PureSpecs.lean=         | value triples for the verification-transparent fns; monadic helpers; pure companion lemmas  |
-| =Proofs.lean=            | the 19 obligations, loop specs, =level.spec_pure=/=parent.spec_value=/=direct_path.spec_pure=  |
-| =Verification.lean=      | the mechanized statement freeze: 19 =<fn>.spec.conformance= theorems (definitional, no attributes) |
+| =MissingCoreSpecs.lean=  | PROVED =@[spec]= contracts for =core=/=alloc= ops, discharged against the upstream CoreModels bodies      |
+| =AdmittedCoreSpecs.lean= | TRUSTED audit surface: 2 admitted core contracts (the =map=/=collect= pair, unregistered)               |
+| =PartialSpecs.lean=      | hand-written mvcgen/partial-correctness triples for the extracted helpers + combinators               |
+| =PureSpecs.lean=         | value triples for the verification-transparent fns; monadic helpers; pure companion lemmas            |
+| =Proofs.lean=            | the 19 obligations, loop specs, =level.spec_pure=/=parent.spec_value=/=direct_path.spec_pure=           |
+| =Verification.lean=      | the mechanized statement freeze: 19 =<fn>.spec.conformance= theorems (definitional, no attributes)      |
 
 Generated (regenerate freely — builds as generated, no hand overrides since the 2026-07-28
 re-extraction): =Openmls/Extraction/{Types,Funs,Specs,ProofObligations}.lean=;
@@ -136,9 +131,13 @@ the two =scalar_tac= non-termination reproducers (=ScalarTacNatLogLoop.lean=,
 
 ** TODO
 
-*** Shrink the trusted audit surface (10 admitted contracts)
-- [ ] =into_map_collect_spec=, =slice_iter_all_spec=, =slice_iter_map_collect_spec= — the
-  combinators are our =FunsExternal= axioms; modeling them concretely (CoreModels-style)
-  would make these provable.
-- [ ] =vec_push_spec= — provable from =seq_push=; blocked on the =vecLen= vs CoreModels-=Seq=
-  representation mismatch.
+*** Shrink the trusted audit surface (DONE 2026-08-04: 10 → 2)
+- [X] =slice_iter_all_spec=, =vec_push_spec=, =vec_index_spec=, =deref_mut_slice_spec=,
+  =reverse_slice_spec=, =min_usize_spec=, =u32_cmp_spec=, =u32_div_ceil_spec= — all PROVED
+  and migrated to =MissingCoreSpecs.lean= (partly via user-approved restatements; see
+  HANDOFF campaign record).
+- [ ] =into_map_collect_spec=, =slice_iter_map_collect_spec= — blocked on =Map…collect=,
+  the one remaining =FunsExternal= axiom. Preferred path: upstream PR adding the flat
+  per-instance =map=/=collect= defs to CoreModels (its new =IteratorMethods= structure has
+  the semantics but not the Charon-convention names/shapes); fallback: the user-gated
+  fuel-drain model + CallMut typeclass.

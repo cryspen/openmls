@@ -8,5 +8,6 @@ roots = ["Openmls"]
 
 [[require]]
 name = "hax"
-git = "https://github.com/cryspen/hax-lean"
-rev = "ea3e420405c7bd281e3acbf24a54ebd0bb2fec33"
+git = "https://github.com/cryspen/hax"
+rev = "openmls-core-models"
+subDir = "hax-lib/proof-libs/lean"

@@ -5,21 +5,49 @@ status + obligation table + module layout), `Review.org` (critical review of str
 + refactoring-campaign status), `Openmls/Issues/` (upstream reproducers, with stage
 bisections). Work dir: `openmls/proofs/lean/`.
 
-## State (verified 2026-08-04, gate run by orchestrator on full re-elaboration)
+## State (verified 2026-08-04 EVENING, gate run by orchestrator on full re-elaboration)
 
-- **DEVELOPMENT COMPLETE.** Gate `~/.elan/bin/lake build Openmls.Proofs.Proofs`
-  (~50–60s): **GREEN, 0 errors. 19/19 obligations proved.**
-  Expected-warning baseline: 10 `declaration uses 'sorry'` (AdmittedCoreSpecs), 5
-  `unusedTactic` (the `guard_goal_nums` idiom in root/left/right/inc/dec), 2
-  `unusedSimpArgs` (BitMath); dependency replays may also show 4 upstream `Aeneas/Std`
-  sorries — not ours.
-- **Sorry census = exactly the 10 admitted contracts in `AdmittedCoreSpecs.lean`.**
+- **DEVELOPMENT COMPLETE.** Gate `~/.elan/bin/lake build Openmls.Proofs.Proofs
+  Openmls.Proofs.Verification` (~50–60s): **GREEN, 0 errors. 19/19 obligations proved.**
+  Expected-warning baseline: 2 `declaration uses 'sorry'` (AdmittedCoreSpecs — the two
+  `collect` contracts), 5 `unusedTactic` (the `guard_goal_nums` idiom in
+  root/left/right/inc/dec), 2 `unusedSimpArgs` (BitMath); dependency replays may also show
+  4 upstream `Aeneas/Std` sorries — not ours.
+- **Sorry census = exactly the 2 admitted contracts in `AdmittedCoreSpecs.lean`**
+  (`slice_iter_map_collect_spec`, `into_map_collect_spec`) — down from 10 via the
+  2026-08-04 FunsExternal modelling program + CoreModels upgrade (see the campaign section
+  below). `common_direct_path.spec.proof` and the vec/index/push consumers are now
+  sorryAx-FREE; only proofs consuming the collect pair inherit `sorryAx`.
+- **DEPENDENCY PINS MOVED (2026-08-04, user-instructed)**: `hax`/CoreModels now from
+  `https://github.com/cryspen/hax`, branch `openmls-core-models` (resolved `7e43f8a`),
+  `subDir hax-lib/proof-libs/lean`; aeneas transitively bumped `52fd438` → `e0961db`.
+  Fallout absorbed: (a) WP API rename `Aeneas.Std.WP.{willYield,willFail,willDiverge,
+  Result.postShape}` → `Aeneas.Std.*` (partialSpec family KEPT its `WP` namespace) — 46
+  sites renamed in Common/MissingCoreSpecs/PartialSpecs/PureSpecs; (b) CoreModels scalar
+  `Ord` restructure (`core.mkUOrd`/`mkIOrd` GONE; `cmp` is now a standalone
+  `core.<Ty>.Insts.CoreCmpOrd.cmp` def with an if-cascade body) — min_usize/u32_cmp proof
+  bodies repaired; (c) `CoreModels.core.num.U32.{leading_zeros,pow}` bodies UNCHANGED —
+  the body-walk sections replayed as-is.
+- **`FunsExternal.lean` = 1 axiom + 2 models** (was 15 axioms + 3 models this morning):
+  the `Map…collect` axiom (the ONE remaining trusted operation) and the two lazy
+  `Iterator::map` models (`ok ⟨self, f⟩`). Everything else is deleted — bare names resolve
+  to upstream CoreModels twins, and the affected specs were RE-PROVED against the upstream
+  bodies (statements frozen). The what-went-where history lives ONLY in this file's
+  campaign record (the in-file tombstone comments were removed 2026-08-04, user request). Verified missing
+  upstream (do not delete these three): slice-iter `map` and `Map…collect` are absent as
+  flat names (upstream instance namespaces have only `next`(+`all`); the generic
+  `IteratorMethods` structure has `map`/`all`/`collect` fields but wrong names/shapes for
+  the frozen call sites, and its `map` takes `Fn`, not `FnMut`); vec-`IntoIter.map` exists
+  in BOTH CoreModels (CoreModels-`FnMut` — application type mismatch with the call site's
+  Aeneas `BuiltinFnMut`, verified) and `Aeneas.Std` (right `FnMut`, but hidden by
+  `Funs.lean`'s `open … hiding` and returns Aeneas's `Map` type, which doesn't compose
+  with the collect reference).
 - **Statement freeze is MACHINE-CHECKED**: `Openmls/Proofs/Verification.lean` proves 19
   conformance theorems `<fn>.spec.conformance : <fn>.spec args := <fn>.spec.proof args` by
   definitional unfolding against the GENERATED `Specs.lean`. A re-extraction that changes
   any spec breaks the matching conformance theorem. `ProofObligationsExplicit.lean` is no
-  longer load-bearing (readable view only). OPEN: the gate command above does not build
-  Verification — extend to `lake build Openmls.Proofs.Verification` (or `Openmls`)?
+  longer load-bearing (readable view only). RESOLVED 2026-08-04: the gate command now
+  includes `Openmls.Proofs.Verification` (see the State bullet above).
 - **Axiom state: every obligation on `{propext, Classical.choice, Quot.sound}`** (+
   `sorryAx` inherited from admitted contracts where consumed). The 2026-08-03/04 campaign
   removed all 6 `native_decide` sites and the whole bv route (left's 4 LRAT natives gone).
@@ -74,8 +102,11 @@ bisections). Work dir: `openmls/proofs/lean/`.
   `direct_path_loop_spec` with the positional tones clause).
 - Constants: seven uniform `*.spec_value` triples (@[spec], Proofs.lean; the two `.spec`
   stragglers renamed 2026-08-04).
-- AdmittedCoreSpecs header + `deref_mut_slice_spec` docstring fixed (comment-only; ground
-  truth: it IS `@[spec]`-registered, nothing lists it explicitly).
+- `AdmittedCoreSpecs.lean` now holds ONLY the two `collect` contracts
+  (`slice_iter_map_collect_spec`, `into_map_collect_spec`), both UNREGISTERED
+  (hand-applied — playbook 8). `sliceIterElems` moved to `Common.lean` (2026-08-04; the
+  only DAG-legal home once `slice_iter_all_spec` migrated — sibling files cannot import
+  each other).
 
 ## Architecture (user-ruled — do not deviate without their validation)
 
@@ -88,12 +119,16 @@ bisections). Work dir: `openmls/proofs/lean/`.
   `← PureSpecs ← Proofs ← Verification` (root `Openmls.lean` imports both Proofs and
   Verification).
   Common: loop driver + triple helpers (`loop_spec_measure`, `triple_noThrow_exists_ok`,
-  `triple_of_ok`, `triple_of_partialSpec`), `vecLen`, `subst_vals`. BitMath: pure-Nat/u32
+  `triple_of_ok`, `triple_of_partialSpec`), `vecLen`, `sliceIterElems` (moved here
+  2026-08-04), `subst_vals`. BitMath: pure-Nat/u32
   bit lemmas (`tones`, parent/right value arithmetic, mask destruct/intro,
   `trailing_ones_xor_vals`, xor single-bit lemmas) + registrations. MissingCoreSpecs:
-  PROVED core/alloc contracts, now layered as partialSpec body walks + derived registered
-  specs (+ the `Aeneas.Std` `@[step]` upstream-PR candidates). AdmittedCoreSpecs: the 10
-  TRUSTED contracts. PartialSpecs: treemath spec-vocabulary mvcgen triples + partialSpec
+  PROVED core/alloc contracts — partialSpec body walks + derived registered specs (+ the
+  `Aeneas.Std` `@[step]` upstream-PR candidates); since 2026-08-04 also the whole migrated
+  vec/slice/cmp/iterator family, proved against UPSTREAM CoreModels bodies
+  (`trailingOnes_bv_eq_tones` and `slice_iter_all_count_spec` are the two nontrivial
+  unregistered bridge helpers). AdmittedCoreSpecs: the 2
+  TRUSTED contracts (the collect pair). PartialSpecs: treemath spec-vocabulary mvcgen triples + partialSpec
   combinators. PureSpecs: value triples of the transparent fns + monadic/pure helpers
   (`lca_*`, `dropLast_entries_ne_max_root`). Proofs: the 19 obligations, loop machinery
   (USER RULING: stays here), `level.spec_pure`, `parent.spec_value`,
@@ -105,8 +140,10 @@ bisections). Work dir: `openmls/proofs/lean/`.
   triples — `TreeSize.valid` decide-shape is THE MASK form (consumers must match); Proofs'
   seven `*.spec_value` constant triples; `level.spec_pure` (registered; `parent.spec_value`
   and `direct_path.spec_pure` unregistered, erasure-consumed); MissingCoreSpecs proved
-  specs (derived, statements frozen); AdmittedCoreSpecs `slice_iter_all_spec` registered,
-  map/collect contracts NOT (hand-applied — playbook 8); BitMath `@[scalar_tac]` rules
+  specs (statements frozen; incl. the migrated family — `vec_index_spec` is now pinned to
+  the concrete usize `SliceIndex` instance, `deref_mut`/`reverse` carry the 2026-08-04
+  restated/strengthened posts); AdmittedCoreSpecs: NOTHING registered (the two collect
+  contracts are hand-applied — playbook 8); BitMath `@[scalar_tac]` rules
   (`level_ge_one(')`, `log2_le_30_or`, `one_le_one_shiftLeft_mod_or`) — never register on a
   bare `2 ^ e` pattern (measured regression recorded on `two_pow_le_u32_max_or`); BitMath
   `@[simp]`: `u32_and_one_eq_zero`, `one_shiftLeft_mod_eq_zero_iff`.
@@ -183,16 +220,36 @@ bisections). Work dir: `openmls/proofs/lean/`.
     (`U32.numBits` does not kernel-reduce). Use `simp [Aeneas.Std.U32.size_eq]` /
     `simp [Aeneas.Std.U32.max_eq]` (or `scalar_tac`); `native_decide` is banned from the
     tree (axiom hygiene — eliminated 2026-08-03).
+16. **Shadow-deletion falseness audit (2026-08-04, bit us once)**: deleting a shadowing
+    axiom flips an admitted contract's subject to a CONCRETE def — a spec that was a
+    satisfiable constraint on an axiom can become a sorried FALSE statement (worse than
+    the unsatisfiability risk it replaced). Audit every admitted spec whose subject just
+    became concrete: vec_index's quantified `SliceIndex` inst (arbitrary `get` ⇒ `ok none`
+    ⇒ panic) and deref_mut's `vecLen (back s') = vecLen v` (false of the identity
+    write-back) were both caught this way and fixed by USER-APPROVED restatements.
+17. **Root-namespace unfolds inside `namespace openmls`**: `unfold core.slice.…` in tactic
+    position resolves through `open CoreModels` FIRST — use the `_root_.` prefix to reach
+    a root-namespace FunsExternal def. Related: a projection out of a `@[reducible]`
+    instance (`…CoreSliceIndexSliceIndexSliceT.get`) is NOT `unfold`-able (no head
+    application) but IS `simp only [name]`-reducible. Let-bound fvars in upstream bodies
+    (`seq_push`'s `extended`, `all`'s `let s := self`) block `rw`/`List.length_append` —
+    `simp +zetaDelta` / `simp only [h]` (zeta-reducing) are the fixes.
+18. **Upstream-body re-proof recipe (B1–B3, 2026-08-04)**: when a FunsExternal model is
+    deleted in favour of an upstream CoreModels body, keep the spec statement frozen and
+    re-prove by: unfold the upstream chain (find it via lean_declaration_file, never
+    grep); prefer a single unregistered `partialSpec`/induction helper as the body-walk
+    single-source (house convention); monadic sub-ops (`x % y`) often already have
+    `@[step]` partialSpecs upstream (`U32.rem_spec`) — case-walk on the Result instead of
+    re-deriving. `iterAllCount`-style `brecOn` recursions: `induction l` + `simp
+    [CoreModels.core.iterAllCount, …]` on the equations, never raw unfold.
 
 ## Parked / open decisions
 
-1. **Gate extension**: include `Verification.lean` in the invariant gate command
-   (`lake build Openmls.Proofs.Verification` or `Openmls`) — currently only the root
-   default target builds it.
-2. **Trusted-surface shrink (10 → ~4)**: prove `vec_push_spec` (believed provable modulo
-   the vecLen/Seq question); convert `min`/`div_ceil`/`cmp` from axiom+admitted-spec to
-   model-def+proved-spec (pattern proven by `is_multiple_of`/`trailing_ones`/`reverse`);
-   iterator combinators last (CoreModels-style modelling). Highest-value remaining work.
+1. (RESOLVED 2026-08-04) **Gate extension**: the gate command is now
+   `lake build Openmls.Proofs.Proofs Openmls.Proofs.Verification`.
+2. **Trusted-surface shrink**: EXECUTED to 10 → 2 (see "Campaign record" below). The last
+   step (2 → 0) is the collect item — prefer the upstream-PR route over the fuel-drain +
+   CallMut design (which remains USER-GATED if chosen).
 3. `two_pow_le_u32_max_or` (BitMath): textually dead, kept as the recorded
    `@[scalar_tac 2^e]` negative result — delete or keep, user call.
 4. Optional style follow-ups: `lca`'s `hnle` family (4 blocks with load-bearing `clear`
@@ -202,12 +259,99 @@ bisections). Work dir: `openmls/proofs/lean/`.
 5. **Rust-side spec rewrite (SHELVED, Lean half pre-done)**: mask forms for
    `TreeSize::valid` and `level`'s ensures; `log2`/`leading_zeros` shift-form specs.
 6. Upstream queue: the two scalar_tac issues (bisected, PR-ready, `Openmls/Issues/`);
-   `trailing_ones` CoreModels model+spec; MissingCoreSpecs PR (incl. the six `@[step]`
-   partialSpec candidates); `tones` → `trailing_ones` rename (user); spurious hax_lib
-   const; Rust-side `direct_path` positional/level clause; bvify `% UScalar.size` shift
-   lifting gap (no longer blocks us — bv route retired — still an upstream gap).
+   **CoreModels iterator PR** (the flat per-instance `SharedAT.map` / `IntoIter.map`
+   (FnMut-familied) / `Map…collect` defs — see campaign record; `trailing_ones` model is
+   now upstream, its `tones` spec still ours); MissingCoreSpecs PR (incl. the six
+   `@[step]` partialSpec candidates); `tones` → `trailing_ones` rename (user); spurious
+   hax_lib const; Rust-side `direct_path` positional/level clause; bvify `% UScalar.size`
+   shift lifting gap (no longer blocks us — bv route retired — still an upstream gap).
 7. `Experiment.lean` durable archiving: the deleted sandbox is only in the 2026-08-04
    session scratchpad; commit it somewhere if wanted before that expires.
+
+## Campaign record: FunsExternal modelling program (EXECUTED 2026-08-04, censuses gated)
+
+Outcome: admitted contracts **10 → 2**; FunsExternal **15 axioms + 3 models → 1 axiom +
+2 models**. Trajectory (every slice orchestrator-gated green): 10 →(reverse as-stated)
+9 →(Tier-1: 7 shadowing axioms deleted)→(min/cmp proved; vec_index found FALSE-as-stated
+and withheld) 7 →(div_ceil + 2 map models; div_ceil proved) 6 →(all model; slice_iter_all
+proved; sliceIterElems moved to Common.lean) 5 →(CoreModels re-pin + WP-rename repair;
+B1/B2/B3 upstream-body re-proofs) 5 →(USER-APPROVED restatements: deref_mut faithful
+identity-write-back form, reverse strengthened to `res.val = s.val.reverse`,
+common_direct_path re-closed with ZERO delta) 4 →(USER-APPROVED vec_index specialization
+to the concrete usize instance + vec_push as-stated) **2**. All migrated specs
+lean_verify on ⊆ {propext, Classical.choice, Quot.sound}, no sorryAx.
+
+Remaining work (the old Tier-3 collect item, REFRAMED by the new CoreModels):
+`Map…collect` is the only trusted axiom; its two admitted contracts are the census.
+Options: (a) the original fuel-drain model + CallMut typeclass (design still USER-GATED);
+(b) upstream now ships a generic `IteratorMethods` structure (fields incl. `map`, `all`,
+`collect` — collect drains via the Iterator witness) — an upstream PR adding the flat
+per-instance `SharedAT.map` / `IntoIter.map` (FnMut-familied) / `Map…collect` defs in the
+Charon naming convention would let us delete everything left in FunsExternal and prove
+both collect contracts against upstream bodies. Prefer (b); it also fixes the
+two-FnMut-family seam at `Funs.lean:1254` (Aeneas `BuiltinFnMut` for plain fns vs
+CoreModels `FnMut` for closures) that currently forces our IntoIter.map glue model
+(Aeneas-`FnMut` parameter, CoreModels-`Map` result).
+
+### Original program design (kept for reference)
+
+Goal was: admitted contracts 10 → 0, `FunsExternal.lean` axioms 19 → ~1–3 never-consulted
+witnesses. Trust moves from quantified admitted contracts (unsatisfiability risk) to
+readable model definitions (no ⊥ risk; faithfulness auditable by eye). Proved specs MOVE
+from AdmittedCoreSpecs to MissingCoreSpecs with their `@[spec]` intact; the gate's expected
+sorry census DROPS with each slice — update the baseline per slice, and fix the
+AdmittedCoreSpecs header count when it changes. RECON IS DONE (2026-08-04, via lean-lsp
+MCP; do not redo with grep) — key facts below.
+
+**Discovery: `FunsExternal.lean` predates current CoreModels; 7 axioms shadow concrete
+library defs.** Bare names in generated `Funs.lean` resolve to our ROOT-namespace axioms;
+deleting an axiom flips resolution to CoreModels' def (both files `open CoreModels`).
+
+- **Tier 1 (delete 7 shadowing axioms; gate decides):**
+  `core.Usize.Insts.CoreCmpOrd` → CoreModels def (Core/FunsPrologue.lean);
+  `core.U32.Insts.CoreCmpOrd.cmp` → CoreModels full instance `CoreModels.core.U32.Insts.
+  CoreCmpOrd` (FunsPrologue; flat `.cmp` resolves as projection);
+  `core.slice.index.SliceIndex` (type) and `core.Usize.Insts.
+  CoreSliceIndexSliceIndexSliceT` → CoreModels twins (Core/Funs.lean);
+  `alloc.vec.Vec.Insts.CoreOpsIndexIndex.index` → exact-signature flat def
+  (Alloc/Funs.lean, delegates to slice index over deref);
+  `alloc.vec.Vec.Insts.CoreIterTraitsCollectIntoIteratorTIntoIter.into_iter` → `ok self`
+  (Alloc/Funs.lean); `alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator`
+  → concrete instance (next via `seq_len`/`seq_remove`).
+  Then PROVE (→ MissingCoreSpecs): `min_usize_spec` (CoreModels `core.cmp.min` cases on
+  `OrdInst.cmp`, Core/Funs.lean:522), `u32_cmp_spec`, `vec_index_spec`.
+  QUICK WIN any time: `reverse_slice_spec` is provable AS STATED today (subject already a
+  concrete def) — admitted by inertia only.
+- **Tier 2 (trivial models):** `div_ceil` := `if y = 0 then fail else ok (x/y + [x%y≠0])`
+  → spec provable. Both `map` axioms := `ok ⟨iter, f⟩` (CoreModels `Map I F` is the
+  structure `{iter : I, f : F}`, Core/Types.lean:352). `hash` STAYS an axiom (nothing
+  constrains it; honest uninterpreted constant).
+  **USER-GATED spec restatements**: adopt Aeneas's canonical `deref_mut` model
+  (identity write-back — `Aeneas/Std/Vec.lean` `alloc.vec.Vec.deref_mut`); the current
+  admitted `∀ s', vecLen (back s') = vecLen v` is FALSE of that model (satisfiable but
+  stronger than canonical) — restate faithfully (`s.val = v.val ∧ ∀ s', (back s').val =
+  s'.val`), strengthen `reverse_slice_spec` to `res.val = s.val.reverse`, and re-close the
+  one consumer `common_direct_path.spec.proof` (reverse preserves length). Present both
+  new statements to the user before landing.
+- **Tier 3 (real modelling):** `Iter…IteratorSharedAT.all` := recursive short-circuit fold
+  over the concrete list (`Iter T` reducibly `Seq T`, Core/Types.lean:826) calling
+  `call_mut` (CoreModels `FnMut` = `{FnOnceInst, call_mut : F → T → Result (O × F)}`,
+  Core/TypesPrologue.lean:23) → `slice_iter_all_spec` provable by induction.
+  `Map…Iterator.collect` — two design points: (a) closure witness is type-generic
+  (`FnMutInst : W`, two FnMut families meet there) → `CallMut W F T O` typeclass with two
+  instances (Aeneas `Std.core.ops.function.FnMut` incl. the `BuiltinFnMut` route, and
+  CoreModels'); instance-implicit is invisible at existing call sites; (b) draining the
+  abstract iterator via the passed Iterator witness (`{next : I → Result (Option Item ×
+  I)}`) is not structurally terminating → FUEL model (cap `Usize.max`, `div` on
+  exhaustion — honest: Rust diverges on infinite iterators). → both map/collect specs
+  provable (concrete iterators, fuel ≥ length). `FromIterator` witness: implement via the
+  same drain or leave as never-consulted axiom. Independent: prove `vec_push_spec`
+  (subject concrete in CoreModels; known fight: mvcgen vs dependent-`if`).
+
+Hard rules for the package: generated `Types/Funs/Specs/ProofObligations.lean` untouched;
+every model carries a faithfulness docstring (it IS the new audit surface); one tier-1
+deletion batch per slice max; gate + census check after every slice; spec restatements and
+registration moves are user-gated as usual.
 
 ## Process norms (user-imposed, standing)
 

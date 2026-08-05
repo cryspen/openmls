@@ -44,10 +44,10 @@ triple below. The `partialSpec` proof combinators they use live in `PartialSpecs
 hypothesis position the bound is recovered rather than discharged. -/
 @[spec]
 theorem LeafNodeIndex.to_tree_index_mvcgen_spec (self : LeafNodeIndex)
-    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : ∀ r : Std.U32, (↑r : Nat) = 2 * (↑self : Nat) → Aeneas.Std.WP.willYield r Q)
+    (Q : PostCond Std.U32 Aeneas.Std.Result.postShape)
+    (h_ok : ∀ r : Std.U32, (↑r : Nat) = 2 * (↑self : Nat) → Aeneas.Std.willYield r Q)
     (h_fail : Std.UScalar.max .U32 < 2 * (↑self : Nat) →
-      Aeneas.Std.WP.willFail Aeneas.Std.Error.integerOverflow Q) :
+      Aeneas.Std.willFail Aeneas.Std.Error.integerOverflow Q) :
     ⦃ ⌜ True ⌝ ⦄ LeafNodeIndex.to_tree_index self ⦃ Q ⦄ := by
   have h2u : ((2#u32 : Std.U32) : Nat) = 2 := by scalar_tac
   unfold LeafNodeIndex.to_tree_index
@@ -64,10 +64,10 @@ theorem LeafNodeIndex.to_tree_index_mvcgen_spec (self : LeafNodeIndex)
 increment can overflow; both are covered by the single bound `2·self + 1 > u32::MAX`. -/
 @[spec]
 theorem ParentNodeIndex.to_tree_index_mvcgen_spec (self : ParentNodeIndex)
-    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
-    (h_ok : ∀ r : Std.U32, (↑r : Nat) = 2 * (↑self : Nat) + 1 → Aeneas.Std.WP.willYield r Q)
+    (Q : PostCond Std.U32 Aeneas.Std.Result.postShape)
+    (h_ok : ∀ r : Std.U32, (↑r : Nat) = 2 * (↑self : Nat) + 1 → Aeneas.Std.willYield r Q)
     (h_fail : Std.UScalar.max .U32 < 2 * (↑self : Nat) + 1 →
-      Aeneas.Std.WP.willFail Aeneas.Std.Error.integerOverflow Q) :
+      Aeneas.Std.willFail Aeneas.Std.Error.integerOverflow Q) :
     ⦃ ⌜ True ⌝ ⦄ ParentNodeIndex.to_tree_index self ⦃ Q ⦄ := by
   have h1u : ((1#u32 : Std.U32) : Nat) = 1 := by scalar_tac
   have h2u : ((2#u32 : Std.U32) : Nat) = 2 := by scalar_tac
@@ -95,15 +95,15 @@ theorem ParentNodeIndex.to_tree_index_mvcgen_spec (self : ParentNodeIndex)
 branches (the doubling can overflow). -/
 @[spec]
 theorem TreeNodeIndex.u32_mvcgen_spec (self : TreeNodeIndex)
-    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
+    (Q : PostCond Std.U32 Aeneas.Std.Result.postShape)
     (h_ok : ∀ r : Std.U32, (↑r : Nat) = (match self with
         | TreeNodeIndex.Leaf l => 2 * (↑l : Nat)
         | TreeNodeIndex.Parent p => 2 * (↑p : Nat) + 1) →
-      Aeneas.Std.WP.willYield r Q)
+      Aeneas.Std.willYield r Q)
     (h_fail : Std.UScalar.max .U32 < (match self with
         | TreeNodeIndex.Leaf l => 2 * (↑l : Nat)
         | TreeNodeIndex.Parent p => 2 * (↑p : Nat) + 1) →
-      Aeneas.Std.WP.willFail Aeneas.Std.Error.integerOverflow Q) :
+      Aeneas.Std.willFail Aeneas.Std.Error.integerOverflow Q) :
     ⦃ ⌜ True ⌝ ⦄ TreeNodeIndex.u32 self ⦃ Q ⦄ := by
   unfold TreeNodeIndex.u32
   cases self with
@@ -118,9 +118,9 @@ theorem TreeNodeIndex.u32_mvcgen_spec (self : TreeNodeIndex)
 `self / 2 + 1 ≤ 2^31` always fits a `u32`, so neither step can fail. -/
 @[spec]
 theorem TreeSize.leaf_count_mvcgen_spec (self : TreeSize)
-    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
+    (Q : PostCond Std.U32 Aeneas.Std.Result.postShape)
     (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑self : Nat) / 2 + 1 →
-      Aeneas.Std.WP.willYield r Q) :
+      Aeneas.Std.willYield r Q) :
     ⦃ ⌜ True ⌝ ⦄ TreeSize.leaf_count self ⦃ Q ⦄ := by
   refine triple_of_partialSpec (p_fail := fun _ => False) (p_div := False) ?_ Q h_ok
     (by simp) (by simp)

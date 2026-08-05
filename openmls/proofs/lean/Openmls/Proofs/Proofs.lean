@@ -32,6 +32,7 @@ namespace binary_tree.array_representation.treemath
 
 set_option mvcgen.warning false
 set_option hax_mvcgen.warnings false
+set_option linter.unusedTactic false
 
 attribute [spec]
   pure
@@ -251,6 +252,7 @@ theorem right.spec.proof (index : ParentNodeIndex) :
   hax_mvcgen [right]
   all_goals set_option maxHeartbeats 1_000 in (try scalar_tac)
   guard_goal_nums 4
+
   all_goals
     (casesm* _ ∧ _
      have := trailing_ones_xor_vals _ _ (by assumption) (by scalar_tac) (by scalar_tac) (by scalar_tac)

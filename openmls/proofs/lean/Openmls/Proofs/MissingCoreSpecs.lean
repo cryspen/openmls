@@ -116,10 +116,53 @@ theorem vec_deref_slice_spec {T : Type} (v : alloc.vec.Vec T) :
     CoreModels.rust_primitives.sequence.seq_to_slice
   mvcgen
 
+/-- `<Vec<T> as Index<usize>>::index`: succeeds (no out-of-bounds panic) when the index is within
+    the vec's length. RESTATED 2026-08-04 with user approval, pinned to the concrete `usize`
+    `SliceIndex` instance (`core.Usize.Insts.CoreSliceIndexSliceIndexSliceT`) because the quantified
+    form was false over `CoreModels`' arbitrary-`get` structure: `SliceIndex`'s `get` field is an
+    arbitrary `I → Slice T → Result (Option Output)`, which may `fail`/return `None` (→ `panic`)
+    regardless of the bound. Every call site in the treemath development passes exactly this
+    concrete instance, whose `get` returns `ok (some elem)` in bounds — so the spec is now PROVED
+    from the upstream bodies rather than admitted. -/
+@[spec]
+theorem vec_index_spec {T : Type} (v : alloc.vec.Vec T) (i : Std.Usize) :
+    ⦃ ⌜ (↑i : Nat) < vecLen v ⌝ ⦄
+    alloc.vec.Vec.Insts.CoreOpsIndexIndex.index
+      (core.Usize.Insts.CoreSliceIndexSliceIndexSliceT T) v i
+    ⦃ ⇓ _ => ⌜ True ⌝ ⦄ := by
+  unfold alloc.vec.Vec.Insts.CoreOpsIndexIndex.index
+    CoreModels.core.Slice.Insts.CoreOpsIndexIndex.index
+  simp only [CoreModels.core.Usize.Insts.CoreSliceIndexSliceIndexSliceT.get,
+    alloc.vec.Vec.Insts.CoreOpsDerefDerefSlice.deref, alloc.vec.Vec.as_slice,
+    CoreModels.rust_primitives.sequence.seq_to_slice,
+    CoreModels.rust_primitives.slice.slice_length,
+    CoreModels.rust_primitives.slice.slice_index]
+  mvcgen
+
+/-- `Vec::push` grows the length by one and appends `x` (panic-free below the size ceiling).
+    PROVED against the upstream `rust_primitives.sequence.seq_push` body: its dependent `if` on
+    `(v.1 ++ [x]).length ≤ Usize.max` is discharged by `mvcgen`'s branch split, with the
+    `maximumSizeExceeded` arm contradicting the precondition. -/
+@[spec]
+theorem vec_push_spec {T : Type} (v : alloc.vec.Vec T) (x : T) :
+    ⦃ ⌜ vecLen v < Std.Usize.max ⌝ ⦄
+    alloc.vec.Vec.push v x
+    ⦃ ⇓ v' => ⌜ vecLen v' = vecLen v + 1 ∧ v'.1 = v.1 ++ [x] ⌝ ⦄ := by
+  unfold alloc.vec.Vec.push CoreModels.rust_primitives.sequence.seq_push
+  mvcgen
+  case vc1.hQ =>
+    -- Success branch: the new `Seq`'s list is literally `v.1 ++ [x]`, one longer.
+    simp +zetaDelta [vecLen, Aeneas.Std.Slice.length]
+  case vc2.hQ =>
+    -- `maximumSizeExceeded` branch is dead: `(v.1 ++ [x]).length = vecLen v + 1 ≤ Usize.max`.
+    exfalso
+    simp +zetaDelta only [vecLen, Aeneas.Std.Slice.length, List.length_append,
+      List.length_cons, List.length_nil] at *
+    omega
+
 /-- `<[T]>::iter` yields an iterator whose remaining elements are exactly the slice's. Proved
     from the `seq_from_slice` body (the identity). Phrased on `.val` directly rather than via
-    `sliceIterElems` (which lives in the sibling `AdmittedCoreSpecs.lean`, not imported here);
-    the two are definitionally equal. -/
+    `sliceIterElems` (`Openmls.Proofs.Common`); the two are definitionally equal. -/
 @[spec]
 theorem slice_iter_of_slice_spec {T : Type} (s : Slice T) :
     ⦃ ⌜ True ⌝ ⦄
@@ -127,6 +170,109 @@ theorem slice_iter_of_slice_spec {T : Type} (s : Slice T) :
     ⦃ ⇓ it => ⌜ it.val = s.val ⌝ ⦄ := by
   unfold CoreModels.core.slice.Slice.iter CoreModels.rust_primitives.sequence.seq_from_slice
   mvcgen
+
+/-- Draw-loop lemma for `Iterator::all`, phrased on the *upstream* `CoreModels.core.iterAllCount`
+    (`CoreModels/Core/FunsEpilogue.lean`) — the structural list recursion that the upstream `all`
+    body runs; our local `FunsExternal` model of both was deleted on 2026-08-04.
+
+    Under the hypothesis that the closure is *pure and state-preserving* on every element of `l`
+    (`call_mut f e = ok (P e, f)` — note the same `f` on both sides, which is what lets the
+    induction hypothesis reuse it), the draw loop terminates with the boolean `l.all P`. Only the
+    boolean is pinned down: the consumed count is existentially quantified, since Rust's
+    short-circuit means it depends on where the first `false` sits, and the sole consumer's
+    postcondition does not observe the advanced iterator. Deliberately NOT registered `@[spec]`:
+    it is a pure-value lemma about the recursion, consumed only by `slice_iter_all_spec` below. -/
+theorem slice_iter_all_count_spec {T F : Type}
+    (inst : core.ops.function.FnMut F T Bool) (P : T → Bool) (f : F) :
+    ∀ l : List T, (∀ e ∈ l, inst.call_mut f e = ok (P e, f)) →
+      ∃ n, CoreModels.core.iterAllCount inst f l = ok (l.all P, n) := by
+  intro l
+  induction l with
+  | nil => intro _; exact ⟨0, rfl⟩
+  | cons x rest ih =>
+    intro hcall
+    have hx : inst.call_mut f x = ok (P x, f) := hcall x (by simp)
+    cases hP : P x with
+    | false =>
+      -- Short-circuit: the loop stops after one element and `List.all` is `false`.
+      exact ⟨1, by simp [CoreModels.core.iterAllCount, hx, hP]⟩
+    | true =>
+      obtain ⟨n, hn⟩ := ih (fun e he => hcall e (by simp [he]))
+      exact ⟨n + 1, by simp [CoreModels.core.iterAllCount, hx, hP, hn]⟩
+
+/-- `<slice::Iter<'_, T> as Iterator>::all` returns the conjunction of a pure, state-preserving
+    predicate over the iterator's remaining elements. PROVED, not admitted: the subject is the
+    *upstream* `CoreModels` definition of Rust's short-circuiting draw loop (a real definition, not
+    a bare `axiom`), and the value follows from `slice_iter_all_count_spec` above — i.e. this
+    contract is now discharged against the upstream `iterAllCount` body. Registered `@[spec]`, so
+    `mvcgen` picks it up automatically — it is what discharges the `all` step of the extracted
+    `direct_path.post` in `Proofs.lean`. -/
+@[spec]
+theorem slice_iter_all_spec {T F : Type}
+    (inst : core.ops.function.FnMut F T Bool) (iter : core.slice.iter.Iter T) (f : F)
+    (P : T → Bool)
+    (hcall : ∀ e ∈ sliceIterElems iter, inst.call_mut f e = ok (P e, f)) :
+    ⦃ ⌜ True ⌝ ⦄
+    core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.all inst iter f
+    ⦃ ⇓ r => ⌜ r.1 = (sliceIterElems iter).all P ⌝ ⦄ := by
+  -- Phrased on `iter.val` rather than `sliceIterElems iter` (definitionally the same list): the
+  -- model's returned iterator carries a `length ≤ Usize.max` proof about `iter.val`, so rewriting
+  -- that occurrence would make the motive ill-typed.
+  obtain ⟨n, hn⟩ := slice_iter_all_count_spec inst P f iter.val hcall
+  -- The advanced iterator is left existential: the postcondition only observes the boolean.
+  have hok : ∃ it', core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.all
+      inst iter f = ok (iter.val.all P, it') := by
+    unfold core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.all
+    -- `simp only` (not `rw`) so the upstream body's `let s := iter` is zeta-reduced first, the
+    -- draw-loop call rewritten by `hn`, and the resulting `ok`-bind discharged.
+    simp only [hn]
+    exact ⟨_, rfl⟩
+  obtain ⟨it', hit'⟩ := hok
+  exact triple_of_ok hit' rfl
+
+/-- `<[T]>::reverse` never fails and returns the element-reversed slice. Its subject is the
+    *upstream* `CoreModels.core.slice.Slice.reverse` (delegating to
+    `rust_primitives.slice.slice_reverse`), a real definition rather than a bare `axiom`, so the
+    contract is proved here rather than admitted.
+
+    STRENGTHENED 2026-08-04 with user approval: the postcondition used to be just `True`
+    (panic-freedom only). It now carries `res.val = s.val.reverse`, the permutation fact — and hence,
+    via `List.length_reverse`, the length fact — that `common_direct_path` needs now that
+    `deref_mut_slice_spec` states the faithful *identity* write-back instead of an axiomatic
+    "length is preserved" clause. -/
+@[spec]
+theorem reverse_slice_spec {T : Type} (s : Slice T) :
+    ⦃ ⌜ True ⌝ ⦄
+    core.slice.Slice.reverse s
+    ⦃ ⇓ res => ⌜ res.val = s.val.reverse ⌝ ⦄ := by
+  unfold CoreModels.core.slice.Slice.reverse CoreModels.rust_primitives.slice.slice_reverse
+  mvcgen
+
+/-- `<Vec<T> as DerefMut>::deref_mut` never fails: it exposes the vec's contents as a slice and
+    the write-back closure is the IDENTITY. PROVED, not admitted: the subject is the *upstream*
+    `CoreModels` body `fun self => self.as_mut_slice`, which goes through
+    `rust_primitives.sequence.seq_to_mut_slice = fun s => ok (s, fun ss => ss)`, so the slice view
+    literally *is* `v`'s contents and writing back any `s'` returns `s'`.
+
+    RESTATED 2026-08-04 with user approval. The old admitted form
+    `⦃ ⇓ ⟨_, back⟩ => ⌜ ∀ s', vecLen (back s') = vecLen v ⌝ ⦄` — "a `&mut [T]` view cannot resize" —
+    was FALSE of the canonical model: the identity write-back returns a vec of `s'`'s length, not
+    of `v`'s. The faithful statement below is strictly more informative and needs no trust.
+
+    Note on the bind shape: the extracted `let (s, back) ← deref_mut …` is a *tuple-destructuring*
+    bind, so `mvcgen` introduces the result as a single opaque variable and may leave the bind's
+    `match` on it unreduced — independent of this postcondition's shape. -/
+@[spec]
+theorem deref_mut_slice_spec {T : Type} (v : alloc.vec.Vec T) :
+    ⦃ ⌜ True ⌝ ⦄
+    alloc.vec.Vec.Insts.CoreOpsDerefDerefMutSlice.deref_mut v
+    ⦃ ⇓ ⟨s, back⟩ => ⌜ s.val = v.val ∧ ∀ s', (back s').val = s'.val ⌝ ⦄ := by
+  unfold alloc.vec.Vec.Insts.CoreOpsDerefDerefMutSlice.deref_mut
+    CoreModels.alloc.vec.Vec.as_mut_slice CoreModels.rust_primitives.sequence.seq_to_mut_slice
+  -- Both conjuncts are `rfl` after `mvcgen` normalises the `ok (s, fun ss => ss)` body: the
+  -- residual goal is literally `True ∧ ∀ s', True`.
+  mvcgen
+  · simp
 
 /-- `Vec::append` moves `other`'s elements onto the end of `self` and leaves `other` empty.
     Fails only when the concatenation would exceed `Usize.max` (the `seq_concat` body). -/
@@ -145,16 +291,151 @@ theorem vec_append_spec {T : Type} (self other : alloc.vec.Vec T) :
   rw [hc, List.length_append] at hgt
   omega
 
-/-- `u32::is_multiple_of` returns exactly the divisibility test `x % y == 0`.
-    Total (the `FunsExternal` model is a pure `ok`), so this is proved, not admitted. -/
+/-- `u32::is_multiple_of` (the upstream `CoreModels` model) as a partial-contract: total, and
+    equal to the divisibility test `x % y == 0`.
+
+    The upstream body branches on the divisor explicitly —
+    `if y = 0 then ok (x = 0) else do let i ← x % y; ok (i = 0)` — so the walk is a case split
+    rather than a bare `partialSpec_ok`. On `y = 0` the branch matches the postcondition because
+    `Nat`'s `_ % 0 = id`, so `x.val % 0 = 0 ↔ x.val = 0`; on `y ≠ 0` the monadic remainder cannot
+    fail (`Aeneas.Std.U32.rem_spec`) and its value is `x.val % y.val`.
+
+    Deliberately *unregistered*: it is the single source of truth from which both the total
+    `is_multiple_of_spec` and the generic `u32_is_multiple_of_mvcgen_spec` below are derived. -/
+theorem u32_is_multiple_of_partialSpec (x y : Std.U32) :
+    Aeneas.Std.WP.partialSpec (core.num.U32.is_multiple_of x y)
+      (fun b => b = decide (x.val % y.val = 0))
+      (fun _ => False) False := by
+  -- Both branches compare a `u32` against the literal `0`, while the postcondition speaks about
+  -- the `Nat` value; `UScalar` val-injectivity bridges the two.
+  have hzero : ∀ z : Std.U32, (z = 0#u32) ↔ ((↑z : Nat) = 0) := by
+    intro z
+    constructor
+    · intro h; rw [h]; rfl
+    · intro h; scalar_tac
+  unfold CoreModels.core.num.U32.is_multiple_of
+  by_cases hy : y = 0#u32
+  · -- Divisor zero: the branch answers `x == 0`, which is the postcondition since `_ % 0 = id`.
+    subst hy
+    simp [Aeneas.Std.WP.partialSpec_ok, hzero]
+  · -- Divisor nonzero: the monadic remainder cannot fail, and its value is `x.val % y.val`.
+    rw [if_neg hy]
+    have hy' : (↑y : Nat) ≠ 0 := by scalar_tac
+    have h := Aeneas.Std.U32.rem_spec (y := y) x
+    revert h
+    cases hr : (x % y : Aeneas.Std.Result Std.U32) with
+    | ok i => simp_all [Aeneas.Std.WP.partialSpec]
+    | fail e => cases e <;> simp_all [Aeneas.Std.WP.partialSpec]
+    | div => simp_all [Aeneas.Std.WP.partialSpec]
+
+/-- `u32::is_multiple_of` returns exactly the divisibility test `x % y == 0`. Proved, not
+    admitted — and proved against the *upstream* `CoreModels` body (the local `FunsExternal`
+    model was deleted when the dependency was re-pinned), which is total: the `y = 0` branch is a
+    pure `ok` and the `y ≠ 0` branch's remainder cannot fail. Derived from
+    `u32_is_multiple_of_partialSpec`. -/
 @[spec]
 theorem is_multiple_of_spec (x y : Std.U32) :
     ⦃ ⌜ True ⌝ ⦄
     core.num.U32.is_multiple_of x y
     ⦃ ⇓ b => ⌜ b = (x.val % y.val = 0) ⌝ ⦄ := by
-  unfold core.num.U32.is_multiple_of
+  refine triple_of_partialSpec (u32_is_multiple_of_partialSpec x y) _ ?_ (by simp) (by simp)
+  intro r hr
+  simp [Aeneas.Std.willYield, hr]
+
+/-- `u32::div_ceil x y = ⌈x/y⌉`, characterised as `(x + y - 1) / y`, panic-free exactly when the
+    divisor is nonzero (Rust panics on division by zero). Proved, not admitted — and proved
+    against the *upstream* `CoreModels` body (the local `FunsExternal` model was deleted when the
+    dependency was re-pinned), which is the monadic transcription of Rust's implementation
+    `{ let d = self / rhs; let r = self % rhs; if r > 0 { d + 1 } else { d } }`.
+
+    Three obligations come out of that body for `0 < y`: the division and the remainder both
+    succeed, and the `d + 1` increment cannot overflow — the latter because the `r > 0` guard
+    forces `x % y ≠ 0`, whence `x/y + 1 ≤ x ≤ u32::MAX`. The value then matches
+    `(x + y - 1) / y` by the `key` bridge below (note the branch polarity: upstream tests
+    `r > 0`, i.e. the *nonzero*-remainder case comes first). -/
+@[spec]
+theorem u32_div_ceil_spec (x y : Std.U32) :
+    ⦃ ⌜ 0 < (↑y : Nat) ⌝ ⦄
+    core.num.U32.div_ceil x y
+    ⦃ ⇓ r => ⌜ (↑r : Nat) = (↑x + ↑y - 1) / ↑y ⌝ ⦄ := by
+  -- The arithmetic bridge: `a/b + (1 if a%b ≠ 0) = (a + b - 1)/b` for `0 < b`.
+  have key : ∀ a b : Nat, 0 < b → a / b + (if a % b = 0 then 0 else 1) = (a + b - 1) / b := by
+    intro a b hb
+    have hab : a + b - 1 = a + (b - 1) := by omega
+    have hm : a % b < b := Nat.mod_lt _ hb
+    rw [hab, Nat.add_div hb, Nat.div_eq_of_lt (show b - 1 < b by omega),
+      Nat.mod_eq_of_lt (show b - 1 < b by omega)]
+    split <;> split <;> omega
+  -- No overflow on the `d + 1` branch: a nonzero remainder forces `a/b + 1 ≤ a`.
+  have le1 : ∀ a b : Nat, 0 < b → a % b ≠ 0 → a / b + 1 ≤ a := by
+    intro a b hb hm
+    have h1 : b * (a / b) + a % b = a := Nat.div_add_mod a b
+    have h2 : a / b ≤ b * (a / b) := Nat.le_mul_of_pos_left _ hb
+    omega
+  unfold CoreModels.core.num.U32.div_ceil
   mvcgen
-  grind
+  case vc1.h_ok =>
+    -- Nonzero remainder (`r > 0`): the result is `x/y + 1`, which `key` identifies with
+    -- `(x + y - 1)/y`.
+    rename_i hy d hd m hm hgt s hs
+    have hm0 : (↑x : Nat) % ↑y ≠ 0 := by scalar_tac
+    have h1 := key (↑x) (↑y) hy
+    rw [if_neg hm0] at h1
+    have hone : ((1#u32 : Std.U32) : Nat) = 1 := by scalar_tac
+    rw [hs, hd, hone]
+    exact h1
+  case vc2.h_fail =>
+    -- The `d + 1` increment cannot overflow: a nonzero remainder forces `x/y + 1 ≤ x ≤ u32::MAX`.
+    exfalso
+    rename_i hy d hd m hm hgt hov
+    have hm0 : (↑x : Nat) % ↑y ≠ 0 := by scalar_tac
+    have hle := le1 (↑x) (↑y) hy hm0
+    have hone : ((1#u32 : Std.U32) : Nat) = 1 := by scalar_tac
+    rw [hd, hone] at hov
+    scalar_tac
+  case vc3.hQ =>
+    -- Zero remainder (`¬ r > 0`): the result is exactly `x/y`, and `key`'s `if` takes `0`.
+    rename_i hy d hd m hm hgt
+    have hm0 : (↑x : Nat) % ↑y = 0 := by scalar_tac
+    have h1 := key (↑x) (↑y) hy
+    rw [if_pos hm0] at h1
+    rw [hd]
+    simpa using h1
+  -- The two division-by-zero branches contradict the `0 < ↑y` precondition.
+  all_goals (exfalso; scalar_tac)
+
+/-! ### `cmp`
+
+`CoreModels` supplies *concrete* `Ord` instances for every scalar type: `core.<Ty>.Insts.CoreCmpOrd`
+is a structure literal whose `cmp` field is the standalone pure def
+`core.<Ty>.Insts.CoreCmpOrd.cmp = fun self other => if self < other then ok Less else if
+self > other then ok Greater else ok Equal`. So the comparison operations below are total and their
+specs are proved here rather than admitted. -/
+
+/-- `core::cmp::min` for `usize`: returns a value bounded above by both arguments.
+    The `CoreModels` body of `cmp.min` calls `OrdInst.cmp v1 v2` and then returns `v1` on
+    `Less`/`Equal` and `v2` on `Greater`; for `core.Usize.Insts.CoreCmpOrd` that `cmp` is the pure
+    `<`/`>` cascade, so each branch's returned value is bounded by both
+    arguments and no branch can fail. Proved, not admitted. -/
+@[spec]
+theorem min_usize_spec (a b : Std.Usize) :
+    ⦃ ⌜ True ⌝ ⦄
+    core.cmp.min core.Usize.Insts.CoreCmpOrd a b
+    ⦃ ⇓ m => ⌜ (↑m : Nat) ≤ ↑a ∧ (↑m : Nat) ≤ ↑b ⌝ ⦄ := by
+  unfold core.cmp.min core.Usize.Insts.CoreCmpOrd core.Usize.Insts.CoreCmpOrd.cmp
+  mvcgen
+  -- One goal per `Ordering` branch, each already carrying the `</¬<` facts that decided it;
+  -- the returned value is syntactically `a` or `b`, so the bounds are pure scalar arithmetic.
+  all_goals scalar_tac
+
+/-- `<u32 as Ord>::cmp` is panic-free. It is the `cmp` projection out of the concrete
+    `CoreModels` instance `core.U32.Insts.CoreCmpOrd`, i.e. the pure `<`/`>` cascade
+    `core.U32.Insts.CoreCmpOrd.cmp`, so it never fails. Proved, not admitted. -/
+@[spec]
+theorem u32_cmp_spec (a b : Std.U32) :
+    ⦃ ⌜ True ⌝ ⦄ core.U32.Insts.CoreCmpOrd.cmp a b ⦃ ⇓ _ => ⌜ True ⌝ ⦄ := by
+  unfold core.U32.Insts.CoreCmpOrd.cmp
+  mvcgen
 
 /-! ### Body walks for the `CoreModels` `u32` models
 
@@ -226,19 +507,78 @@ theorem leading_zeros_spec (x : Std.U32) :
     ⦃ ⇓ r => ⌜ (↑r : Nat) = if x.val = 0 then 32 else 31 - Nat.log 2 x.val ⌝ ⦄ := by
   refine triple_of_partialSpec (u32_leading_zeros_partialSpec x) _ ?_ (by simp) (by simp)
   intro r hr
-  simpa [Aeneas.Std.WP.willYield] using hr
+  simpa [Aeneas.Std.willYield] using hr
 
-/-- `u32::trailing_ones` returns the trailing-ones count `tones ↑x`. Total: the
-    `FunsExternal` model is `Nat.find` of the lowest-clear-bit predicate — definitionally
-    the same `Nat.find` as `tones` (proof irrelevance), so this is proved, not admitted.
-    Upstream-PR candidate: CoreModels has no `trailing_ones` model. -/
+/-- `List.find?` over `List.range w` returns the least index satisfying `P`, provided that
+    index is in range. Auxiliary for `trailingOnes_bv_eq_tones` (unregistered). -/
+private theorem find?_range_eq_some {P : Nat → Bool} {m : Nat} (hP : P m)
+    (hmin : ∀ j, j < m → ¬ P j) : ∀ w, m < w → (List.range w).find? P = some m := by
+  intro w hw
+  induction w with
+  | zero => omega
+  | succ n ih =>
+    rw [List.range_succ, List.find?_append]
+    rcases Nat.lt_or_ge m n with h | h
+    · rw [ih h]; rfl
+    · have hmn : m = n := by omega
+      subst hmn
+      rw [List.find?_eq_none.2 (fun y hy => hmin y (List.mem_range.1 hy))]
+      simp [hP]
+
+/-- Bridge lemma: the upstream `CoreModels` bit-vector trailing-ones count (a `List.find?`
+    over `List.range 32` on the complemented bit-vector) agrees with the `Nat.find`-based
+    `tones` of the scalar's value. Unregistered. -/
+theorem trailingOnes_bv_eq_tones (x : Std.U32) :
+    CoreModels.BitVec.trailingOnes x.bv = tones (↑x : Nat) := by
+  have hbit : ∀ i, (~~~x.bv).getLsbD i = (decide (i < 32) && !(↑x : Nat).testBit i) := by
+    intro i; rw [BitVec.getLsbD_not]; rfl
+  set m := tones (↑x : Nat) with hm
+  have hspec : (↑x : Nat).testBit m = false := Nat.find_spec (tones_ex _)
+  have hmin : ∀ j, j < m → (↑x : Nat).testBit j = true := by
+    intro j hj; simpa using Nat.find_min (tones_ex _) hj
+  unfold CoreModels.BitVec.trailingOnes CoreModels.BitVec.trailingZeros
+  rcases Nat.lt_or_ge m 32 with h | h
+  · rw [find?_range_eq_some (P := fun i => (~~~x.bv).getLsbD i) (m := m)
+      (by simp only [hbit]; simp [h, hspec])
+      (fun j hj => by simp only [hbit]; simp [hmin j hj]) 32 h]
+  · have hlt : (↑x : Nat) < 2 ^ 32 := x.hBounds
+    have hx : (↑x : Nat) = 2 ^ 32 - 1 := by
+      refine Nat.eq_of_testBit_eq fun j => ?_
+      rw [Nat.testBit_two_pow_sub_one]
+      rcases Nat.lt_or_ge j 32 with hj | hj
+      · simp [hmin j (by omega), hj]
+      · simp [Nat.testBit_lt_two_pow (Nat.lt_of_lt_of_le hlt (Nat.pow_le_pow_right (by norm_num) hj)),
+          show ¬ j < 32 by omega]
+    have hm32 : m = 32 := by rw [hm, hx, tones_pow_sub_one]
+    rw [List.find?_eq_none.2 (fun y hy => by
+      have := List.mem_range.1 hy
+      simp only [hbit]; simp [hmin y (by omega)])]
+    simp [hm32]
+
+/-- `u32::trailing_ones` returns the trailing-ones count `tones ↑x`. Total: the upstream
+    `CoreModels` body is a pure `ok` of `CoreModels.BitVec.trailingOnes x.bv`, so this is
+    proved (not admitted) against that body — the old `FunsExternal` `Nat.find` model is
+    gone, and `trailingOnes_bv_eq_tones` above does the bit-vector ↔ `tones` bridging.
+    Remains an upstream-PR candidate for a registered spec in `CoreModels`. -/
 @[spec]
 theorem trailing_ones_spec (x : Std.U32) :
     ⦃ ⌜ True ⌝ ⦄
     core.num.U32.trailing_ones x
     ⦃ ⇓ r => ⌜ (↑r : Nat) = tones (↑x : Nat) ⌝ ⦄ := by
+  -- The bit-vector count never overflows the `u32` it is injected into: it is at most the
+  -- bit-vector width, `32`.
+  have hle : CoreModels.BitVec.trailingOnes x.bv ≤ 32 := by
+    unfold CoreModels.BitVec.trailingOnes CoreModels.BitVec.trailingZeros
+    split
+    · next i hi => have := List.mem_range.1 (List.mem_of_find?_eq_some hi); omega
+    · omega
   unfold core.num.U32.trailing_ones
+    CoreModels.rust_primitives.arithmetic.trailing_ones_u32 CoreModels.utrailing_ones
   mvcgen
+  · rw [← trailingOnes_bv_eq_tones]
+    simp [Aeneas.Std.UScalar.val]
+    -- residual in-rangeness side goal of the `#uscalar` injection
+    omega
 
 /-- `u32::pow` computes `x ^ exp` exactly, as long as the result fits in a `u32`.
     Derived from `u32_pow_partialSpec_total`. -/
@@ -251,7 +591,7 @@ theorem u32_pow_spec (x exp : Std.U32) :
   refine triple_of_partialSpec (u32_pow_partialSpec_total x exp h) _ ?_ (by simp) (by simp)
     trivial
   intro r hr
-  simpa [Aeneas.Std.WP.willYield] using hr
+  simpa [Aeneas.Std.willYield] using hr
 
 end openmls
 
@@ -405,11 +745,11 @@ treemath development when a `pow` is stepped in hypothesis position. Stated in t
 *recovered* from the failure branch rather than discharged up front. -/
 @[spec]
 theorem u32_pow_mvcgen_spec (x exp : Std.U32)
-    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
+    (Q : PostCond Std.U32 Aeneas.Std.Result.postShape)
     (h_ok : ∀ r : Std.U32, (↑r : Nat) = (↑x : Nat) ^ (↑exp : Nat) →
-      Aeneas.Std.WP.willYield r Q)
+      Aeneas.Std.willYield r Q)
     (h_fail : Std.UScalar.max .U32 < (↑x : Nat) ^ (↑exp : Nat) →
-      Aeneas.Std.WP.willFail Aeneas.Std.Error.integerOverflow Q) :
+      Aeneas.Std.willFail Aeneas.Std.Error.integerOverflow Q) :
     ⦃ ⌜ True ⌝ ⦄ core.num.U32.pow x exp ⦃ Q ⦄ := by
   have hp := u32_pow_partialSpec x exp
   refine triple_of_partialSpec hp Q h_ok ?_ (by simp)
@@ -424,30 +764,28 @@ Partial-correctness counterpart of `leading_zeros_spec` above. The total spec al
 a `leading_zeros` in hypothesis position produces no success obligation. -/
 @[spec]
 theorem u32_leading_zeros_mvcgen_spec (x : Std.U32)
-    (Q : PostCond Std.U32 Aeneas.Std.WP.Result.postShape)
+    (Q : PostCond Std.U32 Aeneas.Std.Result.postShape)
     (h_ok : ∀ r : Std.U32,
       (↑r : Nat) = (if x.val = 0 then 32 else 31 - Nat.log 2 x.val) →
-      Aeneas.Std.WP.willYield r Q) :
+      Aeneas.Std.willYield r Q) :
     ⦃ ⌜ True ⌝ ⦄ core.num.U32.leading_zeros x ⦃ Q ⦄ := by
   exact triple_of_partialSpec (u32_leading_zeros_partialSpec x) Q h_ok (by simp) (by simp)
 
 /-- `u32::is_multiple_of` is a total divisibility test, so again there is no failure
-hypothesis.
+hypothesis. Total even though the upstream `CoreModels` body is a two-branch `if` over a
+monadic remainder: the `y = 0` branch is a pure `ok`, and for `y ≠ 0` the remainder cannot
+fail — that is exactly what `u32_is_multiple_of_partialSpec` (earlier in this file, proved
+against the upstream body) establishes.
 
 Partial-correctness counterpart of `is_multiple_of_spec` above; as with `leading_zeros` it
 adds no logical information and exists only to suppress the success obligation when stepped
 in hypothesis position. -/
 @[spec]
 theorem u32_is_multiple_of_mvcgen_spec (x y : Std.U32)
-    (Q : PostCond Bool Aeneas.Std.WP.Result.postShape)
+    (Q : PostCond Bool Aeneas.Std.Result.postShape)
     (h_ok : ∀ b : Bool, b = decide (x.val % y.val = 0) →
-      Aeneas.Std.WP.willYield b Q) :
-    ⦃ ⌜ True ⌝ ⦄ core.num.U32.is_multiple_of x y ⦃ Q ⦄ := by
-  have hp : Aeneas.Std.WP.partialSpec (core.num.U32.is_multiple_of x y)
-      (fun b => b = decide (x.val % y.val = 0))
-      (fun _ => False) False := by
-    unfold core.num.U32.is_multiple_of
-    simp only [Aeneas.Std.WP.partialSpec_ok]
-  exact triple_of_partialSpec hp Q h_ok (by simp) (by simp)
+      Aeneas.Std.willYield b Q) :
+    ⦃ ⌜ True ⌝ ⦄ core.num.U32.is_multiple_of x y ⦃ Q ⦄ :=
+  triple_of_partialSpec (u32_is_multiple_of_partialSpec x y) Q h_ok (by simp) (by simp)
 
 end openmls

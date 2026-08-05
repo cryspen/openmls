@@ -21,125 +21,43 @@ open openmls
 
 /-! ## External functions
 
-These are the `core`/`alloc` operations that the current `CoreModels` library does
-not provide under the names this extraction references. They are modelled as axioms,
-in the spirit of an Aeneas `FunsExternal` file. Signatures are chosen to match the
-exact call sites in `Funs.lean` (treemath). -/
+The `core`/`alloc` iterator operations that `CoreModels` does not provide under the names
+this extraction references. Signatures match the exact call sites in `Funs.lean` (treemath).
+Every other external operation the extraction uses resolves by bare name to a concrete
+upstream `CoreModels` definition (pin: `cryspen/hax`, branch `openmls-core-models`), and its
+spec is PROVED against that upstream body in `Openmls/Proofs/MissingCoreSpecs.lean` — see
+the campaign record in `Openmls/Proofs/HANDOFF.md` for the history.
 
-/- ### `u32` arithmetic / ordering / hashing -/
+Three entries: the two lazy `Iterator::map` adapters (faithful total *definitions*, not
+axioms) and the single remaining trusted `axiom`,
+`core.iter.adapters.map.Map.…​.collect`. -/
 
-/-- `<u32 as Ord>::cmp` -/
-axiom core.U32.Insts.CoreCmpOrd.cmp : Std.U32 → Std.U32 → Result core.cmp.Ordering
-
-/-- `<u32 as Hash>::hash` -/
-axiom core.U32.Insts.CoreHashHash.hash
-  {H : Type} (HasherInst : core.hash.Hasher H) : Std.U32 → H → Result H
-
-/-- `u32::is_multiple_of` — faithful total model. `n.is_multiple_of m ↔ n % m == 0`;
-    since `Nat`'s `_ % 0 = id`, this also gives Rust's `m = 0 ⇒ (n == 0)` behaviour. -/
-def core.num.U32.is_multiple_of (x y : Std.U32) : Result Bool :=
-  ok (decide (x.val % y.val = 0))
-
-/-- `u32::div_ceil` -/
-axiom core.num.U32.div_ceil : Std.U32 → Std.U32 → Result Std.U32
-
-/-- Every natural has a clear bit (bit `x` of `x` is clear, as `x < 2^x`). Self-contained
-    copy of `openmls.tones_ex` (`Openmls/Proofs/BitMath.lean`), which cannot be imported
-    here — BitMath imports the extraction. -/
-theorem core.num.U32.trailing_ones.ex (x : Nat) : ∃ m, x.testBit m = false :=
-  ⟨x, Nat.testBit_lt_two_pow Nat.lt_two_pow_self⟩
-
-/-- `u32::trailing_ones` — faithful total MODEL (a definition, not an axiom): the
-    trailing-ones count is the index of the lowest clear bit, `Nat.find`-style, exactly
-    mirroring the pure `openmls.tones`. In range because `Nat.find ≤ the witness x.val`.
-    The proved bridge spec (`⇓ r => r.val = tones x.val`) lives in `MissingCoreSpecs.lean`;
-    upstream-PR candidate for CoreModels. -/
-noncomputable def core.num.U32.trailing_ones (x : Std.U32) : Result Std.U32 :=
-  ok (UScalar.ofNatCore (Nat.find (core.num.U32.trailing_ones.ex x.val))
-    (Nat.lt_of_le_of_lt
-      (Nat.find_le (Nat.testBit_lt_two_pow Nat.lt_two_pow_self))
-      x.bv.isLt))
-
-/- ### Slice indexing on `Vec` -/
-
-/-- `SliceIndex<[T]>` witness (only ever threaded through `Index::index`). -/
-axiom core.slice.index.SliceIndex (Self : Type) (Container : Type) (Output : Type) : Type
-
-/-- `<usize as SliceIndex<[T]>>` -/
-axiom core.Usize.Insts.CoreSliceIndexSliceIndexSliceT (T : Type) :
-  core.slice.index.SliceIndex Std.Usize (Slice T) T
-
-/-- `<Vec<T> as Index<I>>::index` (here `I = usize`, `Output = T`). -/
-axiom alloc.vec.Vec.Insts.CoreOpsIndexIndex.index
-  {T : Type} {Output : Type}
-  (sliceIndexInst : core.slice.index.SliceIndex Std.Usize (Slice T) Output)
-  (self : alloc.vec.Vec T) (index : Std.Usize) : Result Output
-
-/-- `<Vec<T> as DerefMut>::deref_mut` — returns the slice view together with the
-    write-back closure (Aeneas mutable-borrow encoding). -/
-axiom alloc.vec.Vec.Insts.CoreOpsDerefDerefMutSlice.deref_mut
-  {T : Type} (self : alloc.vec.Vec T) :
-  Result ((Slice T) × ((Slice T) → alloc.vec.Vec T))
-
-/-- `<[T]>::reverse`. Aeneas' own `core.slice.Slice.reverse` is a total function
-    returning a bare `Slice T` (reversal never fails), but it lives in `Aeneas.Std` and
-    is shadowed here by `open Aeneas.Std hiding namespace core`; the call sites in
-    `Funs.lean` also bind it monadically (`←`), so the model must be `Result`-valued.
-    We reuse the real Aeneas definition wrapped in `ok` — a faithful total model, not a
-    new trusted axiom. The `_root_.` prefix is required so the name lands at top level
-    (otherwise the open captures the `core.slice.Slice` prefix as the `Slice` type's
-    namespace); `Funs.lean`'s `hiding namespace core` then resolves to this model. -/
-def _root_.core.slice.Slice.reverse {T : Type} (s : Slice T) : Result (Slice T) :=
-  ok (Aeneas.Std.core.slice.Slice.reverse s)
-
-/-- `<usize as Ord>` (instance witness, used by `core::cmp::min`). -/
-axiom core.Usize.Insts.CoreCmpOrd : core.cmp.Ord Std.Usize
-
-/- ### Iterators (slice iter, vec into-iter, map adapter) -/
-
-/- Tombstone: the root-namespace axioms for `<slice::Iter as Iterator>::next` and
-   `<&Vec<T> as IntoIterator>::into_iter` were removed — the current extraction references
-   neither, and `CoreModels` already provides concrete bodies (`slice.iter.Iter.Insts.
-   CoreIterTraitsIteratorIteratorSharedAT.next`, via `seq_len`/`seq_remove`) if ever needed. -/
-
-/-- `<Vec<T> as IntoIterator>::into_iter` -/
-axiom alloc.vec.Vec.Insts.CoreIterTraitsCollectIntoIteratorTIntoIter.into_iter
-  {T : Type} : alloc.vec.Vec T → Result (alloc.vec.into_iter.IntoIter T)
-
-/-- `vec::IntoIter<T>` is an `Iterator` (instance witness). -/
-axiom alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator (T : Type) :
-  core.iter.traits.iterator.Iterator (alloc.vec.into_iter.IntoIter T) T
-
-/-- `Vec<T>` is a `FromIterator<T>` target (instance witness). -/
-axiom alloc.vec.Vec.Insts.CoreIterTraitsCollectFromIterator (T : Type) :
-  core.iter.traits.collect.FromIterator (alloc.vec.Vec T) T
-
-/-- `<vec::IntoIter<T> as Iterator>::map` — `F` is the closure type, witnessed by
-    its `FnMut` instance. -/
-axiom alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator.map
+/-- `<vec::IntoIter<T> as Iterator>::map` — faithful total MODEL (a definition, not an axiom):
+    Rust's `Iterator::map` is lazy, it merely *packages* the receiver iterator together with the
+    closure, and `CoreModels`' `core.iter.adapters.map.Map I F` is exactly that pair structure
+    `{ iter : I, f : F }` (`CoreModels/Core/Types.lean`). So the semantics is `ok ⟨self, f⟩`; no
+    element is consumed and the call cannot fail. `F` is the closure type, witnessed by its
+    `FnMut` instance — kept (unused) so the generated call sites in `Funs.lean` still elaborate. -/
+def alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator.map
   {T : Type} {O : Type} {F : Type}
   (FnMutInst : Std.core.ops.function.FnMut F T O)
   (self : alloc.vec.into_iter.IntoIter T) (f : F) :
-  Result (core.iter.adapters.map.Map (alloc.vec.into_iter.IntoIter T) F)
+  Result (core.iter.adapters.map.Map (alloc.vec.into_iter.IntoIter T) F) :=
+  ok ⟨self, f⟩
 
-/-- `<slice::Iter<'_, T> as Iterator>::map` — `F` is the closure *state* type (e.g. `Unit`
-    for a non-capturing closure), witnessed by its CoreModels `FnMut` instance. Used since
-    the `copath` rewrite maps an extracted closure over a slice iterator. -/
-axiom core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.map
+/-- `<slice::Iter<'_, T> as Iterator>::map` — faithful total MODEL (a definition, not an axiom),
+    for the same reason as the `vec::IntoIter` twin above: Rust's `map` is lazy and only pairs the
+    iterator with the closure, which is precisely the `core.iter.adapters.map.Map` structure
+    `{ iter : I, f : F }`. Hence `ok ⟨self, f⟩`. `F` is the closure *state* type (e.g. `Unit` for a
+    non-capturing closure), witnessed by its CoreModels `FnMut` instance — kept (unused) so the
+    generated call sites still elaborate. Used since the `copath` rewrite maps an extracted closure
+    over a slice iterator. -/
+def core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.map
   {T : Type} {O : Type} {F : Type}
   (FnMutInst : CoreModels.core.ops.function.FnMut F T O)
   (self : core.slice.iter.Iter T) (f : F) :
-  Result (core.iter.adapters.map.Map (core.slice.iter.Iter T) F)
-
-/-- `<slice::Iter<'_, T> as Iterator>::all` — `F` is the closure state (e.g. the captured
-    environment), witnessed by its CoreModels `FnMut` instance; returns the boolean and the
-    advanced iterator (`&mut self` receiver). Referenced by the extracted `direct_path.post`
-    (the `result.iter().all(...)` ensures). -/
-axiom core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.all
-  {T : Type} {F : Type}
-  (FnMutInst : CoreModels.core.ops.function.FnMut F T Bool)
-  (self : core.slice.iter.Iter T) (f : F) :
-  Result (Bool × core.slice.iter.Iter T)
+  Result (core.iter.adapters.map.Map (core.slice.iter.Iter T) F) :=
+  ok ⟨self, f⟩
 
 /-- `<Map<I, F> as Iterator>::collect` — target collection `B` is fixed by the
     `FromIterator` witness. The `FnMut` witness parameter is type-generic (`W`) because the
