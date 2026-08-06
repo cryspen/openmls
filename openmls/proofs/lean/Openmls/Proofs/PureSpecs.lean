@@ -35,9 +35,9 @@ namespace binary_tree.array_representation.treemath
 /-! ### Value specs for the verification-transparent functions
 
 The Rust `to_tree_index` / `leaf_count` (and the `u32` dispatcher over them) carry no
-`ensures` — their postcondition *is* their one-line body (user ruling 2026-07-28: "transparent
-to verification"). Each keeps exactly ONE `@[spec]` registration: the value-carrying mvcgen
-triple below. The `partialSpec` proof combinators they use live in `PartialSpecs.lean`. -/
+`ensures`: they are transparent to verification — their postcondition *is* their one-line body.
+Each carries exactly ONE `@[spec]` registration, the value-carrying mvcgen triple below. The
+`partialSpec` proof combinators they use live in `PartialSpecs.lean`. -/
 
 /-- `LeafNodeIndex::to_tree_index` is `self * 2`. **Fallible:** the multiplication overflows when
 `2·self > u32::MAX`, so the contract carries a `willFail Error.integerOverflow` hypothesis — in
@@ -186,8 +186,8 @@ theorem lca_level_one {xn : Nat} {xv : Std.U32} {k k1 : Std.Usize}
   omega
 
 /-- Collision of the two shifted leaf recoveries is absurd: on even tree indices both `level`s
-    are `0`, so equal shifted values force equal leaf indices, contradicting distinctness. One
-    `exact` replaces each of `lowest_common_ancestor`'s four early-return contradiction blocks. -/
+    are `0`, so equal shifted values force equal leaf indices, contradicting distinctness. Closes
+    each of `lowest_common_ancestor`'s four early-return contradiction blocks with one `exact`. -/
 theorem lca_shift_ne {xn yn : Nat} {xv yv sx sy : Std.U32} {k1 : Std.Usize}
     (heq : sx = sy) (hxy : ¬ xn = yn)
     (hxv : (↑xv : Nat) = xn * (↑(2#u32) : Nat))

@@ -316,9 +316,9 @@ theorem one_le_one_shiftLeft_mod_or (k : Nat) :
 /-- `2 ^ e ≤ u32::MAX` unless the exponent exceeds `31`.  Disjunctive (`scalar_tac`-shaped) form of
     `two_pow_le_u32_max`, for manual use.
 
-    NOT REGISTERED: `@[scalar_tac 2 ^ e]` was tried and REVERTED — the pattern matches nearly every
-    power here, and the extra disjunction per occurrence blows up `omega`'s case split, regressing
-    green goals (it broke `left.spec.proof`). -/
+    Do NOT register this on the bare `2 ^ e` pattern: that pattern matches nearly every power in
+    this development, and one extra disjunction per occurrence blows up `omega`'s case split
+    (measured: it breaks `left.spec.proof`). -/
 theorem two_pow_le_u32_max_or (e : Nat) : 2 ^ e ≤ Aeneas.Std.U32.max ∨ 31 < e := by
   by_cases h : e ≤ 31
   · exact Or.inl (two_pow_le_u32_max e h)
@@ -536,7 +536,7 @@ theorem parent_bits_val
   exact parent_val_u32 v _ hk30 hchar
 
 /-- Positivity corollary of `parent_bits_val`, shaped for `parent`'s VC blocks: one `have` +
-    `scalar_tac` replaces the per-block preamble. -/
+    `scalar_tac` closes such a block, with no further preamble. -/
 theorem parent_bits_pos
     (v r1 r2 rr : U32) (k k1 : Usize)
     (hk30 : (↑k : Nat) ≤ 30)
@@ -556,7 +556,7 @@ theorem parent_bits_pos
   omega
 
 /-- Parity corollary of `parent_bits_val`, shaped for `parent`'s VC blocks: one `have` +
-    `scalar_tac` replaces the per-block preamble. -/
+    `scalar_tac` closes such a block, with no further preamble. -/
 theorem parent_bits_odd
     (v r1 r2 rr : U32) (k k1 : Usize)
     (hk30 : (↑k : Nat) ≤ 30)
@@ -726,7 +726,7 @@ theorem all_ones_iff_and_succ_eq_zero (s : Nat) (h1 : 1 ≤ s) :
 /-- Packages the consumer-side destructuring of the registered mask spec: from the three conjuncts
     of `TreeSize::valid`'s bit form, one `obtain` yields the fresh width `L` together with every
     derived fact the `TreeSize` obligations need (log₂ bridge, `L ≤ 29`, the two power bounds, the
-    `pow_succ` doubling, and the shift residue) — replacing the per-site preamble. -/
+    `pow_succ` doubling, and the shift residue), so no per-site preamble is needed. -/
 theorem valid_mask_destruct (s : Nat)
     (h : 1 ≤ s ∧ s ≤ 2 ^ 30 - 1 ∧ s &&& (s + 1) = 0) :
     ∃ L, s = 2 ^ (L + 1) - 1 ∧ Nat.log 2 s = L ∧ L ≤ 29

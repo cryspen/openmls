@@ -18,10 +18,10 @@ bisections). Work dir: `openmls/proofs/lean/`.
 - **Sorry census = 0. Axiom count = 0. THE TRUSTED AUDIT SURFACE IS EMPTY (2026-08-06).**
   The last axiom (`Map…collect`) was replaced by a real def (R3d slice: `CollectFnMut`
   bridge + upstream `iterDrain` drain lemmas) and both collect contracts were PROVED and
-  migrated to MissingCoreSpecs. `AdmittedCoreSpecs.lean` is an EMPTY SHELL (kept as the
-  designated home for future admitted contracts; deleting it is a build-graph change left
-  to the user). EVERY obligation — including `copath` — verifies on exactly
-  `{propext, Classical.choice, Quot.sound}`.
+  migrated to MissingCoreSpecs. `AdmittedCoreSpecs.lean` was then DELETED by the user
+  (2026-08-06, with its import edge); if an admitted contract is ever needed again,
+  recreate it on the same charter. EVERY obligation — including `copath` — verifies on
+  exactly `{propext, Classical.choice, Quot.sound}`.
 - **DEPENDENCY PINS MOVED (2026-08-04, user-instructed)**: `hax`/CoreModels now from
   `https://github.com/cryspen/hax`, branch `openmls-core-models` (resolved `7e43f8a`),
   `subDir hax-lib/proof-libs/lean`; aeneas transitively bumped `52fd438` → `e0961db`.
@@ -122,8 +122,9 @@ bisections). Work dir: `openmls/proofs/lean/`.
 - **One theorem per obligation** in `Proofs.lean`; the 1:1 statement correspondence with
   the generated `Specs.lean` `.spec` defs is ENFORCED BY `Verification.lean` (build it
   after touching any obligation statement).
-- **Import DAG / file charters**:
-  `Common ← BitMath ← {MissingCoreSpecs, AdmittedCoreSpecs} `;
+- **Import DAG / file charters** (AdmittedCoreSpecs deleted 2026-08-06 — empty trusted
+  surface):
+  `Common ← BitMath ← MissingCoreSpecs`;
   `PartialSpecs` imports BitMath AND MissingCoreSpecs (edge user-ruled 2026-08-03);
   `← PureSpecs ← Proofs ← Verification` (root `Openmls.lean` imports both Proofs and
   Verification).
@@ -136,8 +137,9 @@ bisections). Work dir: `openmls/proofs/lean/`.
   `Aeneas.Std` `@[step]` upstream-PR candidates); since 2026-08-04 also the whole migrated
   vec/slice/cmp/iterator family, proved against UPSTREAM CoreModels bodies
   (`trailingOnes_bv_eq_tones` and `slice_iter_all_count_spec` are the two nontrivial
-  unregistered bridge helpers). AdmittedCoreSpecs: the 2
-  TRUSTED contracts (the collect pair). PartialSpecs: treemath spec-vocabulary mvcgen triples + partialSpec
+  unregistered bridge helpers). AdmittedCoreSpecs: DELETED (its charter — the single home
+  for admitted `@[spec]` contracts — is vacant; recreate on the same pattern if ever
+  needed). PartialSpecs: treemath spec-vocabulary mvcgen triples + partialSpec
   combinators. PureSpecs: value triples of the transparent fns + monadic/pure helpers
   (`lca_*`, `dropLast_entries_ne_max_root`). Proofs: the 19 obligations, loop machinery
   (USER RULING: stays here), `level.spec_pure`, `parent.spec_value`,

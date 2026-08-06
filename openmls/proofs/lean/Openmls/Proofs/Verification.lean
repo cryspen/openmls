@@ -34,8 +34,9 @@ namespace binary_tree.array_representation.treemath
 
 Each theorem is proved by the corresponding `<fn>.spec.proof` term applied to the same arguments,
 with no tactics and no unfolding lemmas: elaboration succeeds only if the hand-written statement in
-`Proofs.lean` is definitionally the generated `<fn>.spec` Prop. These theorems carry NO attributes
-(in particular they are not `@[spec]`-registered) so the registration landscape is unchanged. -/
+`Proofs.lean` is definitionally the generated `<fn>.spec` Prop. These theorems carry NO attributes —
+in particular they are not `@[spec]`-registered, so they take no part in mvcgen's spec resolution and
+cannot perturb any proof in `Proofs.lean`. -/
 
 theorem root.spec.conformance (size : TreeSize) : root.spec size :=
   root.spec.proof size

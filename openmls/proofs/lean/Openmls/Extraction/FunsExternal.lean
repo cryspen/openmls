@@ -21,16 +21,15 @@ open openmls
 
 /-! ## External functions
 
-The `core`/`alloc` iterator operations that `CoreModels` does not provide under the names
-this extraction references. Signatures match the exact call sites in `Funs.lean` (treemath).
-Every other external operation the extraction uses resolves by bare name to a concrete
-upstream `CoreModels` definition (pin: `cryspen/hax`, branch `openmls-core-models`), and its
-spec is PROVED against that upstream body in `Openmls/Proofs/MissingCoreSpecs.lean` — see
-the campaign record in `Openmls/Proofs/HANDOFF.md` for the history.
+The three `core`/`alloc` iterator operations that `CoreModels` does not provide under the
+names this extraction references: the two lazy `Iterator::map` adapters and
+`core.iter.adapters.map.Map.…​.collect`. Signatures match the exact call sites in `Funs.lean`
+(treemath). Every other external operation the extraction uses resolves by bare name to a
+concrete upstream `CoreModels` definition (pin: `cryspen/hax`, branch `openmls-core-models`),
+and its spec is PROVED against that upstream body in `Openmls/Proofs/MissingCoreSpecs.lean`.
 
-Three entries — the two lazy `Iterator::map` adapters and
-`core.iter.adapters.map.Map.…​.collect` — all three faithful total *definitions*. This file
-contains NO axioms: nothing here has to be trusted beyond reading the models against Rust. -/
+All three entries below are faithful total *definitions*. This file contains NO axioms:
+nothing here has to be trusted beyond reading the models against Rust. -/
 
 /-- `<vec::IntoIter<T> as Iterator>::map` — faithful total MODEL (a definition, not an axiom):
     Rust's `Iterator::map` is lazy, it merely *packages* the receiver iterator together with the
@@ -50,8 +49,8 @@ def alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator.map
     iterator with the closure, which is precisely the `core.iter.adapters.map.Map` structure
     `{ iter : I, f : F }`. Hence `ok ⟨self, f⟩`. `F` is the closure *state* type (e.g. `Unit` for a
     non-capturing closure), witnessed by its CoreModels `FnMut` instance — kept (unused) so the
-    generated call sites still elaborate. Used since the `copath` rewrite maps an extracted closure
-    over a slice iterator. -/
+    generated call sites still elaborate. This is the adapter `copath` uses, mapping an extracted
+    closure over a slice iterator. -/
 def core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.map
   {T : Type} {O : Type} {F : Type}
   (FnMutInst : CoreModels.core.ops.function.FnMut F T O)

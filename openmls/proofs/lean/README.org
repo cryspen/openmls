@@ -12,11 +12,11 @@ OpenMLS (RFC 9420 §4 / Appendix C, ported to Rust in
 | Obligation                      | Reference post    | Status | Notes                                                         |
 |---------------------------------+-------------------+--------+---------------------------------------------------------------|
 | =root=                            | real              | proved |                                                               |
-| =left=                            | real              | proved | real post proved via new XOR value lemmas                     |
+| =left=                            | real              | proved | via the XOR value lemmas in =BitMath=                           |
 | =right=                           | real              | proved | same                                                          |
-| =parent=                          | real (2-clause)   | proved | new pre =≠ MAX_ROOT_INDEX=; quarantine long gone                |
+| =parent=                          | real (2-clause)   | proved | pre: =≠ MAX_ROOT_INDEX=                                         |
 | =sibling=                         | =True=              | proved |                                                               |
-| =direct_path=                     | real (=iter().all=) | proved | via =direct_path.spec_pure= + =slice_iter_all_spec= (now proved)  |
+| =direct_path=                     | real (=iter().all=) | proved | via =direct_path.spec_pure= + =slice_iter_all_spec=               |
 | =copath=                          | =True=              | proved | =spec_pure= + iterator contracts + =dropLast_entries_ne_max_root= |
 | =lowest_common_ancestor=          | =True=              | proved |                                                               |
 | =common_direct_path=              | =True=              | proved |                                                               |
@@ -25,10 +25,10 @@ OpenMLS (RFC 9420 §4 / Appendix C, ported to Rust in
 | =LeafNodeIndex.from_tree_index=   | =True=              | proved |                                                               |
 | =ParentNodeIndex.to_tree_index=   | =True=              | proved | transparent fn; value triple in =PureSpecs=                     |
 | =ParentNodeIndex.from_tree_index= | =True=              | proved |                                                               |
-| =TreeNodeIndex.new=               | real              | proved | gained a pre in the re-extraction                             |
+| =TreeNodeIndex.new=               | real              | proved |                                                               |
 | =TreeNodeIndex.u32=               | real              | proved |                                                               |
 | =TreeSize.new=                    | real              | proved |                                                               |
-| =TreeSize.inc=                    | real              | proved | value clause restored in the Rust spec                        |
+| =TreeSize.inc=                    | real              | proved |                                                               |
 | =TreeSize.dec=                    | real              | proved |                                                               |
 |---------------------------------+-------------------+--------+---------------------------------------------------------------|
 
@@ -41,20 +41,20 @@ OpenMLS (RFC 9420 §4 / Appendix C, ported to Rust in
 
 ** TODO Empty the =MissingCoreSpecs.lean=
 
-Open a PR with those specs (now all discharged against the upstream CoreModels bodies, so
+Open a PR with those specs — all discharged against the upstream CoreModels bodies, so
 they can ship with the models: the vec/slice/cmp/iterator family, the
 =trailingOnes_bv_eq_tones= and =slice_iter_all_count_spec= bridges, and the six
-=Aeneas.Std= =@[step]= partialSpec candidates)
+=Aeneas.Std= =@[step]= partialSpec candidates.
 
 ** TODO Upstream missing =CoreModels=
 
-Narrowed 2026-08-04 (new =openmls-core-models= pin): only three iterator
-definitions remain missing for the frozen extraction — flat per-instance
+Three iterator definitions are missing for the frozen extraction — flat per-instance
 =slice::Iter…SharedAT.map=, =Map….collect=, and an =IntoIter.map= taking the
 Aeneas-=BuiltinFnMut= family (the CoreModels twin exists but its =FnMut= family
-mismatches the generated call site). Upstream's new =IteratorMethods= structure
-has the semantics; the PR is about exposing it under the Charon flat-naming
-convention.
+mismatches the generated call site); =FunsExternal.lean= defines them locally meanwhile.
+Upstream's =IteratorMethods= structure has the semantics; the PR is about exposing it
+under the Charon flat-naming convention, and would let =FunsExternal.lean= be deleted
+outright.
 
 ** TODO Remove spurious const introduced by =hax_lib=
 
@@ -75,33 +75,31 @@ As can be seen in the PureSpecs.lean
 - Root =CLAUDE.md= — the broader FV-target roadmap and pipeline.
 
 The invariant gate is =~/.elan/bin/lake build Openmls.Proofs.Proofs
-Openmls.Proofs.Verification= — green with ZERO =sorry= warnings (the trusted surface is
-empty since 2026-08-06: no admitted contracts, no axioms of our own; every obligation
-verifies on ={propext, Classical.choice, Quot.sound}=). Standing linter noise: 2
-=unusedSimpArgs= in BitMath, 12 =nameCheck= hits on generated =__N= names.
+Openmls.Proofs.Verification= — green with ZERO =sorry= warnings: the trusted surface is
+empty (no admitted contracts, no axioms of our own; every obligation verifies on
+={propext, Classical.choice, Quot.sound}=). Standing linter noise: 2 =unusedSimpArgs= in
+BitMath, 12 =nameCheck= hits on generated =__N= names.
 
 ** Module layout
 
 Hand-written proof modules under =Openmls/Proofs/=, import DAG
-=Common ← BitMath ← {MissingCoreSpecs, AdmittedCoreSpecs} ← PartialSpecs ← PureSpecs ← Proofs ← Verification=
-(=PartialSpecs= imports BitMath *and* MissingCoreSpecs — edge added 2026-08-03; =AdmittedCoreSpecs=
-is imported by =Proofs= directly):
+=Common ← BitMath ← MissingCoreSpecs ← PartialSpecs ← PureSpecs ← Proofs ← Verification=
+(=PartialSpecs= imports BitMath *and* MissingCoreSpecs):
 
 | File                   | Concern                                                                                               |
 |------------------------+-------------------------------------------------------------------------------------------------------|
 | =Common.lean=            | generic loop driver =loop_spec_measure= + triple helpers, =vecLen=, =sliceIterElems=                        |
 | =BitMath.lean=           | pure-=Nat=/u32 bit lemmas (=tones=, parent/left/right value arithmetic); =scalar_tac=/=simp= registrations |
 | =MissingCoreSpecs.lean=  | PROVED =@[spec]= contracts for =core=/=alloc= ops, discharged against the upstream CoreModels bodies      |
-| =AdmittedCoreSpecs.lean= | TRUSTED audit surface: 2 admitted core contracts (the =map=/=collect= pair, unregistered)               |
 | =PartialSpecs.lean=      | hand-written mvcgen/partial-correctness triples for the extracted helpers + combinators               |
 | =PureSpecs.lean=         | value triples for the verification-transparent fns; monadic helpers; pure companion lemmas            |
 | =Proofs.lean=            | the 19 obligations, loop specs, =level.spec_pure=/=parent.spec_value=/=direct_path.spec_pure=           |
 | =Verification.lean=      | the mechanized statement freeze: 19 =<fn>.spec.conformance= theorems (definitional, no attributes)      |
 
-Generated (regenerate freely — builds as generated, no hand overrides since the 2026-07-28
-re-extraction): =Openmls/Extraction/{Types,Funs,Specs,ProofObligations}.lean=;
-=FunsExternal.lean= is hand-maintained (axioms/models). Hand-derived reference:
-=Openmls/Extraction/ProofObligationsExplicit.lean=.
+Generated (regenerate freely — builds as generated, no hand overrides):
+=Openmls/Extraction/{Types,Funs,Specs,ProofObligations}.lean=;
+=FunsExternal.lean= is hand-maintained (faithful models; axiom-free). Hand-derived
+reference: =Openmls/Extraction/ProofObligationsExplicit.lean=.
 
 Upstream-issue reproducers live in =Openmls/Issues/= (one issue per file, intentionally
 failing to compile, imported by no build target — see its =README.md=). Current entries:
@@ -122,24 +120,11 @@ the two =scalar_tac= non-termination reproducers (=ScalarTacNatLogLoop.lean=,
   =loop_spec_measure= driver in =Common.lean=.
 - *Pure-spec exception (validated):* some official posts are too costly/weak to consume at
   call sites; validated companion specs fill the gap — =level.spec_pure= (registered; =level=
-  itself no longer carries an obligation), =parent.spec_value= and =direct_path.spec_pure=
-  (both unregistered, consumed via mvcgen's erasure =- <official>.spec.proof= at call sites).
+  carries no obligation of its own), =parent.spec_value=, =root.spec_value= and
+  =direct_path.spec_pure= (unregistered, consumed by hand or via mvcgen's erasure
+  =- <official>.spec.proof= at call sites).
   New pure specs require explicit user validation, case by case.
 - *Sorry style:* a remaining =sorry= sits under its own explicit bullet / =case= block with a
   =-- TODO(arith): …= comment; a bare =all_goals sorry= is allowed only when *every* remaining
   goal is sorried. No =sorry= may hide inside a =first | … | sorry= chain, and no goal
   containing a Hoare triple / =wp⟦…⟧= may be sorried (that indicates broken stepping).
-
-** TODO
-
-*** Shrink the trusted audit surface (DONE 2026-08-04: 10 → 2)
-- [X] =slice_iter_all_spec=, =vec_push_spec=, =vec_index_spec=, =deref_mut_slice_spec=,
-  =reverse_slice_spec=, =min_usize_spec=, =u32_cmp_spec=, =u32_div_ceil_spec= — all PROVED
-  and migrated to =MissingCoreSpecs.lean= (partly via user-approved restatements; see
-  HANDOFF campaign record).
-- [X] =into_map_collect_spec=, =slice_iter_map_collect_spec= — PROVED 2026-08-06: the
-  =Map…collect= axiom was replaced by a real def (=CollectFnMut= bridge over the two
-  =FnMut= families + upstream =iterDrain= drain machinery); =FunsExternal.lean= now
-  contains NO axioms and =AdmittedCoreSpecs.lean= is an empty shell. *The trusted audit
-  surface is 0.* (The upstream CoreModels PR adding flat per-instance =map=/=collect=
-  defs remains worthwhile — it would delete =FunsExternal.lean= outright.)

@@ -122,13 +122,11 @@ attribute [spec] uncurry
     `alloc.vec.Vec T` is reducibly `Seq T = Slice T`, so `v` is itself the slice. -/
 def vecLen {T : Type} (v : alloc.vec.Vec T) : Nat := Aeneas.Std.Slice.length v
 
-/-- A slice iterator's remaining elements. **Not trusted**: `CoreModels`' `core.slice.iter.Iter T`
-    is `@[reducible]`-equal to `rust_primitives.sequence.Seq T = Aeneas.Std.Slice T`, a subtype of
-    `List T`, so the remaining elements are literally the underlying list. (This used to be an
-    `opaque`; the new extraction made the iterator type concrete, so it is a real definition and
-    the trusted surface shrank accordingly.) Lives here — next to `vecLen`, its `Vec` twin —
-    because both `MissingCoreSpecs.lean` and `AdmittedCoreSpecs.lean` phrase iterator contracts
-    over it and DAG siblings cannot import each other. -/
+/-- A slice iterator's remaining elements. A real definition, hence **not** part of the trusted
+    surface: `CoreModels`' `core.slice.iter.Iter T` is `@[reducible]`-equal to
+    `rust_primitives.sequence.Seq T = Aeneas.Std.Slice T`, a subtype of `List T`, so the remaining
+    elements are literally the underlying list. Lives here — next to `vecLen`, its `Vec` twin —
+    as shared vocabulary for the iterator contracts in `MissingCoreSpecs.lean`. -/
 def sliceIterElems {T : Type} (it : core.slice.iter.Iter T) : List T := it.val
 
 /-! ### Generic measure-decreasing loop spec (PostCond-flavoured body obligation)
