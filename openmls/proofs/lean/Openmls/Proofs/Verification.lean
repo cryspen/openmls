@@ -16,7 +16,6 @@ import Openmls.Proofs.BitMath
 import Openmls.Proofs.PartialSpecs
 import Openmls.Proofs.PureSpecs
 import Openmls.Proofs.MissingCoreSpecs
-import Openmls.Proofs.AdmittedCoreSpecs
 import Openmls.Proofs.Proofs
 open CoreModels Aeneas
 open Aeneas.Std hiding namespace core alloc

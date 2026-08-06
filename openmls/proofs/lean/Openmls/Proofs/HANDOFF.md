@@ -9,15 +9,19 @@ bisections). Work dir: `openmls/proofs/lean/`.
 
 - **DEVELOPMENT COMPLETE.** Gate `~/.elan/bin/lake build Openmls.Proofs.Proofs
   Openmls.Proofs.Verification` (~50–60s): **GREEN, 0 errors. 19/19 obligations proved.**
-  Expected-warning baseline: 2 `declaration uses 'sorry'` (AdmittedCoreSpecs — the two
-  `collect` contracts), 5 `unusedTactic` (the `guard_goal_nums` idiom in
-  root/left/right/inc/dec), 2 `unusedSimpArgs` (BitMath); dependency replays may also show
-  4 upstream `Aeneas/Std` sorries — not ours.
-- **Sorry census = exactly the 2 admitted contracts in `AdmittedCoreSpecs.lean`**
-  (`slice_iter_map_collect_spec`, `into_map_collect_spec`) — down from 10 via the
-  2026-08-04 FunsExternal modelling program + CoreModels upgrade (see the campaign section
-  below). `common_direct_path.spec.proof` and the vec/index/push consumers are now
-  sorryAx-FREE; only proofs consuming the collect pair inherit `sorryAx`.
+  Expected-warning baseline (re-pinned 2026-08-06): ZERO sorry warnings, 2
+  `unusedSimpArgs` (BitMath), 12 `linter.style.nameCheck` on generated `__N` names
+  (Funs 11 + Types 1 — new linter in the bumped toolchain, generated files, left alone).
+  The old 5 `guard_goal_nums` `unusedTactic` warnings STOPPED FIRING with the toolchain
+  bump — Proofs.lean is warning-free. Dependency replays may also show upstream `Aeneas`
+  warnings/sorries — not ours.
+- **Sorry census = 0. Axiom count = 0. THE TRUSTED AUDIT SURFACE IS EMPTY (2026-08-06).**
+  The last axiom (`Map…collect`) was replaced by a real def (R3d slice: `CollectFnMut`
+  bridge + upstream `iterDrain` drain lemmas) and both collect contracts were PROVED and
+  migrated to MissingCoreSpecs. `AdmittedCoreSpecs.lean` is an EMPTY SHELL (kept as the
+  designated home for future admitted contracts; deleting it is a build-graph change left
+  to the user). EVERY obligation — including `copath` — verifies on exactly
+  `{propext, Classical.choice, Quot.sound}`.
 - **DEPENDENCY PINS MOVED (2026-08-04, user-instructed)**: `hax`/CoreModels now from
   `https://github.com/cryspen/hax`, branch `openmls-core-models` (resolved `7e43f8a`),
   `subDir hax-lib/proof-libs/lean`; aeneas transitively bumped `52fd438` → `e0961db`.
@@ -66,9 +70,14 @@ bisections). Work dir: `openmls/proofs/lean/`.
   FAILURE RECIPE: if left/right break after a re-extraction, FIRST diff
   `trailing_ones_xor_vals`' xor clauses against the new extracted body syntax — the
   coupling to left/right's extracted shift/xor spelling lives there by design.
-- **Uniform proof style** across root/inc/dec/left/right: no `unfold pre/post` (stepping +
-  `simp at *` normalizes), capped sweep, `guard_goal_nums`, anonymous destructuring
-  (`have ⟨L, _, …⟩ := valid_mask_destruct …`), bounded closers. CAUTION: anonymous ⟨⟩
+- **Uniform proof style** across root/inc/dec/left/right AND (since 2026-08-05)
+  TreeSize.new: no `unfold pre/post` (stepping +
+  `simp at *` normalizes — EXCEPT TreeSize.new, whose normalizer must be `simp_all!` to
+  substitute the let-bindings before scalar_tac can see the `Nat.log` bound; documented
+  in-proof), capped sweep, `guard_goal_nums`, anonymous destructuring
+  (`have ⟨L, _, …⟩ := valid_mask_destruct …`), producer-side `valid_mask_intro`
+  certification, bounded closers. The old TreeSize.new maxRecDepth HAZARD did NOT
+  reproduce under the aligned sweep. CAUTION: anonymous ⟨⟩
   patterns are ARITY-COUPLED — growing a destruct lemma's conclusion breaks its anonymous
   consumers; prefer a companion lemma or site-local `have` over widening.
 - **Valid-mask vocabulary**: `TreeSize.valid_mask_spec` (PartialSpecs) is THE registered
@@ -253,9 +262,9 @@ bisections). Work dir: `openmls/proofs/lean/`.
 3. `two_pow_le_u32_max_or` (BitMath): textually dead, kept as the recorded
    `@[scalar_tac 2^e]` negative result — delete or keep, user call.
 4. Optional style follow-ups: `lca`'s `hnle` family (4 blocks with load-bearing `clear`
-   lists — a minimal-context lemma would be MORE robust); `TreeSize.new.spec.proof`
-   alignment to the destruct/intro style; scoped `set_option linter.unusedTactic false`
-   for the 5 `guard_goal_nums` warnings.
+   lists — a minimal-context lemma would be MORE robust). (Resolved 2026-08-05:
+   `TreeSize.new` aligned to the intro/mask style; the `guard_goal_nums` linter-silencing
+   question is moot — the warnings stopped firing with the toolchain bump.)
 5. **Rust-side spec rewrite (SHELVED, Lean half pre-done)**: mask forms for
    `TreeSize::valid` and `level`'s ensures; `log2`/`leading_zeros` shift-form specs.
 6. Upstream queue: the two scalar_tac issues (bisected, PR-ready, `Openmls/Issues/`);
@@ -280,6 +289,35 @@ identity-write-back form, reverse strengthened to `res.val = s.val.reverse`,
 common_direct_path re-closed with ZERO delta) 4 →(USER-APPROVED vec_index specialization
 to the concrete usize instance + vec_push as-stated) **2**. All migrated specs
 lean_verify on ⊆ {propext, Classical.choice, Quot.sound}, no sorryAx.
+
+### R-batch (2026-08-05, user-approved findings 4, 5, 1 of the fresh-eyes review)
+
+- **R1 (registration dedup)**: the 8 def-vs-triple double registrations are IRREDUCIBLY
+  double-live without proof-body edits (build-arbitrated; refutation comment now above
+  Proofs.lean's attribute block). MissingCoreSpecs: `u32_pow_spec` + `leading_zeros_spec`
+  deregistered (generic-Q forms are the authority); `is_multiple_of_spec` KEEPS `@[spec]`
+  — its consumers need the propositional post, decide-form does NOT subsume it.
+- **R2 (erasures)**: `direct_path_loop_spec` deregistered (could never fire) + its erasure
+  removed; erasure-cause taxonomy documented once; `root.spec_value` landed UNREGISTERED —
+  registration measured at **+54%** on Proofs.lean (84s vs 54.5s; parent.spec_value
+  precedent CONFIRMED and generalized: value-companion registrations regress the gate).
+  Secondary: a registered root.spec_value fires inside root.spec.proof itself (needs
+  self-erasure), and consuming it in direct_path.spec_pure trips `subst_vals` eliminating
+  `size` — real blockers beyond timing.
+- **R3 (collect elimination, census 2→0): LANDED 2026-08-06** on a user-granted one-off
+  30-minute timebox (3 prior 8-minute attempts died on rebuild latency — the flip
+  invalidates the whole downstream chain; the atomic never-a-def-under-a-sorried-contract
+  rule was honored throughout, tree pristine between attempts). Final architecture:
+  `CollectFnMut` bridge class (two instances: CoreModels identity, Aeneas `BuiltinFnMut`
+  repackaging) + `collect := Iterator.collect.default (Map.Insts… (toFnMut FnMutInst)) …`;
+  drain proofs via ABSTRACT-BODY inductions (`body` + `hbody : ∀ s a, body (s,a) = …` —
+  the literal-lambda and abbrev routes both FAIL: `loop.eq_def` beta-reduces into
+  projections nothing rewrites), connected to `iterDrain` by defeq `show`s; the
+  success-only drain lemma needed a LENGTH conjunct (`vec.ofList` can panic above
+  `Usize.max` — `True`-post alone is unprovable); the identity-bridge transport is defeq
+  (no simp needed), the Aeneas-side projection reduces only via `show`, and stuck
+  `CollectFnMut` instances need `Item`/`O` pinned by ascription. `Proofs.lean` timing
+  52s (+4%, in bounds).
 
 Remaining work (the old Tier-3 collect item, REFRAMED by the new CoreModels):
 `Map…collect` is the only trusted axiom; its two admitted contracts are the census.

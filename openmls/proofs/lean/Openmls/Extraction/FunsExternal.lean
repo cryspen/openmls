@@ -28,9 +28,9 @@ upstream `CoreModels` definition (pin: `cryspen/hax`, branch `openmls-core-model
 spec is PROVED against that upstream body in `Openmls/Proofs/MissingCoreSpecs.lean` — see
 the campaign record in `Openmls/Proofs/HANDOFF.md` for the history.
 
-Three entries: the two lazy `Iterator::map` adapters (faithful total *definitions*, not
-axioms) and the single remaining trusted `axiom`,
-`core.iter.adapters.map.Map.…​.collect`. -/
+Three entries — the two lazy `Iterator::map` adapters and
+`core.iter.adapters.map.Map.…​.collect` — all three faithful total *definitions*. This file
+contains NO axioms: nothing here has to be trusted beyond reading the models against Rust. -/
 
 /-- `<vec::IntoIter<T> as Iterator>::map` — faithful total MODEL (a definition, not an axiom):
     Rust's `Iterator::map` is lazy, it merely *packages* the receiver iterator together with the
@@ -59,14 +59,64 @@ def core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.map
   Result (core.iter.adapters.map.Map (core.slice.iter.Iter T) F) :=
   ok ⟨self, f⟩
 
-/-- `<Map<I, F> as Iterator>::collect` — target collection `B` is fixed by the
-    `FromIterator` witness. The `FnMut` witness parameter is type-generic (`W`) because the
-    extraction mixes two `FnMut` families at the two call sites: `Aeneas.Std`'s (via
-    `BuiltinFnMut`, for the plain-function `sibling` map) and `CoreModels`' (for real
-    extracted closures); `Item`/`O` are already pinned by the other two witnesses. -/
-axiom core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.collect
+/-! ### The `FnMut`-family bridge
+
+The extraction mixes *two* `FnMut` trait families at the two `collect` call sites in `Funs.lean`:
+`:1243` passes a `CoreModels.core.ops.function.FnMut` (the real extracted `copath` closure), while
+`:1258` passes Aeneas's own `Aeneas.Std.core.ops.function.FnMut` (via `BuiltinFnMut`, for the
+plain-function `sibling` map). The witness parameter of `collect` therefore has to stay
+type-generic (`W`). The class below recovers the *one* family the upstream `Map` iterator
+machinery speaks (`CoreModels`'), and resolves from `W` alone — so it is invisible at the
+generated call sites. It is what lets the `collect` *definition* below be a definition rather
+than an axiom. -/
+
+/-- Bridges the two `FnMut` families the extraction mixes at `collect` call sites: maps the
+    generic witness type `W` to the `CoreModels` `FnMut` record that `CoreModels`' `Map`
+    `Iterator` instance requires. Resolution is driven by `W`, which at every generated call site
+    is pinned by the explicit `FnMutInst` argument. -/
+class CollectFnMut (W : Type) (F : Type) (Item O : Type) where
+  toFnMut : W → CoreModels.core.ops.function.FnMut F Item O
+
+/-- Identity bridge: `CoreModels`' own `FnMut` needs no translation. -/
+instance instCollectFnMutCoreModels {F Item O : Type} :
+    CollectFnMut (CoreModels.core.ops.function.FnMut F Item O) F Item O where
+  toFnMut w := w
+
+/-- Bridge for Aeneas's `BuiltinFnMut` shape, where the closure state *is* the Rust function
+    `Item → Result O`. Both structures have the same two fields (a `FnOnce` parent clause and
+    `call_mut : F → Item → Result (O × F)`), so this is a field-for-field re-packaging — no
+    semantic content is added or lost. -/
+instance instCollectFnMutAeneas {Item O : Type} :
+    CollectFnMut (Std.core.ops.function.FnMut (Item → Result O) Item O)
+      (Item → Result O) Item O where
+  toFnMut w :=
+    { FnOnceInst := { call_once := w.FnOnceInst.call_once }
+      call_mut := w.call_mut }
+
+/-- `<Map<I, F> as Iterator>::collect` — faithful total MODEL (a definition, not an axiom).
+    Target collection `B` is fixed by the `FromIterator` witness. The `FnMut` witness parameter
+    is type-generic (`W`) because the extraction mixes two `FnMut` families at the two call sites:
+    `Aeneas.Std`'s (via `BuiltinFnMut`, for the plain-function `sibling` map) and `CoreModels`'
+    (for real extracted closures); `Item`/`O` are already pinned by the other two witnesses, and
+    the `CollectFnMut` bridge above turns `W` into the one family the upstream `Map` `Iterator`
+    instance speaks.
+
+    The body is upstream's own generic `Iterator::collect` provided method
+    (`CoreModels.core.iter.traits.iterator.Iterator.collect.default`), applied at the `Map`
+    adapter's `Iterator` instance: i.e. `collect` on a `Map` is exactly "drain the mapped
+    iterator into a list, then hand that list to `FromIterator::from_iter`". Nothing is
+    axiomatised, so `collect` fails/diverges exactly when the drain or the target collection's
+    `from_iter` does (for `Vec`, a `panic` when the drained list exceeds `Usize.max`).
+
+    The two contracts consuming this model (`slice_iter_map_collect_spec`,
+    `into_map_collect_spec`) are PROVED against it in `Openmls/Proofs/MissingCoreSpecs.lean`. -/
+def core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.collect
   {I : Type} {Item : Type} {O : Type} {F : Type} {B : Type} {W : Type}
   (IteratorInst : core.iter.traits.iterator.Iterator I Item)
   (FnMutInst : W)
-  (FromIteratorInst : core.iter.traits.collect.FromIterator B O) :
-  core.iter.adapters.map.Map I F → Result B
+  (FromIteratorInst : core.iter.traits.collect.FromIterator B O)
+  [CollectFnMut W F Item O] :
+  core.iter.adapters.map.Map I F → Result B :=
+  fun m => core.iter.traits.iterator.Iterator.collect.default
+    (core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator IteratorInst
+      (CollectFnMut.toFnMut FnMutInst)) FromIteratorInst m

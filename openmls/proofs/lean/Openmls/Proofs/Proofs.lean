@@ -14,7 +14,6 @@ import Openmls.Proofs.BitMath
 import Openmls.Proofs.PartialSpecs
 import Openmls.Proofs.PureSpecs
 import Openmls.Proofs.MissingCoreSpecs
-import Openmls.Proofs.AdmittedCoreSpecs
 open CoreModels Aeneas
 open Aeneas.Std hiding namespace core alloc
 open Result ControlFlow Error
@@ -34,6 +33,15 @@ set_option mvcgen.warning false
 set_option hax_mvcgen.warnings false
 set_option linter.unusedTactic false
 
+-- DUPLICATE-AUTHORITY REVIEW (2026-08-05).  This bare block registers extracted *definitions* for
+-- body-unfolding.  The intended rule was "a bare def registration only for ops with no hand triple;
+-- one authority per op", but the build REFUTES it for the ops below: removing them here (leaving
+-- their `*_mvcgen_spec` triples as the only authority) breaks `parent`, `sibling`, `direct_path`,
+-- `lowest_common_ancestor` and `is_node_in_tree`, and deregistering the triples instead breaks even
+-- more.  So `TreeSize.{u32,leaf_count,parent_count}`, `{Leaf,Parent}NodeIndex.u32`,
+-- `TreeNodeIndex.u32` and both `to_tree_index` are IRREDUCIBLY DOUBLE-LIVE: the proofs here depend
+-- on both the unfolded body and the triple, and mvcgen's resolution order is load-bearing.
+-- Deduplicating them needs proof-body work, which this pass was not allowed to do.
 attribute [spec]
   pure
   MIN_TREE_SIZE
@@ -201,6 +209,29 @@ theorem level.spec_pure (index : Std.U32) (hidx : (↑index : Nat) < 2 ^ 30) :
   mvcgen [level]
   simp_all
   grind [tones_le_30, tones_mod]
+
+/-- Value-carrying spec for `root` (mirrors `parent.spec_value`): the root's tree index is
+    `2 ^ L − 1` with `L = Nat.log 2 ↑size` the tree depth (`valid_mask_destruct`'s `hlog` bridges
+    `Nat.log 2 ↑size` to the `L` its consumers carry).
+    Deliberately NOT `@[spec]`-registered: registering it (and deregistering `root.spec.proof`) was
+    measured on 2026-08-05 at 84 s for the `Openmls.Proofs.Proofs` job against a 54.5 s baseline
+    (+54%) and reverted — the same outcome as `parent.spec_value`'s recorded precedent.  Feeding it
+    into `direct_path.spec_pure` also needs the constructor equation of the returned
+    `TreeNodeIndex` substituted, which `subst_vals` cannot do there without eliminating `size`. -/
+theorem root.spec_value (size : TreeSize) :
+  (root.pre size).holds →
+  ⦃ ⌜ True ⌝ ⦄ root size
+  ⦃ ⇓ r => ⌜ (match r with
+              | .Leaf l => 2 * (↑l : Nat)
+              | .Parent p => 2 * (↑p : Nat) + 1) = 2 ^ Nat.log 2 (↑size : Nat) - 1 ⌝ ⦄
+  := by
+  hax_mvcgen [root, TreeNodeIndex.new, LeafNodeIndex.from_tree_index,
+    ParentNodeIndex.from_tree_index] <;> simp at *
+  all_goals set_option maxHeartbeats 1_000 in (try scalar_tac)
+  all_goals
+    (have ⟨L, hL, hlog, _, _, _, _, _⟩ := valid_mask_destruct size (by scalar_tac)
+     try simp only [hlog]
+     scalar_tac)
 
 @[spec]
 theorem root.spec.proof (size : TreeSize) :
@@ -534,8 +565,11 @@ def direct_path_loop_inv (s L : Nat)
 
     ERASURE RECIPE: the step runs on `parent.spec_value`, which fires past the globally registered
     `parent.spec.proof` only via `mvcgen`'s simp-style scoped erasure `- parent.spec.proof`
-    (neither a plain list entry nor a section-local `@[spec]` overrides it). -/
-@[spec]
+    (neither a plain list entry nor a section-local `@[spec]` overrides it).
+
+    Deliberately NOT `@[spec]`-registered: `s` and `L` are explicit arguments that no unifier can
+    guess from the call, so a registration could never fire; the single call site in
+    `direct_path.spec_pure` applies it by hand with `mspec`. -/
 theorem direct_path_loop_spec (s L : Nat) (r : Std.U32)
     (d : alloc.vec.Vec ParentNodeIndex) (x : Std.U32)
     (hs : s = 2 ^ (L + 1) - 1) (hL : L ≤ 29) (hr : (↑r : Nat) = 2 ^ L - 1)
@@ -578,7 +612,19 @@ theorem direct_path_loop_spec (s L : Nat) (r : Std.U32)
       have hlen29 : vecLen dd ≤ 29 := by omega
       have h2u : ((2#u32 : Std.U32) : Nat) = 2 := by simp
       have h1u : ((1#u32 : Std.U32) : Nat) = 1 := by simp
-      -- `- parent.spec.proof` (local to this call) is what lets `parent.spec_value` fire.
+      -- ERASURE TAXONOMY (stated once here; other sites point back at this comment).  A scoped
+      -- `- foo.spec.proof` in an `mvcgen`/`hax_mvcgen` set is needed for exactly two reasons:
+      --   (A) SELF-SPEC HAZARD — the theorem being proved is itself `@[spec]`-registered, so the
+      --       call it is about would be discharged by its own registration, circularly.  Sites:
+      --       `direct_path.spec.proof` (`- direct_path.spec.proof`) and `copath.spec.proof`
+      --       (`- copath.spec.proof`).  `common_direct_path.spec.proof` avoids the same hazard by
+      --       `unfold`ing the function instead of erasing, see the comment there.
+      --   (B) OUTRANKING — a stronger companion (`*.spec_value` / `*.spec_pure`) must beat the
+      --       registered obligation, whose generated post is too weak for the caller.  Erasure is
+      --       the ONLY way: neither a plain list entry nor a section-local `@[spec]` overrides a
+      --       global registration.  Sites: this one, and `- root.spec.proof` in
+      --       `direct_path.spec_pure`.
+      -- Cause (B): `parent.spec.proof`'s post carries no value, `parent.spec_value` does.
       mvcgen [parent.spec_value, - parent.spec.proof, TreeNodeIndex.new,
         LeafNodeIndex.from_tree_index, ParentNodeIndex.from_tree_index, vec_push_spec]
       -- Even `xx`: the step maintains the invariant and drops the measure.
@@ -697,15 +743,20 @@ theorem direct_path.spec_pure (node_index : LeafNodeIndex) (size : TreeSize)
     ⦃ ⇓ res => ⌜ vecLen res ≤ 29
         ∧ (∀ e ∈ res.1, (↑e : Nat) ≤ 2 ^ 29 - 2 ∧ (↑e : Nat) < (↑size : Nat) / 2)
         ∧ (∀ i, (hi : i < res.1.length) → tones (2 * (↑res.1[i] : Nat) + 1) = i + 1) ⌝ ⦄ := by
-  -- ERASURE RECIPE: `root.spec.proof`'s post (`res.valid ∧ res.u32 < size`) is too weak — the loop
-  -- spec needs the root VALUE `↑r = 2^L − 1`.  So `root` is stepped by its body
-  -- (`- root.spec.proof, root`, plus the two `from_tree_index` unfolds inside `TreeNodeIndex.new`),
-  -- which is where `log2_mvcgen_spec` supplies `↑ = Nat.log 2 ↑size`.  `direct_path_loop_spec` is
-  -- erased too: its `s`/`L` are explicit arguments no unifier can guess, so it is applied by hand.
+  -- Erasure cause (B), see the ERASURE TAXONOMY comment in `direct_path_loop_spec`:
+  -- `root.spec.proof`'s post (`res.valid ∧ res.u32 < size`) is too weak — the loop spec needs the
+  -- root VALUE `↑r = 2^L − 1`.  A registered value-form companion `root.spec_value` (post:
+  -- `(match r with .Leaf l => 2*↑l | .Parent p => 2*↑p+1) = 2 ^ Nat.log 2 ↑size − 1`) was built and
+  -- measured 2026-08-05 and REVERTED: it made the `Openmls.Proofs.Proofs` job 84 s (baseline 54.5 s)
+  -- and its `match`-form post still needs the constructor equation substituted here, which
+  -- `subst_vals` cannot do without also eliminating `size`.
+  -- So `root` is stepped by its body (`- root.spec.proof, root`, plus
+  -- the two `from_tree_index` unfolds inside `TreeNodeIndex.new`), which is where
+  -- `log2_mvcgen_spec` supplies `↑ = Nat.log 2 ↑size`.  `direct_path_loop_spec` needs no erasure:
+  -- it is unregistered (unguessable explicit `s`/`L`) and applied by hand with `mspec` below.
   apply triple_in_hypothesis (h := h) ; clear h
   hax_mvcgen [direct_path.pre, direct_path, - root.spec.proof, root, TreeNodeIndex.new,
-    LeafNodeIndex.from_tree_index, ParentNodeIndex.from_tree_index,
-    - direct_path_loop_spec]
+    LeafNodeIndex.from_tree_index, ParentNodeIndex.from_tree_index]
   -- Same mask-form preamble as `root.spec.proof`: `all_ones_of_and_succ_eq_zero` turns the bit-form
   -- validity decide into a FRESH existential `L` with `hL : ↑size = 2^(L+1) − 1`; `hlog` bridges the
   -- `Nat.log 2 ↑size` terms the stepped `log2` body produces.
@@ -748,8 +799,7 @@ theorem direct_path.spec.proof (node_index : LeafNodeIndex) (size : TreeSize) :
   := by
   -- The function's behaviour comes entirely from `direct_path.spec_pure` (membership form); the
   -- Rust post is then re-derived by STEPPING THE POST do-block (`len`/`deref`/`iter`/`all`).
-  -- SELF-SPEC HAZARD: this very theorem is `@[spec]`-registered, so it must be erased from the
-  -- `mvcgen` set (`- direct_path.spec.proof`) or the call would be discharged by itself.
+  -- Erasure cause (A), self-spec hazard — see the ERASURE TAXONOMY in `direct_path_loop_spec`.
   -- The `all` step goes through the trusted `slice_iter_all_spec`, whose predicate `P` is not
   -- inferable: it arrives as the `vc1.P` goal (a `Bool` with the element in scope) and is
   -- instantiated with the pointwise value of the Rust closure `__18.ensures.closure`.
@@ -790,6 +840,9 @@ theorem copath.spec.proof (leaf_index : LeafNodeIndex) (size : TreeSize) :
   := by
   intro h_pre
   apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  -- Erasures: cause (A) for `- copath.spec.proof` (self-spec hazard) and cause (B) for
+  -- `- direct_path.spec.proof` (outranked by `direct_path.spec_pure`); see the ERASURE TAXONOMY
+  -- in `direct_path_loop_spec`.
   hax_mvcgen [copath, - copath.spec.proof, - direct_path.spec.proof, direct_path.spec_pure,
     slice_iter_map_collect_spec, into_map_collect_spec]
   case vc1.hQ =>
@@ -974,7 +1027,8 @@ theorem common_direct_path.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex)
   case vc3.hQ => simp
   case vc1.hQ =>
     intro _
-    -- SELF-SPEC HAZARD: without this `unfold` the goal matches `common_direct_path.spec.proof`
+    -- Self-spec hazard (taxonomy cause (A), stated in `direct_path_loop_spec`), remedied by
+    -- `unfold` rather than erasure: without it the goal matches `common_direct_path.spec.proof`
     -- itself and `mvcgen` discharges it circularly with the spec being proved.
     unfold common_direct_path
     mvcgen
@@ -1064,41 +1118,25 @@ theorem TreeSize.new.spec.proof
   ⦃ ⇓ res =>
   ⌜ (TreeSize.new.post nodes res).holds ⌝ ⦄
   := by
-  -- `new nodes = 2^(log2 nodes + 1) − 1`. From `nodes < 2^30` we get `log2 nodes ≤ 29`, which
-  -- discharges the shift bound (`< 32`), the `1 ≤ …` underflow guard, and `res ≤ 2^30` (via `<`).
-  hax_mvcgen [new] <;> try scalar_tac
-  all_goals simp_all!
-  -- Discharge the purely-integer VCs; what survives is the `Nat.log`/shift residue.
-  all_goals try scalar_tac
-
-  -- HAZARD: blanket closers abort here with an UNCATCHABLE `maximum recursion depth`, so the one
-  -- surviving VC (`vc1.h_ok`, `valid (1 <<< (log₂ nodes + 1) − 1)`) gets an explicit script.
-  case vc1.h_ok =>
-    rename_i r3 r2 r1 r hnodes hL hr2 hr1 hrv hge1
-    -- `nodes < 2^30` gives `log₂ nodes ≤ log₂ (2^30 − 1) = 29`, hence the shift `e = L + 1 ≤ 30`
-    -- does not wrap and `1 <<< e % U32.size = 2^e`.
+  -- `simp_all!` rather than `simp at *` as the normalizer: the shift VCs need the let-bindings
+  -- substituted before `scalar_tac` can see the `Nat.log` bound (that is what kills `vc2`/`vc3`).
+  hax_mvcgen [new] <;> simp_all!
+  all_goals set_option maxHeartbeats 1_000 in (try scalar_tac)
+  guard_goal_nums 1
+  -- The real content: `valid (1 <<< (log₂ nodes + 1) − 1)`.  `nodes < 2^30` gives
+  -- `log₂ nodes ≤ log₂ (2^30 − 1) = 29`, so the shift `L + 1 ≤ 30` does not wrap and
+  -- `1 <<< (L+1) % U32.size = 2^(L+1)`.  The result is then the all-ones mask of width `L + 1`,
+  -- certified producer-side by `valid_mask_intro`; mvcgen has already collapsed
+  -- `(2^(L+1) − 1) + 1` to `2^(L+1)` in the mask conjunct, which `convert` bridges.
+  have hM : Nat.log 2 (↑nodes : Nat) ≤ 29 := by
     have hpow30 : (2 : Nat) ^ (29 + 1) - 1 = 1073741823 := by norm_num
-    have hle : (↑nodes : Nat) ≤ 2 ^ (29 + 1) - 1 := by omega
-    have hm := Nat.log_mono_right (b := 2) hle
-    rw [log2_two_pow_sub_one 29] at hm
-    rw [one_shiftLeft_mod_eq (Nat.log 2 (↑nodes : Nat) + 1) (by omega)]
-    -- Remaining: `2 ≤ 2^(L+1) ≤ 2^30`, both from `L ≤ 29`.
-    have hge : 2 ≤ (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) := by
-      rw [pow_succ]
-      have h1 : 1 ≤ (2 : Nat) ^ Nat.log 2 (↑nodes : Nat) := Nat.one_le_two_pow
-      omega
-    have hb : (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) ≤ 2 ^ 30 :=
-      Nat.pow_le_pow_right (by omega) (by omega)
-    have h30 : (2 : Nat) ^ 30 = 1073741824 := by norm_num
-    -- The validity conjunct is now the all-ones mask test.  The returned value IS all-ones of
-    -- width `L + 1`, so `and_succ_eq_zero_of_all_ones L` supplies it directly; the only bridging
-    -- is that mvcgen already collapsed `(2^(L+1) − 1) + 1` to `2^(L+1)` in the goal.
-    have hmask : (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) - 1 &&&
-        (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) = 0 := by
-      have h := and_succ_eq_zero_of_all_ones (Nat.log 2 (↑nodes : Nat))
-      rwa [show (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) - 1 + 1
-        = 2 ^ (Nat.log 2 (↑nodes : Nat) + 1) from by omega] at h
-    exact ⟨by omega, by omega, hmask⟩
+    have h := Nat.log_mono_right (b := 2) (show (↑nodes : Nat) ≤ 2 ^ (29 + 1) - 1 by omega)
+    rwa [log2_two_pow_sub_one 29] at h
+  rw [one_shiftLeft_mod_eq _ (by omega)]
+  have h30 : (2 : Nat) ^ 30 = 1073741824 := by norm_num
+  have hpos : 1 ≤ (2 : Nat) ^ (Nat.log 2 (↑nodes : Nat) + 1) := Nat.one_le_two_pow
+  have ⟨h1, h2, hmask⟩ := valid_mask_intro _ _ rfl hM
+  exact ⟨by omega, by omega, by convert hmask using 2; omega⟩
 
 @[spec]
 theorem TreeSize.inc.spec.proof (self : TreeSize) :

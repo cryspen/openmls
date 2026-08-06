@@ -75,9 +75,10 @@ As can be seen in the PureSpecs.lean
 - Root =CLAUDE.md= — the broader FV-target roadmap and pipeline.
 
 The invariant gate is =~/.elan/bin/lake build Openmls.Proofs.Proofs
-Openmls.Proofs.Verification= — green with exactly 2 =sorry= warnings (both in
-=AdmittedCoreSpecs.lean=) plus the standing linter noise (5 =unusedTactic= from
-=guard_goal_nums=, 2 =unusedSimpArgs= in BitMath).
+Openmls.Proofs.Verification= — green with ZERO =sorry= warnings (the trusted surface is
+empty since 2026-08-06: no admitted contracts, no axioms of our own; every obligation
+verifies on ={propext, Classical.choice, Quot.sound}=). Standing linter noise: 2
+=unusedSimpArgs= in BitMath, 12 =nameCheck= hits on generated =__N= names.
 
 ** Module layout
 
@@ -136,8 +137,9 @@ the two =scalar_tac= non-termination reproducers (=ScalarTacNatLogLoop.lean=,
   =reverse_slice_spec=, =min_usize_spec=, =u32_cmp_spec=, =u32_div_ceil_spec= — all PROVED
   and migrated to =MissingCoreSpecs.lean= (partly via user-approved restatements; see
   HANDOFF campaign record).
-- [ ] =into_map_collect_spec=, =slice_iter_map_collect_spec= — blocked on =Map…collect=,
-  the one remaining =FunsExternal= axiom. Preferred path: upstream PR adding the flat
-  per-instance =map=/=collect= defs to CoreModels (its new =IteratorMethods= structure has
-  the semantics but not the Charon-convention names/shapes); fallback: the user-gated
-  fuel-drain model + CallMut typeclass.
+- [X] =into_map_collect_spec=, =slice_iter_map_collect_spec= — PROVED 2026-08-06: the
+  =Map…collect= axiom was replaced by a real def (=CollectFnMut= bridge over the two
+  =FnMut= families + upstream =iterDrain= drain machinery); =FunsExternal.lean= now
+  contains NO axioms and =AdmittedCoreSpecs.lean= is an empty shell. *The trusted audit
+  surface is 0.* (The upstream CoreModels PR adding flat per-instance =map=/=collect=
+  defs remains worthwhile — it would delete =FunsExternal.lean= outright.)

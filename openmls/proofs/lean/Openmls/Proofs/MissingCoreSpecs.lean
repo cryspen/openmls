@@ -332,7 +332,12 @@ theorem u32_is_multiple_of_partialSpec (x y : Std.U32) :
     admitted — and proved against the *upstream* `CoreModels` body (the local `FunsExternal`
     model was deleted when the dependency was re-pinned), which is total: the `y = 0` branch is a
     pure `ok` and the `y ≠ 0` branch's remainder cannot fail. Derived from
-    `u32_is_multiple_of_partialSpec`. -/
+    `u32_is_multiple_of_partialSpec`.
+
+    REGISTERED (2026-08-05 duplicate-authority review): unlike `u32_pow_spec` /
+    `leading_zeros_spec`, this ⇓ total is NOT subsumed by `u32_is_multiple_of_mvcgen_spec` in
+    practice — `direct_path.spec.proof` needs the `x % y = 0` (not `decide`) hypothesis shape this
+    form produces, so both stay registered here. -/
 @[spec]
 theorem is_multiple_of_spec (x y : Std.U32) :
     ⦃ ⌜ True ⌝ ⦄
@@ -499,8 +504,10 @@ theorem u32_pow_partialSpec_total (x exp : Std.U32)
 
 /-- `u32::leading_zeros` returns the number of leading zero bits: `32` for `0`,
     else `31 - ⌊log₂ x⌋`. Total (the `CoreModels` model is a pure `ok`), so proved here.
-    Derived from `u32_leading_zeros_partialSpec`. -/
-@[spec]
+    Derived from `u32_leading_zeros_partialSpec`.
+
+    Unregistered corollary (2026-08-05): the generic-Q `*_mvcgen_spec` is the registered
+    authority. -/
 theorem leading_zeros_spec (x : Std.U32) :
     ⦃ ⌜ True ⌝ ⦄
     core.num.U32.leading_zeros x
@@ -581,8 +588,10 @@ theorem trailing_ones_spec (x : Std.U32) :
     omega
 
 /-- `u32::pow` computes `x ^ exp` exactly, as long as the result fits in a `u32`.
-    Derived from `u32_pow_partialSpec_total`. -/
-@[spec]
+    Derived from `u32_pow_partialSpec_total`.
+
+    Unregistered corollary (2026-08-05): the generic-Q `*_mvcgen_spec` is the registered
+    authority. -/
 theorem u32_pow_spec (x exp : Std.U32) :
     ⦃ ⌜ (↑x : Nat) ^ (↑exp : Nat) ≤ Std.UScalar.max .U32 ⌝ ⦄
     core.num.U32.pow x exp
@@ -592,6 +601,323 @@ theorem u32_pow_spec (x exp : Std.U32) :
     trivial
   intro r hr
   simpa [Aeneas.Std.willYield] using hr
+
+/-! ### `Iterator::collect` over a `map` adapter
+
+   `FunsExternal.lean` models `<Map<I, F> as Iterator>::collect` as upstream's generic
+   `Iterator::collect` provided method at the `Map` adapter's `Iterator` instance — a real
+   definition, no axiom. The two contracts the treemath development consumes
+   (`slice_iter_map_collect_spec`, `into_map_collect_spec`) are therefore PROVED here, against
+   that model, by induction over the drain loop.
+
+   Everything between here and those two contracts is private scaffolding: a non-dependent
+   characterisation of a sequence-backed iterator's `next` (`SeqIterNextSpec`, satisfied by both
+   the slice iterator and the vec `IntoIter`), and two inductions over `core.iterDrain` — a
+   functional one and a success-only one. The success-only one is *not* derived from the
+   functional one: recovering a total function from per-element existentials would need choice
+   on a possibly-empty, non-`Inhabited` element type. -/
+
+/-- Non-dependent characterisation of a sequence-backed iterator's `next`: on an empty sequence
+    it yields `None` and the receiver unchanged; on `x :: rest` it yields `Some x` and the tail.
+    Phrased over the underlying list (`s.val = …`) rather than over a reconstructed subtype
+    value, so that instantiations never have to match up `Subtype` proofs. -/
+private def SeqIterNextSpec {T : Type} (next : Slice T → Result (core.option.Option T × Slice T)) :
+    Prop :=
+  (∀ s : Slice T, s.val = [] → next s = ok (core.option.Option.None, s)) ∧
+  (∀ (s : Slice T) (x : T) (rest : List T), s.val = x :: rest →
+    ∃ h : rest.length ≤ Usize.max,
+      next s = ok (core.option.Option.Some x, ⟨rest, h⟩))
+
+/-- The shared slice iterator's `next` satisfies `SeqIterNextSpec`. -/
+private theorem slice_iter_next_spec {T : Type} :
+    SeqIterNextSpec (core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.next
+      (T := T)) := by
+  constructor
+  · intro s hs
+    simp [core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.next,
+      rust_primitives.sequence.seq_len, Slice.len, hs, Usize.ofNatCore, Usize.ofNat]
+    rfl
+  · intro s x rest hs
+    have hlen : rest.length ≤ Usize.max := by
+      have := s.property; rw [hs] at this; simp at this; omega
+    refine ⟨hlen, ?_⟩
+    simp [core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.next,
+      rust_primitives.sequence.seq_len, rust_primitives.sequence.seq_remove, Slice.len, hs]
+    rfl
+
+/-- The vec `IntoIter`'s `next` satisfies `SeqIterNextSpec`. -/
+private theorem into_iter_next_spec {T : Type} :
+    SeqIterNextSpec (alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator.next
+      (T := T)) := by
+  constructor
+  · intro s hs
+    simp [alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator.next,
+      rust_primitives.sequence.seq_len, Slice.len, hs, Usize.ofNatCore, Usize.ofNat]
+    rfl
+  · intro s x rest hs
+    have hlen : rest.length ≤ Usize.max := by
+      have := s.property; rw [hs] at this; simp at this; omega
+    refine ⟨hlen, ?_⟩
+    simp [alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator.next,
+      rust_primitives.sequence.seq_remove, rust_primitives.sequence.seq_len, Slice.len, hs]
+    rfl
+
+/-- Sequence-agnostic repackaging of `SeqIterNextSpec`: `toL` reads off an iterator's remaining
+    elements, and the `cons` case only claims *some* successor iterator whose remaining elements
+    are the tail — no subtype value is ever reconstructed. -/
+private def SeqIterNext {I T : Type} (next : I → Result (core.option.Option T × I))
+    (toL : I → List T) : Prop :=
+  (∀ it, toL it = [] → next it = ok (core.option.Option.None, it)) ∧
+  (∀ it x rest, toL it = x :: rest →
+    ∃ it', toL it' = rest ∧ next it = ok (core.option.Option.Some x, it'))
+
+/-- Every sequence-backed iterator satisfying `SeqIterNextSpec` satisfies `SeqIterNext` at
+    `toL := Subtype.val`. -/
+private theorem seqIterNext_of_seqIterNextSpec {T : Type}
+    {next : Slice T → Result (core.option.Option T × Slice T)} (h : SeqIterNextSpec next) :
+    SeqIterNext next Subtype.val := by
+  refine ⟨h.1, ?_⟩
+  intro it x rest hit
+  obtain ⟨hlen, hnext⟩ := h.2 it x rest hit
+  exact ⟨⟨rest, hlen⟩, rfl, hnext⟩
+
+/-- Functional drain: the accumulator loop of `core.iterDrain`, run on the `map` adapter over a
+    `SeqIterNext` iterator with a pure, state-preserving closure, consumes exactly the remaining
+    elements and conses their images onto the accumulator (hence the `reverse`). Induction on the
+    element list; the iterator is an arbitrary value constrained by `toL it = l`, and the loop body
+    is abstract (`body`/`hbody`) so that `Aeneas.Std.loop.eq_def` leaves a rewritable
+    `body (s, a)` rather than a beta-reduced application. -/
+private theorem drain_loop_map_functional {I T O F : Type}
+    (IteratorInst : core.iter.traits.iterator.Iterator I T)
+    (FnMutInst : CoreModels.core.ops.function.FnMut F T O)
+    (toL : I → List T) (hnext : SeqIterNext IteratorInst.next toL) (g : T → O) (f : F)
+    (body : core.iter.adapters.map.Map I F × List O →
+      Result (ControlFlow (core.iter.adapters.map.Map I F × List O) (List O)))
+    (hbody : ∀ (s : core.iter.adapters.map.Map I F) (a : List O), body (s, a) = do
+      let (o, it') ← core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next
+        IteratorInst FnMutInst s
+      match o with
+      | core.option.Option.Some x => ok (ControlFlow.cont (it', x :: a))
+      | core.option.Option.None => ok (ControlFlow.done a)) :
+    ∀ (l : List T) (it : I) (acc : List O), toL it = l →
+      (∀ e ∈ l, FnMutInst.call_mut f e = ok (g e, f)) →
+      Aeneas.Std.loop body (({ iter := it, f := f } : core.iter.adapters.map.Map I F), acc)
+      = ok ((l.map g).reverse ++ acc) := by
+  intro l
+  induction l with
+  | nil =>
+    intro it acc hit _
+    have hb : body (({ iter := it, f := f } : core.iter.adapters.map.Map I F), acc)
+        = ok (ControlFlow.done acc) := by
+      rw [hbody]
+      simp [core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next, hnext.1 it hit]
+    rw [Aeneas.Std.loop.eq_def, hb]
+    simp
+  | cons x rest ih =>
+    intro it acc hit hcall
+    obtain ⟨it', hit', hnx⟩ := hnext.2 it x rest hit
+    have hb : body (({ iter := it, f := f } : core.iter.adapters.map.Map I F), acc)
+        = ok (ControlFlow.cont
+            (({ iter := it', f := f } : core.iter.adapters.map.Map I F), g x :: acc)) := by
+      rw [hbody]
+      simp [core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next, hnx,
+        hcall x (by simp)]
+    rw [Aeneas.Std.loop.eq_def, hb]
+    exact (ih it' (g x :: acc) hit' (fun e he => hcall e (by simp [he]))).trans (by simp)
+
+/-- Panic-freedom-only drain, with the resulting length. Proved by its own induction rather than
+    derived from `drain_loop_map_functional`: turning per-element existentials into a total
+    function would need choice on a possibly-empty, non-`Inhabited` element type. -/
+private theorem drain_loop_map_success {I T O F : Type}
+    (IteratorInst : core.iter.traits.iterator.Iterator I T)
+    (FnMutInst : CoreModels.core.ops.function.FnMut F T O)
+    (toL : I → List T) (hnext : SeqIterNext IteratorInst.next toL) (f : F)
+    (body : core.iter.adapters.map.Map I F × List O →
+      Result (ControlFlow (core.iter.adapters.map.Map I F × List O) (List O)))
+    (hbody : ∀ (s : core.iter.adapters.map.Map I F) (a : List O), body (s, a) = do
+      let (o, it') ← core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next
+        IteratorInst FnMutInst s
+      match o with
+      | core.option.Option.Some x => ok (ControlFlow.cont (it', x :: a))
+      | core.option.Option.None => ok (ControlFlow.done a)) :
+    ∀ (l : List T) (it : I) (acc : List O), toL it = l →
+      (∀ e ∈ l, ∃ o, FnMutInst.call_mut f e = ok (o, f)) →
+      ∃ out : List O,
+        Aeneas.Std.loop body (({ iter := it, f := f } : core.iter.adapters.map.Map I F), acc)
+        = ok out ∧ out.length = l.length + acc.length := by
+  intro l
+  induction l with
+  | nil =>
+    intro it acc hit _
+    have hb : body (({ iter := it, f := f } : core.iter.adapters.map.Map I F), acc)
+        = ok (ControlFlow.done acc) := by
+      rw [hbody]
+      simp [core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next, hnext.1 it hit]
+    refine ⟨acc, ?_, by simp⟩
+    rw [Aeneas.Std.loop.eq_def, hb]
+  | cons x rest ih =>
+    intro it acc hit hcall
+    obtain ⟨it', hit', hnx⟩ := hnext.2 it x rest hit
+    obtain ⟨o, ho⟩ := hcall x (by simp)
+    have hb : body (({ iter := it, f := f } : core.iter.adapters.map.Map I F), acc)
+        = ok (ControlFlow.cont
+            (({ iter := it', f := f } : core.iter.adapters.map.Map I F), o :: acc)) := by
+      rw [hbody]
+      simp [core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next, hnx, ho]
+    obtain ⟨out, hout, hlen⟩ := ih it' (o :: acc) hit' (fun e he => hcall e (by simp [he]))
+    refine ⟨out, ?_, by simp at hlen ⊢; omega⟩
+    rw [Aeneas.Std.loop.eq_def, hb]
+    exact hout
+
+/-- `core.iterDrain` over the `map` adapter, functional version. The `show` step is a defeq
+    unfolding of `core.iterDrain` (`CoreModels/Core/FunsEpilogue.lean`) that names the loop body
+    explicitly, which is what lets the abstract-body induction above be applied. -/
+private theorem iterDrain_map_functional {I T O F : Type}
+    (IteratorInst : core.iter.traits.iterator.Iterator I T)
+    (FnMutInst : CoreModels.core.ops.function.FnMut F T O)
+    (toL : I → List T) (hnext : SeqIterNext IteratorInst.next toL) (g : T → O) (f : F)
+    (l : List T) (it : I) (hit : toL it = l)
+    (hcall : ∀ e ∈ l, FnMutInst.call_mut f e = ok (g e, f)) :
+    core.iterDrain
+      (core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator IteratorInst FnMutInst)
+      ({ iter := it, f := f } : core.iter.adapters.map.Map I F)
+    = ok (l.map g) := by
+  have h := drain_loop_map_functional IteratorInst FnMutInst toL hnext g f
+    (fun (s, a) => do
+      let (o, it') ← core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next
+        IteratorInst FnMutInst s
+      match o with
+      | core.option.Option.Some x => ok (ControlFlow.cont (it', x :: a))
+      | core.option.Option.None => ok (ControlFlow.done a))
+    (fun _ _ => rfl) l it [] hit hcall
+  show (do
+    let acc ← Aeneas.Std.loop
+      (fun (s, a) => do
+        let (o, it') ← core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next
+          IteratorInst FnMutInst s
+        match o with
+        | core.option.Option.Some x => ok (ControlFlow.cont (it', x :: a))
+        | core.option.Option.None => ok (ControlFlow.done a))
+      (({ iter := it, f := f } : core.iter.adapters.map.Map I F), ([] : List O))
+    ok acc.reverse) = ok (l.map g)
+  rw [h]
+  simp
+
+/-- `core.iterDrain` over the `map` adapter, panic-freedom-only version (with the length of the
+    drained list, which is what bounds the target `Vec`'s length). -/
+private theorem iterDrain_map_success {I T O F : Type}
+    (IteratorInst : core.iter.traits.iterator.Iterator I T)
+    (FnMutInst : CoreModels.core.ops.function.FnMut F T O)
+    (toL : I → List T) (hnext : SeqIterNext IteratorInst.next toL) (f : F)
+    (l : List T) (it : I) (hit : toL it = l)
+    (hcall : ∀ e ∈ l, ∃ o, FnMutInst.call_mut f e = ok (o, f)) :
+    ∃ out : List O,
+      core.iterDrain
+        (core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator IteratorInst FnMutInst)
+        ({ iter := it, f := f } : core.iter.adapters.map.Map I F)
+      = ok out ∧ out.length = l.length := by
+  obtain ⟨out, hout, hlen⟩ := drain_loop_map_success IteratorInst FnMutInst toL hnext f
+    (fun (s, a) => do
+      let (o, it') ← core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next
+        IteratorInst FnMutInst s
+      match o with
+      | core.option.Option.Some x => ok (ControlFlow.cont (it', x :: a))
+      | core.option.Option.None => ok (ControlFlow.done a))
+    (fun _ _ => rfl) l it [] hit hcall
+  refine ⟨out.reverse, ?_, by simp [hlen]⟩
+  show (do
+    let acc ← Aeneas.Std.loop
+      (fun (s, a) => do
+        let (o, it') ← core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next
+          IteratorInst FnMutInst s
+        match o with
+        | core.option.Option.Some x => ok (ControlFlow.cont (it', x :: a))
+        | core.option.Option.None => ok (ControlFlow.done a))
+      (({ iter := it, f := f } : core.iter.adapters.map.Map I F), ([] : List O))
+    ok acc.reverse) = ok out.reverse
+  rw [hout]
+  simp
+
+/-- PROVED (2026-08-06, against the concrete `collect` model in `FunsExternal.lean`): collecting a
+    pure, state-preserving closure mapped over a slice iterator yields exactly the mapped element
+    list. Was an admitted contract in `AdmittedCoreSpecs.lean` while `collect` was an axiom; the
+    statement is unchanged. -/
+theorem slice_iter_map_collect_spec {T O F : Type}
+    (inst : core.ops.function.FnMut F T O) (iter : core.slice.iter.Iter T) (f : F) (g : T → O)
+    (hcall : ∀ e ∈ sliceIterElems iter, inst.call_mut f e = ok (g e, f)) :
+    ⦃ ⌜ True ⌝ ⦄
+    (do
+      let m ← core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT.map inst iter f
+      core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.collect
+        (core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT T) inst
+        (alloc.vec.Vec.Insts.CoreIterTraitsCollectFromIterator O) m)
+    ⦃ ⇓ v => ⌜ v.1 = (sliceIterElems iter).map g ⌝ ⦄ := by
+  have hlen : ((sliceIterElems iter).map g).length ≤ Usize.max := by
+    simpa [sliceIterElems] using iter.property
+  have hdrain := iterDrain_map_functional
+    (core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT T) inst
+    sliceIterElems (seqIterNext_of_seqIterNextSpec slice_iter_next_spec) g f
+    (sliceIterElems iter) iter rfl hcall
+  refine triple_of_ok (v := (⟨(sliceIterElems iter).map g, hlen⟩ : alloc.vec.Vec O)) ?_ rfl
+  show (do
+    let l ← core.iterDrain
+      (core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator
+        (core.slice.iter.Iter.Insts.CoreIterTraitsIteratorIteratorSharedAT T) inst)
+      ({ iter := iter, f := f } : core.iter.adapters.map.Map (core.slice.iter.Iter T) F)
+    alloc.vec.ofList l) = _
+  rw [hdrain]
+  have hsrc : (sliceIterElems iter).length ≤ Usize.max := iter.property
+  simp [alloc.vec.ofList, hsrc]
+  rfl
+
+/-- PROVED (2026-08-06, against the concrete `collect` model in `FunsExternal.lean`): collecting a
+    closure `f` over a vec via `into_iter`/`map`/`collect` is panic-free when `f` is panic-free on
+    every element. Generic over the element type and closure — purely a `core` fact. Was an
+    admitted contract in `AdmittedCoreSpecs.lean` while `collect` was an axiom; the statement is
+    unchanged. The `sibling` instance used by `copath` is *derived* (not admitted) in
+    `Proofs.lean`. -/
+theorem into_map_collect_spec {T : Type} (v : alloc.vec.Vec T) (f : T → Result T)
+    (hsafe : ∀ e ∈ v.1, ⦃ ⌜ True ⌝ ⦄ f e ⦃ ⇓ _ => ⌜ True ⌝ ⦄) :
+    ⦃ ⌜ True ⌝ ⦄
+    (do
+      let ii ← alloc.vec.Vec.Insts.CoreIterTraitsCollectIntoIteratorTIntoIter.into_iter v
+      let m ← alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator.map
+          (BuiltinFnMut T T) ii f
+      core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.collect
+        (alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator T)
+        (BuiltinFnMut T T)
+        (alloc.vec.Vec.Insts.CoreIterTraitsCollectFromIterator T) m)
+    ⦃ ⇓ _ => ⌜ True ⌝ ⦄ := by
+  have hcall : ∀ e ∈ v.1, ∃ o : T,
+      (CollectFnMut.toFnMut (BuiltinFnMut T T) :
+        CoreModels.core.ops.function.FnMut (T → Result T) T T).call_mut f e = ok (o, f) := by
+    intro e he
+    obtain ⟨o, ho⟩ := triple_noThrow_exists_ok (hsafe e he)
+    refine ⟨o, ?_⟩
+    -- `Aeneas.Std.BuiltinFnMut`'s closure state is literally constant, so `call_mut` is just the
+    -- Rust call; `instCollectFnMutAeneas` re-packages it field-for-field (both steps are defeq).
+    show (do let y ← f e; ok (y, f)) = ok (o, f)
+    rw [ho]
+    rfl
+  obtain ⟨out, hout, hlenout⟩ := iterDrain_map_success
+    (alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator T)
+    (CollectFnMut.toFnMut (BuiltinFnMut T T) :
+      CoreModels.core.ops.function.FnMut (T → Result T) T T)
+    Subtype.val (seqIterNext_of_seqIterNextSpec into_iter_next_spec) f v.1 v rfl hcall
+  have hlen : out.length ≤ Usize.max := by rw [hlenout]; exact v.property
+  refine triple_of_ok (v := (⟨out, hlen⟩ : alloc.vec.Vec T)) ?_ trivial
+  show (do
+    let l ← core.iterDrain
+      (core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator
+        (alloc.vec.into_iter.IntoIter.Insts.CoreIterTraitsIteratorIterator T)
+        (CollectFnMut.toFnMut (BuiltinFnMut T T) :
+          CoreModels.core.ops.function.FnMut (T → Result T) T T))
+      ({ iter := v, f := f } : core.iter.adapters.map.Map (alloc.vec.into_iter.IntoIter T)
+        (T → Result T))
+    alloc.vec.ofList l) = _
+  rw [hout]
+  simp [alloc.vec.ofList, hlen]
+  rfl
 
 end openmls
 
@@ -787,5 +1113,6 @@ theorem u32_is_multiple_of_mvcgen_spec (x y : Std.U32)
       Aeneas.Std.willYield b Q) :
     ⦃ ⌜ True ⌝ ⦄ core.num.U32.is_multiple_of x y ⦃ Q ⦄ :=
   triple_of_partialSpec (u32_is_multiple_of_partialSpec x y) Q h_ok (by simp) (by simp)
+
 
 end openmls
