@@ -6,7 +6,17 @@
 
 This directory holds the Lean4 proof development for the *ratchet-tree math* of
 OpenMLS (RFC 9420 §4 / Appendix C, ported to Rust in
-=openmls/src/binary_tree/array_representation/treemath.rs=).
+=openmls/src/binary_tree/array_representation/treemath.rs=). The Rust functions carry
+=hax_lib= contracts (=requires=/=ensures=); Charon extracts them to LLBC and Aeneas to
+Lean; the proof obligations Aeneas generates — each function is panic-free on its stated
+precondition and meets its stated postcondition — are discharged here.
+
+*Status: COMPLETE.* All 19 obligations are proved, and the trusted surface is empty: no
+admitted contracts, no axioms of our own — every external =core=/=alloc= operation is
+either provided by =CoreModels= or given a faithful local model, with its contract
+*proved*. Every theorem verifies on Lean's three standard axioms
+(={propext, Classical.choice, Quot.sound}=). Build with
+=lake build Openmls.Proofs.Proofs Openmls.Proofs.Verification=.
 
 |---------------------------------+-------------------+--------+---------------------------------------------------------------|
 | Obligation                      | Reference post    | Status | Notes                                                         |
@@ -63,8 +73,6 @@ outright.
 ** Improve spec of ~direct_path~ to include level info
 
 As can be seen in the PureSpecs.lean
-
-** INREVIEW Update specs
 
 * For AI agents
 
