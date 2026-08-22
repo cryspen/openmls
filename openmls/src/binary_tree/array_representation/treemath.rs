@@ -72,6 +72,8 @@ impl LeafNodeIndex {
 #[attributes]
 impl LeafNodeIndex {
     /// Create a new `LeafNodeIndex` from a `u32`.
+    #[requires(index <= MAX_LEAF)]
+    #[ensures(|r| r.valid())]
     pub fn new(index: u32) -> Self {
         LeafNodeIndex(index)
     }
@@ -88,12 +90,14 @@ impl LeafNodeIndex {
 
     /// Return the index as a TreeNodeIndex value.
     #[requires(self.valid())]
+    #[ensures(|r| r <= MAX_TREE_INDEX && r % 2 == 0)]
     fn to_tree_index(self) -> u32 {
         self.0 * 2
     }
 
     /// Warning: Only use when the node index represents a leaf node
-    #[requires(node_index % 2 == 0)]
+    #[requires(node_index % 2 == 0 && node_index <= MAX_TREE_INDEX)]
+    #[ensures(|r| r.valid())]
     fn from_tree_index(node_index: u32) -> Self {
         debug_assert!(node_index.is_multiple_of(2));
         LeafNodeIndex(node_index / 2)
@@ -116,6 +120,8 @@ impl ParentNodeIndex {
 #[attributes]
 impl ParentNodeIndex {
     /// Create a new `ParentNodeIndex` from a `u32`.
+    #[requires(index <= MAX_PARENT)]
+    #[ensures(|r| r.valid())]
     pub(crate) fn new(index: u32) -> Self {
         ParentNodeIndex(index)
     }
@@ -131,12 +137,14 @@ impl ParentNodeIndex {
 
     /// Return the index as a TreeNodeIndex value.
     #[requires(self.valid())]
+    #[ensures(|r| r < MAX_TREE_INDEX && r % 2 == 1)]
     fn to_tree_index(self) -> u32 {
         self.0 * 2 + 1
     }
 
     /// Warning: Only use when the node index represents a parent node
-    #[requires(node_index % 2 == 1)]
+    #[requires(node_index % 2 == 1 && node_index <= MAX_TREE_INDEX)]
+    #[ensures(|r| r.valid())]
     fn from_tree_index(node_index: u32) -> Self {
         debug_assert!(node_index > 0);
         debug_assert!(node_index % 2 == 1);
@@ -480,6 +488,7 @@ pub(crate) fn copath(leaf_index: LeafNodeIndex, size: TreeSize) -> Vec<TreeNodeI
 /// Common ancestor of two leaf nodes, aka the node where their direct paths
 /// intersect.
 #[requires(x.valid() && y.valid() && x.u32() != y.u32())]
+#[ensures(|r| r.valid())]
 pub(super) fn lowest_common_ancestor(x: LeafNodeIndex, y: LeafNodeIndex) -> ParentNodeIndex {
     let x = x.to_tree_index();
     let y = y.to_tree_index();

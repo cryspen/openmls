@@ -26,13 +26,13 @@ namespace openmls
 def binary_tree.array_representation.treemath.LeafNodeIndex := Std.U32
 
 /-- [openmls::binary_tree::array_representation::treemath::ParentNodeIndex]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 105:0-105:32
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 109:0-109:32
     Visibility: public -/
 @[reducible]
 def binary_tree.array_representation.treemath.ParentNodeIndex := Std.U32
 
 /-- [openmls::binary_tree::array_representation::treemath::TreeNodeIndex]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 177:0-180:1
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 185:0-188:1
     Visibility: public -/
 @[discriminant isize]
 inductive binary_tree.array_representation.treemath.TreeNodeIndex where
@@ -44,18 +44,18 @@ inductive binary_tree.array_representation.treemath.TreeNodeIndex where
   binary_tree.array_representation.treemath.TreeNodeIndex
 
 /-- [openmls::binary_tree::array_representation::treemath::TreeSize]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 255:0-255:32 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 263:0-263:32 -/
 @[reducible]
 def binary_tree.array_representation.treemath.TreeSize := Std.U32
 
 /-- [openmls::binary_tree::array_representation::treemath::_#18::ensures::closure]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 444:21-444:81 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 452:21-452:81 -/
 @[reducible]
 def binary_tree.array_representation.treemath.__18.ensures.closure :=
   binary_tree.array_representation.treemath.TreeSize
 
 /-- [openmls::binary_tree::array_representation::treemath::copath::closure]
-    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 473:17-473:46 -/
+    Source: 'openmls/src/binary_tree/array_representation/treemath.rs', lines 481:17-481:46 -/
 @[reducible]
 def binary_tree.array_representation.treemath.copath.closure := Unit
 

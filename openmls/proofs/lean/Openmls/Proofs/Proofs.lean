@@ -911,14 +911,17 @@ theorem copath.spec.proof (leaf_index : LeafNodeIndex) (size : TreeSize) :
       rw [← Std.Do.WP.bind, hcv]
       trivial
 
+set_option maxHeartbeats 400000 in
 @[spec]
 theorem lowest_common_ancestor.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex) :
   (lowest_common_ancestor.pre x y).holds →
-  ⦃ ⌜ True ⌝ ⦄ lowest_common_ancestor x y ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⌜ True ⌝ ⦄ lowest_common_ancestor x y
+  ⦃ ⇓ res => ⌜ (lowest_common_ancestor.post x y res).holds ⌝ ⦄
   := by
   -- The pre forces two distinct valid (`< 2^29`) leaves, so `level` returns `0` and both
   -- early-return branches are unreachable; the shift-loop tail closes via `lca_tail_aux`.
-  unfold lowest_common_ancestor.pre LeafNodeIndex.valid LeafNodeIndex.u32
+  unfold lowest_common_ancestor.pre lowest_common_ancestor.post LeafNodeIndex.valid
+    LeafNodeIndex.u32 ParentNodeIndex.valid
   intro h_pre
   apply triple_in_hypothesis (h := h_pre)
   clear h_pre
@@ -980,6 +983,17 @@ theorem lowest_common_ancestor.spec.proof (x : LeafNodeIndex) (y : LeafNodeIndex
     exact hnle (by scalar_tac)
   -- Family (b). In each block the `2 ^ …`-laden `level`/`loop0` hypotheses are cleared before
   -- `scalar_tac`, which otherwise diverges on them (see `Common.lean`).
+  case vc1.hQ =>
+    -- Result validity. `lca_tail_bound` gives `i6 + i8 ≤ 2^30 − 1`, so the returned
+    -- `((i6 + i8 − 1) − 1)/2 ≤ (2^30 − 3)/2 = 2^29 − 2 = MAX_PARENT`.
+    rename_i c1 hc1 c2 hx hc2 hy hxy xv hxv yv hyv kx hkx kx1 hkx1 ky hky ky1 hky1 hle
+      sx hsx sy hsy hne hle2 tx htx ty hty hne2
+      p hp i6 hi6 i7 hi7 i8 hi8 j1 hj1 j2 hj2 hj2le u1 hu1 j3 hj3 u2 hu2 j4 hj4 hj4le
+      j5 hj5 mp hmp
+    obtain ⟨hk2, hk30, hbnd⟩ := hp
+    have hb := lca_tail_bound hk2 hk30 hbnd hi6 hi7 hi8
+    clear hkx hky hxv hyv hsx hsy htx hty hbnd hi6 hi7 hi8 hk2 hk30
+    scalar_tac
   case vc20.h =>
     -- `i10 = i6 + i8 − 1 > 0` because `i8 = 1 <<< (k−1) ≥ 2`.
     rename_i hx hy hxy xv hxv yv hyv kx hkx kx1 hkx1 ky hky ky1 hky1 hle sx hsx sy hsy hne
@@ -1050,13 +1064,31 @@ theorem is_node_in_tree.spec.proof (node_index : TreeNodeIndex) (size : TreeSize
   all_goals scalar_tac
 
 @[spec]
+theorem LeafNodeIndex.new.spec.proof (index : Std.U32) :
+  (LeafNodeIndex.new.pre index).holds →
+  ⦃ ⌜ True ⌝ ⦄
+  LeafNodeIndex.new index
+  ⦃ ⇓ res => ⌜ (LeafNodeIndex.new.post index res).holds ⌝ ⦄
+  := by
+  -- `new` is the identity on the payload, so `index ≤ MAX_LEAF` *is* `res.valid`.
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  hax_mvcgen [LeafNodeIndex.new, LeafNodeIndex.new.pre, LeafNodeIndex.new.post,
+    LeafNodeIndex.valid]
+  all_goals scalar_tac
+
+@[spec]
 theorem LeafNodeIndex.to_tree_index.spec.proof (self : LeafNodeIndex) :
   (LeafNodeIndex.to_tree_index.pre self).holds →
   ⦃ ⌜ True ⌝ ⦄
   LeafNodeIndex.to_tree_index self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res => ⌜ (LeafNodeIndex.to_tree_index.post self res).holds ⌝ ⦄
   := by
-  hax_mvcgen [to_tree_index]
+  -- `2·self` with `self ≤ 2^29 − 1` is `≤ 2^30 − 2 = MAX_TREE_INDEX` (tight) and even.
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  hax_mvcgen [LeafNodeIndex.to_tree_index, LeafNodeIndex.to_tree_index.pre,
+    LeafNodeIndex.to_tree_index.post, LeafNodeIndex.valid]
   all_goals scalar_tac
 
 @[spec]
@@ -1064,24 +1096,56 @@ theorem LeafNodeIndex.from_tree_index.spec.proof (node_index : Std.U32) :
   (LeafNodeIndex.from_tree_index.pre node_index).holds →
   ⦃ ⌜ True ⌝ ⦄
   LeafNodeIndex.from_tree_index node_index
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
-  := by hax_mvcgen ; scalar_tac
+  ⦃ ⇓ res => ⌜ (LeafNodeIndex.from_tree_index.post node_index res).holds ⌝ ⦄
+  := by
+  -- `node_index / 2 ≤ (2^30 − 2)/2 = 2^29 − 1 = MAX_LEAF`.
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  hax_mvcgen [LeafNodeIndex.from_tree_index, LeafNodeIndex.from_tree_index.pre,
+    LeafNodeIndex.from_tree_index.post, LeafNodeIndex.valid]
+  all_goals scalar_tac
+
+@[spec]
+theorem ParentNodeIndex.new.spec.proof (index : Std.U32) :
+  (ParentNodeIndex.new.pre index).holds →
+  ⦃ ⌜ True ⌝ ⦄
+  ParentNodeIndex.new index
+  ⦃ ⇓ res => ⌜ (ParentNodeIndex.new.post index res).holds ⌝ ⦄
+  := by
+  -- `new` is the identity on the payload, so `index ≤ MAX_PARENT` *is* `res.valid`.
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  hax_mvcgen [ParentNodeIndex.new, ParentNodeIndex.new.pre, ParentNodeIndex.new.post,
+    ParentNodeIndex.valid]
+  all_goals scalar_tac
 
 @[spec]
 theorem ParentNodeIndex.to_tree_index.spec.proof (self : ParentNodeIndex) :
   (ParentNodeIndex.to_tree_index.pre self).holds →
   ⦃ ⌜ True ⌝ ⦄
   ParentNodeIndex.to_tree_index self
-  ⦃ ⇓ res => ⌜ True ⌝ ⦄
+  ⦃ ⇓ res => ⌜ (ParentNodeIndex.to_tree_index.post self res).holds ⌝ ⦄
   := by
-  hax_mvcgen [ParentNodeIndex.to_tree_index]
+  -- `2·self + 1` with `self ≤ 2^29 − 2` is `≤ 2^30 − 3 < MAX_TREE_INDEX` and odd.
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  hax_mvcgen [ParentNodeIndex.to_tree_index, ParentNodeIndex.to_tree_index.pre,
+    ParentNodeIndex.to_tree_index.post, ParentNodeIndex.valid]
   all_goals scalar_tac
 
 @[spec]
 theorem ParentNodeIndex.from_tree_index.spec.proof (node_index : Std.U32) :
   (ParentNodeIndex.from_tree_index.pre node_index).holds →
-  ⦃ ⌜ True ⌝ ⦄ ParentNodeIndex.from_tree_index node_index ⦃ ⇓ res => ⌜ True ⌝ ⦄
-  := by hax_mvcgen <;> scalar_tac
+  ⦃ ⌜ True ⌝ ⦄
+  ParentNodeIndex.from_tree_index node_index
+  ⦃ ⇓ res => ⌜ (ParentNodeIndex.from_tree_index.post node_index res).holds ⌝ ⦄
+  := by
+  -- `node_index` odd and `≤ 2^30 − 2` forces `≤ 2^30 − 3`, so `(node_index − 1)/2 ≤ 2^29 − 2`.
+  intro h_pre
+  apply triple_in_hypothesis (h := h_pre) ; clear h_pre
+  hax_mvcgen [ParentNodeIndex.from_tree_index, ParentNodeIndex.from_tree_index.pre,
+    ParentNodeIndex.from_tree_index.post, ParentNodeIndex.valid]
+  all_goals scalar_tac
 
 @[spec]
 theorem TreeNodeIndex.new.spec.proof (index : Std.U32) :

@@ -73,6 +73,9 @@ theorem is_node_in_tree.spec.conformance (node_index : TreeNodeIndex) (size : Tr
     is_node_in_tree.spec node_index size :=
   is_node_in_tree.spec.proof node_index size
 
+theorem LeafNodeIndex.new.spec.conformance (index : Std.U32) : LeafNodeIndex.new.spec index :=
+  LeafNodeIndex.new.spec.proof index
+
 theorem LeafNodeIndex.to_tree_index.spec.conformance (self : LeafNodeIndex) :
     LeafNodeIndex.to_tree_index.spec self :=
   LeafNodeIndex.to_tree_index.spec.proof self
@@ -80,6 +83,10 @@ theorem LeafNodeIndex.to_tree_index.spec.conformance (self : LeafNodeIndex) :
 theorem LeafNodeIndex.from_tree_index.spec.conformance (node_index : Std.U32) :
     LeafNodeIndex.from_tree_index.spec node_index :=
   LeafNodeIndex.from_tree_index.spec.proof node_index
+
+theorem ParentNodeIndex.new.spec.conformance (index : Std.U32) :
+    ParentNodeIndex.new.spec index :=
+  ParentNodeIndex.new.spec.proof index
 
 theorem ParentNodeIndex.to_tree_index.spec.conformance (self : ParentNodeIndex) :
     ParentNodeIndex.to_tree_index.spec self :=

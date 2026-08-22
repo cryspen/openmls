@@ -167,6 +167,44 @@ theorem lca_tail_aux {p : Std.U32 × Std.I32} {i6 i8 : Std.U32} {i7 : Std.I32}
       _ ≤ 2 ^ IScalar.toNat i7 := Nat.pow_le_pow_right (by norm_num) hi7t1
   · rw [hi8val]; exact dvd_pow_self 2 (by omega : IScalar.toNat i7 ≠ 0)
 
+/-- Tail bound for `lowest_common_ancestor`: the returned *tree* index
+    `i6 + i8 − 1 = (xn <<< k) + (1 <<< (k−1)) − 1` stays within `MAX_TREE_INDEX = 2^30 − 2`.
+    Sharper than `lca_tail_aux`'s `< 2^32` no-overflow clause, and what the strengthened
+    `ParentNodeIndex.from_tree_index` postcondition (`res.valid`) needs: `i6 = xn·2^k < 2^30`
+    with `2^k ∣ i6` gives `i6 ≤ 2^30 − 2^k`, so `i6 + 2^(k−1) ≤ 2^30 − 2^(k−1) ≤ 2^30 − 2`. -/
+theorem lca_tail_bound {p : Std.U32 × Std.I32} {i6 i8 : Std.U32} {i7 : Std.I32}
+    (hk2 : 2 ≤ IScalar.toNat p.2) (hk30 : IScalar.toNat p.2 ≤ 30)
+    (hbnd : (↑p.1 : Nat) * 2 ^ IScalar.toNat p.2 < 2 ^ 30)
+    (hi6v : (↑i6 : Nat) = ↑p.1 <<< IScalar.toNat p.2 % UScalar.size UScalarTy.U32)
+    (hi7 : (↑i7 : Int) = ↑p.2 - ↑(1#i32))
+    (hi8v : (↑i8 : Nat) = ↑(1#u32) <<< IScalar.toNat i7 % UScalar.size UScalarTy.U32) :
+    (↑i6 : Nat) + ↑i8 ≤ 2 ^ 30 - 1 := by
+  have hi7t1 : 1 ≤ IScalar.toNat i7 := by scalar_tac
+  have hi7t : IScalar.toNat i7 ≤ 29 := by scalar_tac
+  have hksucc : IScalar.toNat p.2 = IScalar.toNat i7 + 1 := by scalar_tac
+  have hsz : (2 : Nat) ^ 31 < UScalar.size UScalarTy.U32 := by simp [Aeneas.Std.U32.size_eq]
+  have hi6val : (↑i6 : Nat) = ↑p.1 * 2 ^ IScalar.toNat p.2 := by
+    rw [hi6v, Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
+  have hi8val : (↑i8 : Nat) = 2 ^ IScalar.toNat i7 := by
+    have hb : (2 : Nat) ^ IScalar.toNat i7 < UScalar.size UScalarTy.U32 :=
+      lt_of_le_of_lt (Nat.pow_le_pow_right (by norm_num) (show IScalar.toNat i7 ≤ 31 by omega)) hsz
+    rw [hi8v, Nat.shiftLeft_eq, show ((1#u32 : Std.U32) : Nat) = 1 from rfl, one_mul,
+      Nat.mod_eq_of_lt hb]
+  have hpow : (2 : Nat) ^ 30 = 2 ^ (30 - IScalar.toNat p.2) * 2 ^ IScalar.toNat p.2 := by
+    rw [← Nat.pow_add]; congr 1; omega
+  have hxn : (↑p.1 : Nat) < 2 ^ (30 - IScalar.toNat p.2) := by
+    rw [hpow] at hbnd; exact Nat.lt_of_mul_lt_mul_right hbnd
+  have hstep : ((↑p.1 : Nat) + 1) * 2 ^ IScalar.toNat p.2 ≤ 2 ^ 30 := by
+    rw [hpow]; exact Nat.mul_le_mul_right _ hxn
+  rw [add_mul, one_mul, ← hi6val] at hstep
+  have hsplit : (2 : Nat) ^ IScalar.toNat p.2 = 2 ^ IScalar.toNat i7 * 2 := by
+    rw [hksucc, pow_succ]
+  have h2t : (2 : Nat) ≤ 2 ^ IScalar.toNat i7 := by
+    calc (2 : Nat) = 2 ^ 1 := (pow_one 2).symm
+      _ ≤ 2 ^ IScalar.toNat i7 := Nat.pow_le_pow_right (by norm_num) hi7t1
+  rw [hi8val]
+  omega
+
 /-- On a tree index `xv = 2·xn` the `level` call returns `0`, so the `k+1` shift amount that
     `lowest_common_ancestor` compares is exactly `1` and shifting by it recovers the leaf index
     `xn`. This is what makes all early-return branches unreachable: both tests degenerate to
