@@ -45,7 +45,10 @@ impl Size for Extension {
 
         let vlbytes_len_len = vlbytes_len_len(extension_data_len);
 
-        extension_type_length + vlbytes_len_len + extension_data_len
+        tls_codec::len_add(
+            tls_codec::len_add(extension_type_length, vlbytes_len_len),
+            extension_data_len,
+        )
     }
 }
 
