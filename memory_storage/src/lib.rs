@@ -55,22 +55,32 @@ impl MemoryStorage {
     }
 
     pub fn deserialize<R: std::io::Read>(r: &mut R) -> std::io::Result<Self> {
+        use std::io::Read as _;
+
         let read_u64 = |r: &mut R| {
             let mut buf8 = [0u8; 8];
             r.read_exact(&mut buf8).map(|_| u64::from_be_bytes(buf8))
         };
 
-        let read_bytes = |r: &mut R, len: usize| {
-            let mut buf = vec![0u8; len];
-            r.read_exact(&mut buf).map(|_| buf)
+        // The lengths are untrusted: read at most `len` bytes and let the
+        // buffer grow with the input, so a length beyond the remaining input
+        // is an `UnexpectedEof` error, not a huge allocation.
+        let read_bytes = |r: &mut R, len: u64| -> std::io::Result<Vec<u8>> {
+            let mut buf = Vec::new();
+            r.by_ref().take(len).read_to_end(&mut buf)?;
+            if buf.len() as u64 == len {
+                Ok(buf)
+            } else {
+                Err(std::io::ErrorKind::UnexpectedEof.into())
+            }
         };
 
-        let mut count = read_u64(r)? as usize;
+        let mut count = read_u64(r)?;
         let mut map = HashMap::new();
 
         while count > 0 {
-            let k_len = read_u64(r)? as usize;
-            let v_len = read_u64(r)? as usize;
+            let k_len = read_u64(r)?;
+            let v_len = read_u64(r)?;
             let k = read_bytes(r, k_len)?;
             let v = read_bytes(r, v_len)?;
 
@@ -1518,5 +1528,45 @@ fn epoch_key_pairs_id(
 impl From<serde_json::Error> for MemoryStorageError {
     fn from(_: serde_json::Error) -> Self {
         Self::SerializationError
+    }
+}
+
+#[cfg(all(test, feature = "test-utils"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn serialization_round_trip() {
+        let storage = MemoryStorage::default();
+        storage
+            .values
+            .write()
+            .unwrap()
+            .insert(b"key".to_vec(), b"value".to_vec());
+
+        let mut serialized = Vec::new();
+        let written = storage.serialize(&mut serialized).unwrap();
+        assert_eq!(written, serialized.len());
+
+        let deserialized = MemoryStorage::deserialize(&mut serialized.as_slice()).unwrap();
+        assert_eq!(
+            *deserialized.values.read().unwrap(),
+            *storage.values.read().unwrap()
+        );
+    }
+
+    /// Regression test: a length larger than the remaining input must be an
+    /// error, not a panic or a huge allocation.
+    #[test]
+    fn deserialize_rejects_lengths_beyond_input() {
+        for (k_len, v_len) in [(u64::MAX, 0), (0, u64::MAX), (1 << 40, 0), (4, 0)] {
+            let mut input = 1u64.to_be_bytes().to_vec(); // one record
+            input.extend_from_slice(&k_len.to_be_bytes());
+            input.extend_from_slice(&v_len.to_be_bytes());
+            input.extend_from_slice(b"abc");
+
+            let err = MemoryStorage::deserialize(&mut input.as_slice()).unwrap_err();
+            assert_eq!(err.kind(), std::io::ErrorKind::UnexpectedEof);
+        }
     }
 }
