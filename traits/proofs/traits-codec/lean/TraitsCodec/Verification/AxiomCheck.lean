@@ -1,0 +1,52 @@
+/- `#print axioms` of every obligation, for a manual cross-check of `scripts/AxiomGate.lean`
+(not imported by the library; run it with `lake env lean <this file>`). -/
+import TraitsCodec.Verification.ProofObligations
+open openmls_traits
+#print axioms types.SignatureScheme.Insts.Tls_codecSize.Lawful
+#print axioms types.SignatureScheme.Insts.Tls_codecSerializeBytes.Lawful
+#print axioms types.SignatureScheme.Insts.Tls_codecDeserializeBytes.Lawful
+#print axioms types.HpkeCiphertext.Insts.Tls_codecSize.Lawful
+#print axioms types.HpkeCiphertext.Insts.Tls_codecDeserializeBytes.Lawful
+#print axioms types.VerifiableCiphersuite.Insts.Tls_codecSize.Lawful
+#print axioms types.VerifiableCiphersuite.Insts.Tls_codecDeserializeBytes.Lawful
+#print axioms types.Ciphersuite.Insts.Tls_codecSize.Lawful
+#print axioms types.Ciphersuite.Insts.Tls_codecDeserializeBytes.Lawful
+#print axioms types.SignatureScheme.Insts.Tls_codecSerialize.Lawful
+#print axioms types.SignatureScheme.Insts.Tls_codecDeserialize.Lawful
+#print axioms types.HpkeCiphertext.Insts.Tls_codecSerialize.Lawful
+#print axioms types.HpkeCiphertext.Insts.Tls_codecDeserialize.Lawful
+#print axioms types.HpkePrivateKey.Insts.Tls_codecSize.Lawful
+#print axioms types.HpkePrivateKey.Insts.Tls_codecSerialize.Lawful
+#print axioms types.HpkePrivateKey.Insts.Tls_codecDeserialize.Lawful
+#print axioms types.HpkePrivateKey.Insts.Tls_codecDeserializeBytes.Lawful
+#print axioms types.VerifiableCiphersuite.Insts.Tls_codecSerialize.Lawful
+#print axioms types.VerifiableCiphersuite.Insts.Tls_codecDeserialize.Lawful
+#print axioms types.Ciphersuite.Insts.Tls_codecDeserialize.Lawful
+#print axioms types.Ciphersuite.Insts.Tls_codecSerialize.Lawful
+#print axioms types.SignatureScheme.Insts.CoreCmpPartialEqSignatureScheme.Lawful
+#print axioms types.SignatureScheme.Insts.Tls_codecSpecRoundTrip.Lawful
+#print axioms types.SignatureScheme.Insts.Tls_codecSpecNonEmpty.Lawful
+#print axioms types.SignatureScheme.Insts.Tls_codecSpecIoRoundTripStd.Lawful
+#print axioms types.SignatureScheme.Insts.Tls_codecSpecIoNonEmptyStd.Lawful
+#print axioms types.HpkeCiphertext.Insts.CoreCmpPartialEqHpkeCiphertext.Lawful
+#print axioms types.HpkeCiphertext.Insts.Tls_codecSpecIoRoundTripStd.Lawful
+#print axioms types.HpkeCiphertext.Insts.Tls_codecSpecIoNonEmptyStd.Lawful
+#print axioms types.VerifiableCiphersuite.Insts.CoreCmpPartialEqVerifiableCiphersuite.Lawful
+#print axioms types.VerifiableCiphersuite.Insts.Tls_codecSpecIoRoundTripStd.Lawful
+#print axioms types.VerifiableCiphersuite.Insts.Tls_codecSpecIoNonEmptyStd.Lawful
+#print axioms types.Ciphersuite.Insts.CoreCmpPartialEqCiphersuite.Lawful
+#print axioms types.Ciphersuite.Insts.Tls_codecSpecIoRoundTripStd.Lawful
+#print axioms types.Ciphersuite.Insts.Tls_codecSpecIoNonEmptyStd.Lawful
+#print axioms types.HpkePrivateKey.Insts.CoreCmpPartialEqHpkePrivateKey.Lawful
+#print axioms types.HpkePrivateKey.Insts.Tls_codecSpecIoRoundTripStd.Lawful
+#print axioms types.HpkePrivateKey.Insts.Tls_codecSpecIoNonEmptyStd.Lawful
+#print axioms types.SignatureScheme.Insts.Tls_codecSpecIoDecodersAgree.Lawful
+#print axioms types.SignatureScheme.Insts.Tls_codecSpecIoRoundTripMixed.Lawful
+#print axioms types.HpkeCiphertext.Insts.Tls_codecSpecIoDecodersAgree.Lawful
+#print axioms types.HpkeCiphertext.Insts.Tls_codecSpecIoRoundTripMixed.Lawful
+#print axioms types.VerifiableCiphersuite.Insts.Tls_codecSpecIoDecodersAgree.Lawful
+#print axioms types.VerifiableCiphersuite.Insts.Tls_codecSpecIoRoundTripMixed.Lawful
+#print axioms types.Ciphersuite.Insts.Tls_codecSpecIoDecodersAgree.Lawful
+#print axioms types.Ciphersuite.Insts.Tls_codecSpecIoRoundTripMixed.Lawful
+#print axioms types.HpkePrivateKey.Insts.Tls_codecSpecIoDecodersAgree.Lawful
+#print axioms types.HpkePrivateKey.Insts.Tls_codecSpecIoRoundTripMixed.Lawful

@@ -1,0 +1,2085 @@
+{
+  "aeneas_version": "4aefccc8",
+  "charon_version": "0.1.247",
+  "crate": "openmls_traits",
+  "functions": [
+    {
+      "def_id": 12,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSize.tls_serialized_len",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSize.tls_serialized_len",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for openmls_traits::types::SignatureScheme}::tls_serialized_len",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Size<openmls_traits::types::SignatureScheme>}::tls_serialized_len",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 92,
+        "end_line": 92
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 14,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::SignatureScheme}::tls_deserialize_bytes",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::SignatureScheme>}::tls_deserialize_bytes",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 91,
+        "end_line": 91
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 13,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSerializeBytes.tls_serialize_bytes",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSerializeBytes.tls_serialize_bytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::SerializeBytes for openmls_traits::types::SignatureScheme}::tls_serialize_bytes",
+      "rust_pattern": "openmls_traits::types::{tls_codec::SerializeBytes<openmls_traits::types::SignatureScheme>}::tls_serialize_bytes",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 89,
+        "end_line": 89
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 95,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.CoreCmpPartialEqSignatureScheme.eq",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.CoreCmpPartialEqSignatureScheme.eq",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl core::cmp::PartialEq<openmls_traits::types::SignatureScheme> for openmls_traits::types::SignatureScheme}::eq",
+      "rust_pattern": "openmls_traits::types::{core::cmp::PartialEq<openmls_traits::types::SignatureScheme, openmls_traits::types::SignatureScheme>}::eq",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 83,
+        "end_line": 83
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 18,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecDeserialize.tls_deserialize",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecDeserialize.tls_deserialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::SignatureScheme}::tls_deserialize",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::SignatureScheme>}::tls_deserialize",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 90,
+        "end_line": 90
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 16,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSerialize.tls_serialize",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSerialize.tls_serialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::SignatureScheme}::tls_serialize",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::SignatureScheme>}::tls_serialize",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 88,
+        "end_line": 88
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 20,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSize.tls_serialized_len",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSize.tls_serialized_len",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for openmls_traits::types::HpkeCiphertext}::tls_serialized_len",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Size<openmls_traits::types::HpkeCiphertext>}::tls_serialized_len",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 287,
+        "end_line": 287
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 23,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecDeserialize.tls_deserialize",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecDeserialize.tls_deserialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::HpkeCiphertext}::tls_deserialize",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::HpkeCiphertext>}::tls_deserialize",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 285,
+        "end_line": 285
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 82,
+      "lean_name": "openmls_traits.Shared0HpkeCiphertext.Insts.Tls_codecSize.tls_serialized_len",
+      "extract_name": "openmls_traits.Shared0HpkeCiphertext.Insts.Tls_codecSize.tls_serialized_len",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for &'_0 openmls_traits::types::HpkeCiphertext}::tls_serialized_len",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Size<&'0 openmls_traits::types::HpkeCiphertext>}::tls_serialized_len",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 287,
+        "end_line": 287
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 22,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSerialize.tls_serialize",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSerialize.tls_serialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::HpkeCiphertext}::tls_serialize",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::HpkeCiphertext>}::tls_serialize",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 284,
+        "end_line": 284
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 96,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.CoreCmpPartialEqHpkeCiphertext.eq",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.CoreCmpPartialEqHpkeCiphertext.eq",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl core::cmp::PartialEq<openmls_traits::types::HpkeCiphertext> for openmls_traits::types::HpkeCiphertext}::eq",
+      "rust_pattern": "openmls_traits::types::{core::cmp::PartialEq<openmls_traits::types::HpkeCiphertext, openmls_traits::types::HpkeCiphertext>}::eq",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 279,
+        "end_line": 279
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 24,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSize.tls_serialized_len",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSize.tls_serialized_len",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for openmls_traits::types::VerifiableCiphersuite}::tls_serialized_len",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Size<openmls_traits::types::VerifiableCiphersuite>}::tls_serialized_len",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 393,
+        "end_line": 393
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 27,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecDeserialize.tls_deserialize",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecDeserialize.tls_deserialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::VerifiableCiphersuite}::tls_deserialize",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::VerifiableCiphersuite>}::tls_deserialize",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 391,
+        "end_line": 391
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 89,
+      "lean_name": "openmls_traits.Shared0VerifiableCiphersuite.Insts.Tls_codecSize.tls_serialized_len",
+      "extract_name": "openmls_traits.Shared0VerifiableCiphersuite.Insts.Tls_codecSize.tls_serialized_len",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for &'_0 openmls_traits::types::VerifiableCiphersuite}::tls_serialized_len",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Size<&'0 openmls_traits::types::VerifiableCiphersuite>}::tls_serialized_len",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 393,
+        "end_line": 393
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 26,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSerialize.tls_serialize",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSerialize.tls_serialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::VerifiableCiphersuite}::tls_serialize",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::VerifiableCiphersuite>}::tls_serialize",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 390,
+        "end_line": 390
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 97,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.CoreCmpPartialEqVerifiableCiphersuite.eq",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.CoreCmpPartialEqVerifiableCiphersuite.eq",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl core::cmp::PartialEq<openmls_traits::types::VerifiableCiphersuite> for openmls_traits::types::VerifiableCiphersuite}::eq",
+      "rust_pattern": "openmls_traits::types::{core::cmp::PartialEq<openmls_traits::types::VerifiableCiphersuite, openmls_traits::types::VerifiableCiphersuite>}::eq",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 386,
+        "end_line": 386
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 28,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSize.tls_serialized_len",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSize.tls_serialized_len",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for openmls_traits::types::Ciphersuite}::tls_serialized_len",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Size<openmls_traits::types::Ciphersuite>}::tls_serialized_len",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 449,
+        "end_line": 449
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 30,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSerialize.tls_serialize",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSerialize.tls_serialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::Ciphersuite}::tls_serialize",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::Ciphersuite>}::tls_serialize",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 448,
+        "end_line": 448
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 31,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecDeserialize.tls_deserialize",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecDeserialize.tls_deserialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::Ciphersuite}::tls_deserialize",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::Ciphersuite>}::tls_deserialize",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 446,
+        "end_line": 446
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 98,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.CoreCmpPartialEqCiphersuite.eq",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.CoreCmpPartialEqCiphersuite.eq",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl core::cmp::PartialEq<openmls_traits::types::Ciphersuite> for openmls_traits::types::Ciphersuite}::eq",
+      "rust_pattern": "openmls_traits::types::{core::cmp::PartialEq<openmls_traits::types::Ciphersuite, openmls_traits::types::Ciphersuite>}::eq",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 439,
+        "end_line": 439
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 99,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.CoreCmpPartialEqHpkePrivateKey.eq",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.CoreCmpPartialEqHpkePrivateKey.eq",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl core::cmp::PartialEq<openmls_traits::types::HpkePrivateKey> for openmls_traits::types::HpkePrivateKey}::eq",
+      "rust_pattern": "openmls_traits::types::{core::cmp::PartialEq<openmls_traits::types::HpkePrivateKey, openmls_traits::types::HpkePrivateKey>}::eq",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 304,
+        "end_line": 304
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 32,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSize.tls_serialized_len",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSize.tls_serialized_len",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for openmls_traits::types::HpkePrivateKey}::tls_serialized_len",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Size<openmls_traits::types::HpkePrivateKey>}::tls_serialized_len",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 302,
+        "end_line": 302
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 35,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecDeserialize.tls_deserialize",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecDeserialize.tls_deserialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::HpkePrivateKey}::tls_deserialize",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::HpkePrivateKey>}::tls_deserialize",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 300,
+        "end_line": 300
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 93,
+      "lean_name": "openmls_traits.Shared0HpkePrivateKey.Insts.Tls_codecSize.tls_serialized_len",
+      "extract_name": "openmls_traits.Shared0HpkePrivateKey.Insts.Tls_codecSize.tls_serialized_len",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for &'_0 openmls_traits::types::HpkePrivateKey}::tls_serialized_len",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Size<&'0 openmls_traits::types::HpkePrivateKey>}::tls_serialized_len",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 302,
+        "end_line": 302
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 34,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSerialize.tls_serialize",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSerialize.tls_serialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::HpkePrivateKey}::tls_serialize",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::HpkePrivateKey>}::tls_serialize",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 299,
+        "end_line": 299
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 21,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::HpkeCiphertext}::tls_deserialize_bytes",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::HpkeCiphertext>}::tls_deserialize_bytes",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 286,
+        "end_line": 286
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 25,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::VerifiableCiphersuite}::tls_deserialize_bytes",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::VerifiableCiphersuite>}::tls_deserialize_bytes",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 392,
+        "end_line": 392
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 29,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::Ciphersuite}::tls_deserialize_bytes",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::Ciphersuite>}::tls_deserialize_bytes",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 447,
+        "end_line": 447
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 33,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::HpkePrivateKey}::tls_deserialize_bytes",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::HpkePrivateKey>}::tls_deserialize_bytes",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 301,
+        "end_line": 301
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    },
+    {
+      "def_id": 11,
+      "lean_name": "openmls_traits.grease.is_grease_value",
+      "extract_name": "openmls_traits.grease.is_grease_value",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::grease::is_grease_value",
+      "rust_pattern": "openmls_traits::grease::is_grease_value",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/grease.rs",
+        "begin_line": 21,
+        "end_line": 40
+      },
+      "is_opaque": false,
+      "can_fail": true,
+      "can_diverge": false,
+      "is_rec": false,
+      "reducible": false
+    }
+  ],
+  "types": [
+    {
+      "def_id": 1,
+      "lean_name": "openmls_traits.types.SignatureScheme",
+      "extract_name": "openmls_traits.types.SignatureScheme",
+      "lean_file": "TraitsCodec/Extraction/Types.lean",
+      "rust_name": "openmls_traits::types::SignatureScheme",
+      "rust_pattern": "openmls_traits::types::SignatureScheme",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 95,
+        "end_line": 115
+      }
+    },
+    {
+      "def_id": 8,
+      "lean_name": "openmls_traits.types.HpkeCiphertext",
+      "extract_name": "openmls_traits.types.HpkeCiphertext",
+      "lean_file": "TraitsCodec/Extraction/Types.lean",
+      "rust_name": "openmls_traits::types::HpkeCiphertext",
+      "rust_pattern": "openmls_traits::types::HpkeCiphertext",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 289,
+        "end_line": 292
+      }
+    },
+    {
+      "def_id": 9,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite",
+      "lean_file": "TraitsCodec/Extraction/Types.lean",
+      "rust_name": "openmls_traits::types::VerifiableCiphersuite",
+      "rust_pattern": "openmls_traits::types::VerifiableCiphersuite",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 395,
+        "end_line": 395
+      }
+    },
+    {
+      "def_id": 10,
+      "lean_name": "openmls_traits.types.Ciphersuite",
+      "extract_name": "openmls_traits.types.Ciphersuite",
+      "lean_file": "TraitsCodec/Extraction/Types.lean",
+      "rust_name": "openmls_traits::types::Ciphersuite",
+      "rust_pattern": "openmls_traits::types::Ciphersuite",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 452,
+        "end_line": 574
+      }
+    },
+    {
+      "def_id": 11,
+      "lean_name": "openmls_traits.types.HpkePrivateKey",
+      "extract_name": "openmls_traits.types.HpkePrivateKey",
+      "lean_file": "TraitsCodec/Extraction/Types.lean",
+      "rust_name": "openmls_traits::types::HpkePrivateKey",
+      "rust_pattern": "openmls_traits::types::HpkePrivateKey",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 306,
+        "end_line": 306
+      }
+    }
+  ],
+  "globals": [
+    {
+      "def_id": 20,
+      "lean_name": "openmls_traits.types.SerializeBytesSignatureScheme.tls_serialize_bytes.__TLS_CODEC_ED448",
+      "extract_name": "openmls_traits.types.SerializeBytesSignatureScheme.tls_serialize_bytes.__TLS_CODEC_ED448",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::SerializeBytes for openmls_traits::types::SignatureScheme}::tls_serialize_bytes::__TLS_CODEC_ED448",
+      "rust_pattern": "openmls_traits::types::{tls_codec::SerializeBytes<openmls_traits::types::SignatureScheme>}::tls_serialize_bytes::__TLS_CODEC_ED448",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 89,
+        "end_line": 89
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 19,
+      "lean_name": "openmls_traits.types.SerializeBytesSignatureScheme.tls_serialize_bytes.__TLS_CODEC_ED25519",
+      "extract_name": "openmls_traits.types.SerializeBytesSignatureScheme.tls_serialize_bytes.__TLS_CODEC_ED25519",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::SerializeBytes for openmls_traits::types::SignatureScheme}::tls_serialize_bytes::__TLS_CODEC_ED25519",
+      "rust_pattern": "openmls_traits::types::{tls_codec::SerializeBytes<openmls_traits::types::SignatureScheme>}::tls_serialize_bytes::__TLS_CODEC_ED25519",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 89,
+        "end_line": 89
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 18,
+      "lean_name": "openmls_traits.types.SerializeBytesSignatureScheme.tls_serialize_bytes.__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "extract_name": "openmls_traits.types.SerializeBytesSignatureScheme.tls_serialize_bytes.__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::SerializeBytes for openmls_traits::types::SignatureScheme}::tls_serialize_bytes::__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "rust_pattern": "openmls_traits::types::{tls_codec::SerializeBytes<openmls_traits::types::SignatureScheme>}::tls_serialize_bytes::__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 89,
+        "end_line": 89
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 17,
+      "lean_name": "openmls_traits.types.SerializeBytesSignatureScheme.tls_serialize_bytes.__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "extract_name": "openmls_traits.types.SerializeBytesSignatureScheme.tls_serialize_bytes.__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::SerializeBytes for openmls_traits::types::SignatureScheme}::tls_serialize_bytes::__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "rust_pattern": "openmls_traits::types::{tls_codec::SerializeBytes<openmls_traits::types::SignatureScheme>}::tls_serialize_bytes::__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 89,
+        "end_line": 89
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 16,
+      "lean_name": "openmls_traits.types.SerializeBytesSignatureScheme.tls_serialize_bytes.__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "extract_name": "openmls_traits.types.SerializeBytesSignatureScheme.tls_serialize_bytes.__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::SerializeBytes for openmls_traits::types::SignatureScheme}::tls_serialize_bytes::__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "rust_pattern": "openmls_traits::types::{tls_codec::SerializeBytes<openmls_traits::types::SignatureScheme>}::tls_serialize_bytes::__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 89,
+        "end_line": 89
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 35,
+      "lean_name": "openmls_traits.types.SerializeSignatureScheme.tls_serialize.__TLS_CODEC_ED448",
+      "extract_name": "openmls_traits.types.SerializeSignatureScheme.tls_serialize.__TLS_CODEC_ED448",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::SignatureScheme}::tls_serialize::__TLS_CODEC_ED448",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::SignatureScheme>}::tls_serialize::__TLS_CODEC_ED448",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 88,
+        "end_line": 88
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 34,
+      "lean_name": "openmls_traits.types.SerializeSignatureScheme.tls_serialize.__TLS_CODEC_ED25519",
+      "extract_name": "openmls_traits.types.SerializeSignatureScheme.tls_serialize.__TLS_CODEC_ED25519",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::SignatureScheme}::tls_serialize::__TLS_CODEC_ED25519",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::SignatureScheme>}::tls_serialize::__TLS_CODEC_ED25519",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 88,
+        "end_line": 88
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 33,
+      "lean_name": "openmls_traits.types.SerializeSignatureScheme.tls_serialize.__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "extract_name": "openmls_traits.types.SerializeSignatureScheme.tls_serialize.__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::SignatureScheme}::tls_serialize::__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::SignatureScheme>}::tls_serialize::__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 88,
+        "end_line": 88
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 32,
+      "lean_name": "openmls_traits.types.SerializeSignatureScheme.tls_serialize.__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "extract_name": "openmls_traits.types.SerializeSignatureScheme.tls_serialize.__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::SignatureScheme}::tls_serialize::__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::SignatureScheme>}::tls_serialize::__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 88,
+        "end_line": 88
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 31,
+      "lean_name": "openmls_traits.types.SerializeSignatureScheme.tls_serialize.__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "extract_name": "openmls_traits.types.SerializeSignatureScheme.tls_serialize.__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::SignatureScheme}::tls_serialize::__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::SignatureScheme>}::tls_serialize::__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 88,
+        "end_line": 88
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 59,
+      "lean_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "extract_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::Ciphersuite}::tls_serialize::__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::Ciphersuite>}::tls_serialize::__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 448,
+        "end_line": 448
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 58,
+      "lean_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "extract_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::Ciphersuite}::tls_serialize::__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::Ciphersuite>}::tls_serialize::__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 448,
+        "end_line": 448
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 57,
+      "lean_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "extract_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::Ciphersuite}::tls_serialize::__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::Ciphersuite>}::tls_serialize::__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 448,
+        "end_line": 448
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 56,
+      "lean_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "extract_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::Ciphersuite}::tls_serialize::__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::Ciphersuite>}::tls_serialize::__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 448,
+        "end_line": 448
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 55,
+      "lean_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "extract_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::Ciphersuite}::tls_serialize::__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::Ciphersuite>}::tls_serialize::__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 448,
+        "end_line": 448
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 54,
+      "lean_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "extract_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::Ciphersuite}::tls_serialize::__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::Ciphersuite>}::tls_serialize::__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 448,
+        "end_line": 448
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 53,
+      "lean_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "extract_name": "openmls_traits.types.SerializeCiphersuite.tls_serialize.__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::Ciphersuite}::tls_serialize::__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Serialize<openmls_traits::types::Ciphersuite>}::tls_serialize::__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 448,
+        "end_line": 448
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 41,
+      "lean_name": "openmls_traits.types.DeserializeSignatureScheme.tls_deserialize.__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "extract_name": "openmls_traits.types.DeserializeSignatureScheme.tls_deserialize.__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::SignatureScheme}::tls_deserialize::__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::SignatureScheme>}::tls_deserialize::__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 90,
+        "end_line": 90
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 42,
+      "lean_name": "openmls_traits.types.DeserializeSignatureScheme.tls_deserialize.__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "extract_name": "openmls_traits.types.DeserializeSignatureScheme.tls_deserialize.__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::SignatureScheme}::tls_deserialize::__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::SignatureScheme>}::tls_deserialize::__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 90,
+        "end_line": 90
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 43,
+      "lean_name": "openmls_traits.types.DeserializeSignatureScheme.tls_deserialize.__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "extract_name": "openmls_traits.types.DeserializeSignatureScheme.tls_deserialize.__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::SignatureScheme}::tls_deserialize::__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::SignatureScheme>}::tls_deserialize::__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 90,
+        "end_line": 90
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 44,
+      "lean_name": "openmls_traits.types.DeserializeSignatureScheme.tls_deserialize.__TLS_CODEC_ED25519",
+      "extract_name": "openmls_traits.types.DeserializeSignatureScheme.tls_deserialize.__TLS_CODEC_ED25519",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::SignatureScheme}::tls_deserialize::__TLS_CODEC_ED25519",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::SignatureScheme>}::tls_deserialize::__TLS_CODEC_ED25519",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 90,
+        "end_line": 90
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 45,
+      "lean_name": "openmls_traits.types.DeserializeSignatureScheme.tls_deserialize.__TLS_CODEC_ED448",
+      "extract_name": "openmls_traits.types.DeserializeSignatureScheme.tls_deserialize.__TLS_CODEC_ED448",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::SignatureScheme}::tls_deserialize::__TLS_CODEC_ED448",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::SignatureScheme>}::tls_deserialize::__TLS_CODEC_ED448",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 90,
+        "end_line": 90
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 26,
+      "lean_name": "openmls_traits.types.DeserializeBytesSignatureScheme.tls_deserialize_bytes.__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "extract_name": "openmls_traits.types.DeserializeBytesSignatureScheme.tls_deserialize_bytes.__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::SignatureScheme}::tls_deserialize_bytes::__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::SignatureScheme>}::tls_deserialize_bytes::__TLS_CODEC_ECDSA_SECP256R1_SHA256",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 91,
+        "end_line": 91
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 27,
+      "lean_name": "openmls_traits.types.DeserializeBytesSignatureScheme.tls_deserialize_bytes.__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "extract_name": "openmls_traits.types.DeserializeBytesSignatureScheme.tls_deserialize_bytes.__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::SignatureScheme}::tls_deserialize_bytes::__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::SignatureScheme>}::tls_deserialize_bytes::__TLS_CODEC_ECDSA_SECP384R1_SHA384",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 91,
+        "end_line": 91
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 28,
+      "lean_name": "openmls_traits.types.DeserializeBytesSignatureScheme.tls_deserialize_bytes.__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "extract_name": "openmls_traits.types.DeserializeBytesSignatureScheme.tls_deserialize_bytes.__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::SignatureScheme}::tls_deserialize_bytes::__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::SignatureScheme>}::tls_deserialize_bytes::__TLS_CODEC_ECDSA_SECP521R1_SHA512",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 91,
+        "end_line": 91
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 29,
+      "lean_name": "openmls_traits.types.DeserializeBytesSignatureScheme.tls_deserialize_bytes.__TLS_CODEC_ED25519",
+      "extract_name": "openmls_traits.types.DeserializeBytesSignatureScheme.tls_deserialize_bytes.__TLS_CODEC_ED25519",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::SignatureScheme}::tls_deserialize_bytes::__TLS_CODEC_ED25519",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::SignatureScheme>}::tls_deserialize_bytes::__TLS_CODEC_ED25519",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 91,
+        "end_line": 91
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 30,
+      "lean_name": "openmls_traits.types.DeserializeBytesSignatureScheme.tls_deserialize_bytes.__TLS_CODEC_ED448",
+      "extract_name": "openmls_traits.types.DeserializeBytesSignatureScheme.tls_deserialize_bytes.__TLS_CODEC_ED448",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::SignatureScheme}::tls_deserialize_bytes::__TLS_CODEC_ED448",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::SignatureScheme>}::tls_deserialize_bytes::__TLS_CODEC_ED448",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 91,
+        "end_line": 91
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 67,
+      "lean_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "extract_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::Ciphersuite}::tls_deserialize::__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::Ciphersuite>}::tls_deserialize::__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 446,
+        "end_line": 446
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 68,
+      "lean_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "extract_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::Ciphersuite}::tls_deserialize::__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::Ciphersuite>}::tls_deserialize::__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 446,
+        "end_line": 446
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 69,
+      "lean_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "extract_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::Ciphersuite}::tls_deserialize::__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::Ciphersuite>}::tls_deserialize::__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 446,
+        "end_line": 446
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 70,
+      "lean_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "extract_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::Ciphersuite}::tls_deserialize::__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::Ciphersuite>}::tls_deserialize::__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 446,
+        "end_line": 446
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 71,
+      "lean_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "extract_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::Ciphersuite}::tls_deserialize::__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::Ciphersuite>}::tls_deserialize::__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 446,
+        "end_line": 446
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 72,
+      "lean_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "extract_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::Ciphersuite}::tls_deserialize::__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::Ciphersuite>}::tls_deserialize::__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 446,
+        "end_line": 446
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 73,
+      "lean_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "extract_name": "openmls_traits.types.DeserializeCiphersuite.tls_deserialize.__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::Ciphersuite}::tls_deserialize::__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "rust_pattern": "openmls_traits::types::{tls_codec::Deserialize<openmls_traits::types::Ciphersuite>}::tls_deserialize::__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 446,
+        "end_line": 446
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 46,
+      "lean_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "extract_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::Ciphersuite}::tls_deserialize_bytes::__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::Ciphersuite>}::tls_deserialize_bytes::__TLS_CODEC_MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 447,
+        "end_line": 447
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 47,
+      "lean_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "extract_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::Ciphersuite}::tls_deserialize_bytes::__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::Ciphersuite>}::tls_deserialize_bytes::__TLS_CODEC_MLS_128_DHKEMP256_AES128GCM_SHA256_P256",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 447,
+        "end_line": 447
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 48,
+      "lean_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "extract_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::Ciphersuite}::tls_deserialize_bytes::__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::Ciphersuite>}::tls_deserialize_bytes::__TLS_CODEC_MLS_128_DHKEMX25519_CHACHA20POLY1305_SHA256_Ed25519",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 447,
+        "end_line": 447
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 49,
+      "lean_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "extract_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::Ciphersuite}::tls_deserialize_bytes::__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::Ciphersuite>}::tls_deserialize_bytes::__TLS_CODEC_MLS_256_DHKEMX448_AES256GCM_SHA512_Ed448",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 447,
+        "end_line": 447
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 50,
+      "lean_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "extract_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::Ciphersuite}::tls_deserialize_bytes::__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::Ciphersuite>}::tls_deserialize_bytes::__TLS_CODEC_MLS_256_DHKEMP521_AES256GCM_SHA512_P521",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 447,
+        "end_line": 447
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 51,
+      "lean_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "extract_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::Ciphersuite}::tls_deserialize_bytes::__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::Ciphersuite>}::tls_deserialize_bytes::__TLS_CODEC_MLS_256_DHKEMX448_CHACHA20POLY1305_SHA512_Ed448",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 447,
+        "end_line": 447
+      },
+      "can_fail": true
+    },
+    {
+      "def_id": 52,
+      "lean_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "extract_name": "openmls_traits.types.DeserializeBytesCiphersuite.tls_deserialize_bytes.__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::Ciphersuite}::tls_deserialize_bytes::__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "rust_pattern": "openmls_traits::types::{tls_codec::DeserializeBytes<openmls_traits::types::Ciphersuite>}::tls_deserialize_bytes::__TLS_CODEC_MLS_256_DHKEMP384_AES256GCM_SHA384_P384",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 447,
+        "end_line": 447
+      },
+      "can_fail": true
+    }
+  ],
+  "trait_decls": [],
+  "trait_impls": [
+    {
+      "def_id": 0,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSize",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::Size<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 92,
+        "end_line": 92
+      },
+      "impl_trait_def_id": 6,
+      "impl_trait_rust_name": "tls_codec::Size",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 2,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecDeserializeBytes",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecDeserializeBytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::DeserializeBytes<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 91,
+        "end_line": 91
+      },
+      "impl_trait_def_id": 8,
+      "impl_trait_rust_name": "tls_codec::DeserializeBytes",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 1,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSerializeBytes",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSerializeBytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::SerializeBytes for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::SerializeBytes<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 89,
+        "end_line": 89
+      },
+      "impl_trait_def_id": 7,
+      "impl_trait_rust_name": "tls_codec::SerializeBytes",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 43,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.CoreCmpPartialEqSignatureScheme",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.CoreCmpPartialEqSignatureScheme",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl core::cmp::PartialEq<openmls_traits::types::SignatureScheme> for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "core::cmp::PartialEq<openmls_traits::types::SignatureScheme, openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 83,
+        "end_line": 83
+      },
+      "impl_trait_def_id": 2,
+      "impl_trait_rust_name": "core::cmp::PartialEq",
+      "impl_trait_is_builtin": false
+    },
+    {
+      "def_id": 21,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecRoundTrip",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecRoundTrip",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::RoundTrip for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::spec::RoundTrip<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 15,
+        "end_line": 15
+      },
+      "impl_trait_def_id": 14,
+      "impl_trait_rust_name": "tls_codec::spec::RoundTrip",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 22,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecNonEmpty",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecNonEmpty",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::NonEmpty for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::spec::NonEmpty<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 16,
+        "end_line": 16
+      },
+      "impl_trait_def_id": 15,
+      "impl_trait_rust_name": "tls_codec::spec::NonEmpty",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 4,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecDeserialize",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecDeserialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::Deserialize<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 90,
+        "end_line": 90
+      },
+      "impl_trait_def_id": 11,
+      "impl_trait_rust_name": "tls_codec::Deserialize",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 3,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSerialize",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSerialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::Serialize<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 88,
+        "end_line": 88
+      },
+      "impl_trait_def_id": 9,
+      "impl_trait_rust_name": "tls_codec::Serialize",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 23,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecIoRoundTripStd",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecIoRoundTripStd",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::RoundTripStd for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::spec::io::RoundTripStd<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 19,
+        "end_line": 19
+      },
+      "impl_trait_def_id": 16,
+      "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 24,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecIoNonEmptyStd",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecIoNonEmptyStd",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::NonEmptyStd for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::spec::io::NonEmptyStd<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 20,
+        "end_line": 20
+      },
+      "impl_trait_def_id": 17,
+      "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 5,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSize",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for openmls_traits::types::HpkeCiphertext}",
+      "rust_pattern": "tls_codec::Size<openmls_traits::types::HpkeCiphertext>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 287,
+        "end_line": 287
+      },
+      "impl_trait_def_id": 6,
+      "impl_trait_rust_name": "tls_codec::Size",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 8,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecDeserialize",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecDeserialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::HpkeCiphertext}",
+      "rust_pattern": "tls_codec::Deserialize<openmls_traits::types::HpkeCiphertext>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 285,
+        "end_line": 285
+      },
+      "impl_trait_def_id": 11,
+      "impl_trait_rust_name": "tls_codec::Deserialize",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 7,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSerialize",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSerialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::HpkeCiphertext}",
+      "rust_pattern": "tls_codec::Serialize<openmls_traits::types::HpkeCiphertext>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 284,
+        "end_line": 284
+      },
+      "impl_trait_def_id": 9,
+      "impl_trait_rust_name": "tls_codec::Serialize",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 44,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.CoreCmpPartialEqHpkeCiphertext",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.CoreCmpPartialEqHpkeCiphertext",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl core::cmp::PartialEq<openmls_traits::types::HpkeCiphertext> for openmls_traits::types::HpkeCiphertext}",
+      "rust_pattern": "core::cmp::PartialEq<openmls_traits::types::HpkeCiphertext, openmls_traits::types::HpkeCiphertext>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 279,
+        "end_line": 279
+      },
+      "impl_trait_def_id": 2,
+      "impl_trait_rust_name": "core::cmp::PartialEq",
+      "impl_trait_is_builtin": false
+    },
+    {
+      "def_id": 25,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSpecIoRoundTripStd",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSpecIoRoundTripStd",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::RoundTripStd for openmls_traits::types::HpkeCiphertext}",
+      "rust_pattern": "tls_codec::spec::io::RoundTripStd<openmls_traits::types::HpkeCiphertext>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 22,
+        "end_line": 22
+      },
+      "impl_trait_def_id": 16,
+      "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 26,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSpecIoNonEmptyStd",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSpecIoNonEmptyStd",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::NonEmptyStd for openmls_traits::types::HpkeCiphertext}",
+      "rust_pattern": "tls_codec::spec::io::NonEmptyStd<openmls_traits::types::HpkeCiphertext>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 23,
+        "end_line": 23
+      },
+      "impl_trait_def_id": 17,
+      "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 9,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSize",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for openmls_traits::types::VerifiableCiphersuite}",
+      "rust_pattern": "tls_codec::Size<openmls_traits::types::VerifiableCiphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 393,
+        "end_line": 393
+      },
+      "impl_trait_def_id": 6,
+      "impl_trait_rust_name": "tls_codec::Size",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 12,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecDeserialize",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecDeserialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::VerifiableCiphersuite}",
+      "rust_pattern": "tls_codec::Deserialize<openmls_traits::types::VerifiableCiphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 391,
+        "end_line": 391
+      },
+      "impl_trait_def_id": 11,
+      "impl_trait_rust_name": "tls_codec::Deserialize",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 11,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSerialize",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSerialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::VerifiableCiphersuite}",
+      "rust_pattern": "tls_codec::Serialize<openmls_traits::types::VerifiableCiphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 390,
+        "end_line": 390
+      },
+      "impl_trait_def_id": 9,
+      "impl_trait_rust_name": "tls_codec::Serialize",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 45,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.CoreCmpPartialEqVerifiableCiphersuite",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.CoreCmpPartialEqVerifiableCiphersuite",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl core::cmp::PartialEq<openmls_traits::types::VerifiableCiphersuite> for openmls_traits::types::VerifiableCiphersuite}",
+      "rust_pattern": "core::cmp::PartialEq<openmls_traits::types::VerifiableCiphersuite, openmls_traits::types::VerifiableCiphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 386,
+        "end_line": 386
+      },
+      "impl_trait_def_id": 2,
+      "impl_trait_rust_name": "core::cmp::PartialEq",
+      "impl_trait_is_builtin": false
+    },
+    {
+      "def_id": 27,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSpecIoRoundTripStd",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSpecIoRoundTripStd",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::RoundTripStd for openmls_traits::types::VerifiableCiphersuite}",
+      "rust_pattern": "tls_codec::spec::io::RoundTripStd<openmls_traits::types::VerifiableCiphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 25,
+        "end_line": 25
+      },
+      "impl_trait_def_id": 16,
+      "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 28,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSpecIoNonEmptyStd",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSpecIoNonEmptyStd",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::NonEmptyStd for openmls_traits::types::VerifiableCiphersuite}",
+      "rust_pattern": "tls_codec::spec::io::NonEmptyStd<openmls_traits::types::VerifiableCiphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 26,
+        "end_line": 26
+      },
+      "impl_trait_def_id": 17,
+      "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 13,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSize",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for openmls_traits::types::Ciphersuite}",
+      "rust_pattern": "tls_codec::Size<openmls_traits::types::Ciphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 449,
+        "end_line": 449
+      },
+      "impl_trait_def_id": 6,
+      "impl_trait_rust_name": "tls_codec::Size",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 15,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSerialize",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSerialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::Ciphersuite}",
+      "rust_pattern": "tls_codec::Serialize<openmls_traits::types::Ciphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 448,
+        "end_line": 448
+      },
+      "impl_trait_def_id": 9,
+      "impl_trait_rust_name": "tls_codec::Serialize",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 16,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecDeserialize",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecDeserialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::Ciphersuite}",
+      "rust_pattern": "tls_codec::Deserialize<openmls_traits::types::Ciphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 446,
+        "end_line": 446
+      },
+      "impl_trait_def_id": 11,
+      "impl_trait_rust_name": "tls_codec::Deserialize",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 46,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.CoreCmpPartialEqCiphersuite",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.CoreCmpPartialEqCiphersuite",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl core::cmp::PartialEq<openmls_traits::types::Ciphersuite> for openmls_traits::types::Ciphersuite}",
+      "rust_pattern": "core::cmp::PartialEq<openmls_traits::types::Ciphersuite, openmls_traits::types::Ciphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 439,
+        "end_line": 439
+      },
+      "impl_trait_def_id": 2,
+      "impl_trait_rust_name": "core::cmp::PartialEq",
+      "impl_trait_is_builtin": false
+    },
+    {
+      "def_id": 29,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSpecIoRoundTripStd",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSpecIoRoundTripStd",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::RoundTripStd for openmls_traits::types::Ciphersuite}",
+      "rust_pattern": "tls_codec::spec::io::RoundTripStd<openmls_traits::types::Ciphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 28,
+        "end_line": 28
+      },
+      "impl_trait_def_id": 16,
+      "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 30,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSpecIoNonEmptyStd",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSpecIoNonEmptyStd",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::NonEmptyStd for openmls_traits::types::Ciphersuite}",
+      "rust_pattern": "tls_codec::spec::io::NonEmptyStd<openmls_traits::types::Ciphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 29,
+        "end_line": 29
+      },
+      "impl_trait_def_id": 17,
+      "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 47,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.CoreCmpPartialEqHpkePrivateKey",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.CoreCmpPartialEqHpkePrivateKey",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl core::cmp::PartialEq<openmls_traits::types::HpkePrivateKey> for openmls_traits::types::HpkePrivateKey}",
+      "rust_pattern": "core::cmp::PartialEq<openmls_traits::types::HpkePrivateKey, openmls_traits::types::HpkePrivateKey>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 304,
+        "end_line": 304
+      },
+      "impl_trait_def_id": 2,
+      "impl_trait_rust_name": "core::cmp::PartialEq",
+      "impl_trait_is_builtin": false
+    },
+    {
+      "def_id": 17,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSize",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Size for openmls_traits::types::HpkePrivateKey}",
+      "rust_pattern": "tls_codec::Size<openmls_traits::types::HpkePrivateKey>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 302,
+        "end_line": 302
+      },
+      "impl_trait_def_id": 6,
+      "impl_trait_rust_name": "tls_codec::Size",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 20,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecDeserialize",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecDeserialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Deserialize for openmls_traits::types::HpkePrivateKey}",
+      "rust_pattern": "tls_codec::Deserialize<openmls_traits::types::HpkePrivateKey>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 300,
+        "end_line": 300
+      },
+      "impl_trait_def_id": 11,
+      "impl_trait_rust_name": "tls_codec::Deserialize",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 19,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSerialize",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSerialize",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::Serialize for openmls_traits::types::HpkePrivateKey}",
+      "rust_pattern": "tls_codec::Serialize<openmls_traits::types::HpkePrivateKey>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 299,
+        "end_line": 299
+      },
+      "impl_trait_def_id": 9,
+      "impl_trait_rust_name": "tls_codec::Serialize",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 31,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSpecIoRoundTripStd",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSpecIoRoundTripStd",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::RoundTripStd for openmls_traits::types::HpkePrivateKey}",
+      "rust_pattern": "tls_codec::spec::io::RoundTripStd<openmls_traits::types::HpkePrivateKey>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 31,
+        "end_line": 31
+      },
+      "impl_trait_def_id": 16,
+      "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 32,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSpecIoNonEmptyStd",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSpecIoNonEmptyStd",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::NonEmptyStd for openmls_traits::types::HpkePrivateKey}",
+      "rust_pattern": "tls_codec::spec::io::NonEmptyStd<openmls_traits::types::HpkePrivateKey>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 32,
+        "end_line": 32
+      },
+      "impl_trait_def_id": 17,
+      "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 33,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecIoDecodersAgree",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecIoDecodersAgree",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::DecodersAgree for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::spec::io::DecodersAgree<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 36,
+        "end_line": 36
+      },
+      "impl_trait_def_id": 18,
+      "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 34,
+      "lean_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecIoRoundTripMixed",
+      "extract_name": "openmls_traits.types.SignatureScheme.Insts.Tls_codecSpecIoRoundTripMixed",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::RoundTripMixed for openmls_traits::types::SignatureScheme}",
+      "rust_pattern": "tls_codec::spec::io::RoundTripMixed<openmls_traits::types::SignatureScheme>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 37,
+        "end_line": 37
+      },
+      "impl_trait_def_id": 19,
+      "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 6,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecDeserializeBytes",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecDeserializeBytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::HpkeCiphertext}",
+      "rust_pattern": "tls_codec::DeserializeBytes<openmls_traits::types::HpkeCiphertext>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 286,
+        "end_line": 286
+      },
+      "impl_trait_def_id": 8,
+      "impl_trait_rust_name": "tls_codec::DeserializeBytes",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 35,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSpecIoDecodersAgree",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSpecIoDecodersAgree",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::DecodersAgree for openmls_traits::types::HpkeCiphertext}",
+      "rust_pattern": "tls_codec::spec::io::DecodersAgree<openmls_traits::types::HpkeCiphertext>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 39,
+        "end_line": 39
+      },
+      "impl_trait_def_id": 18,
+      "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 36,
+      "lean_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSpecIoRoundTripMixed",
+      "extract_name": "openmls_traits.types.HpkeCiphertext.Insts.Tls_codecSpecIoRoundTripMixed",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::RoundTripMixed for openmls_traits::types::HpkeCiphertext}",
+      "rust_pattern": "tls_codec::spec::io::RoundTripMixed<openmls_traits::types::HpkeCiphertext>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 40,
+        "end_line": 40
+      },
+      "impl_trait_def_id": 19,
+      "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 10,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecDeserializeBytes",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecDeserializeBytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::VerifiableCiphersuite}",
+      "rust_pattern": "tls_codec::DeserializeBytes<openmls_traits::types::VerifiableCiphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 392,
+        "end_line": 392
+      },
+      "impl_trait_def_id": 8,
+      "impl_trait_rust_name": "tls_codec::DeserializeBytes",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 37,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSpecIoDecodersAgree",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSpecIoDecodersAgree",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::DecodersAgree for openmls_traits::types::VerifiableCiphersuite}",
+      "rust_pattern": "tls_codec::spec::io::DecodersAgree<openmls_traits::types::VerifiableCiphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 42,
+        "end_line": 42
+      },
+      "impl_trait_def_id": 18,
+      "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 38,
+      "lean_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSpecIoRoundTripMixed",
+      "extract_name": "openmls_traits.types.VerifiableCiphersuite.Insts.Tls_codecSpecIoRoundTripMixed",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::RoundTripMixed for openmls_traits::types::VerifiableCiphersuite}",
+      "rust_pattern": "tls_codec::spec::io::RoundTripMixed<openmls_traits::types::VerifiableCiphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 43,
+        "end_line": 43
+      },
+      "impl_trait_def_id": 19,
+      "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 14,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecDeserializeBytes",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecDeserializeBytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::Ciphersuite}",
+      "rust_pattern": "tls_codec::DeserializeBytes<openmls_traits::types::Ciphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 447,
+        "end_line": 447
+      },
+      "impl_trait_def_id": 8,
+      "impl_trait_rust_name": "tls_codec::DeserializeBytes",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 39,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSpecIoDecodersAgree",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSpecIoDecodersAgree",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::DecodersAgree for openmls_traits::types::Ciphersuite}",
+      "rust_pattern": "tls_codec::spec::io::DecodersAgree<openmls_traits::types::Ciphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 45,
+        "end_line": 45
+      },
+      "impl_trait_def_id": 18,
+      "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 40,
+      "lean_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSpecIoRoundTripMixed",
+      "extract_name": "openmls_traits.types.Ciphersuite.Insts.Tls_codecSpecIoRoundTripMixed",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::RoundTripMixed for openmls_traits::types::Ciphersuite}",
+      "rust_pattern": "tls_codec::spec::io::RoundTripMixed<openmls_traits::types::Ciphersuite>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 46,
+        "end_line": 46
+      },
+      "impl_trait_def_id": 19,
+      "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 18,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecDeserializeBytes",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecDeserializeBytes",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::types::{impl tls_codec::DeserializeBytes for openmls_traits::types::HpkePrivateKey}",
+      "rust_pattern": "tls_codec::DeserializeBytes<openmls_traits::types::HpkePrivateKey>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/types.rs",
+        "begin_line": 301,
+        "end_line": 301
+      },
+      "impl_trait_def_id": 8,
+      "impl_trait_rust_name": "tls_codec::DeserializeBytes",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 41,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSpecIoDecodersAgree",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSpecIoDecodersAgree",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::DecodersAgree for openmls_traits::types::HpkePrivateKey}",
+      "rust_pattern": "tls_codec::spec::io::DecodersAgree<openmls_traits::types::HpkePrivateKey>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 48,
+        "end_line": 48
+      },
+      "impl_trait_def_id": 18,
+      "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
+      "impl_trait_is_builtin": true
+    },
+    {
+      "def_id": 42,
+      "lean_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSpecIoRoundTripMixed",
+      "extract_name": "openmls_traits.types.HpkePrivateKey.Insts.Tls_codecSpecIoRoundTripMixed",
+      "lean_file": "TraitsCodec/Extraction/Funs.lean",
+      "rust_name": "openmls_traits::codec_specs::{impl tls_codec::spec::io::RoundTripMixed for openmls_traits::types::HpkePrivateKey}",
+      "rust_pattern": "tls_codec::spec::io::RoundTripMixed<openmls_traits::types::HpkePrivateKey>",
+      "is_local": true,
+      "source": {
+        "file": "traits/src/codec_specs.rs",
+        "begin_line": 49,
+        "end_line": 49
+      },
+      "impl_trait_def_id": 19,
+      "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
+      "impl_trait_is_builtin": true
+    }
+  ]
+}
