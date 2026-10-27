@@ -1,0 +1,19 @@
+# Axiom whitelist of the TraitsCodec proofs (theorems of `TraitsCodec.*` modules).
+# Gate: `lake env lean scripts/AxiomGate.lean` (from the project directory).
+# Adding a line here is a review decision: every non-Lean axiom must be an `Assumptions/` item
+# (ASSUMED spec, or a signature-only stub whose value no theorem depends on), here or in TlsCodec.
+
+# Lean's standard axioms
+propext
+Classical.choice
+Quot.sound
+
+# TlsCodec: ASSUMED values (Assumptions/MissingCoreModels.lean)
+CoreModels.core.mem.size_of
+CoreModels.core.mem.size_of_U8
+CoreModels.core.mem.size_of_U16
+# 64-bit targets (TlsCodec Assumptions/CrateAssumptions.lean): the room bound of the round-trip facts
+numBits_eq_64
+
+# TlsCodec: signature-only stub (MissingCoreModels.lean; no spec)
+CoreModels.core.io.error.Error.Insts.CoreFmtDebug.fmt
