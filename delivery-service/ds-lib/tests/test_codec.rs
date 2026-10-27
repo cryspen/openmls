@@ -3,7 +3,7 @@ use openmls::prelude::*;
 use openmls_basic_credential::SignatureKeyPair;
 use openmls_rust_crypto::OpenMlsRustCrypto;
 use openmls_traits::OpenMlsProvider;
-use tls_codec::{Deserialize, Serialize};
+use tls_codec::{Deserialize, Serialize, Size};
 
 #[test]
 fn test_client_info() {
@@ -40,4 +40,31 @@ fn test_client_info() {
         .tls_serialize_detached()
         .unwrap();
     assert_eq!(client_data.tls_serialize_detached().unwrap(), client_data2);
+}
+
+/// Regression test: the size of `reserved_key_pkg_hash` must be the length of
+/// its encoding (it used to count elements, not bytes).
+#[test]
+fn test_client_info_reserved_hashes_size() {
+    let mut client_info = ClientInfo::default();
+    client_info.reserved_key_pkg_hash.insert(vec![0xab; 32]);
+    client_info.reserved_key_pkg_hash.insert(vec![0xcd; 32]);
+
+    let encoded = client_info.tls_serialize_detached().unwrap();
+    assert_eq!(client_info.tls_serialized_len(), encoded.len());
+
+    // In a vector, the derived length prefix relies on the element sizes.
+    let client_infos = vec![client_info, ClientInfo::default()];
+    let encoded = client_infos.tls_serialize_detached().unwrap();
+    assert_eq!(client_infos.tls_serialized_len(), encoded.len());
+    let decoded = Vec::<ClientInfo>::tls_deserialize_exact(&encoded).unwrap();
+    assert_eq!(decoded.len(), 2);
+    assert_eq!(
+        decoded[0].reserved_key_pkg_hash,
+        client_infos[0].reserved_key_pkg_hash
+    );
+    assert_eq!(
+        decoded.tls_serialize_detached().unwrap().len(),
+        encoded.len()
+    );
 }

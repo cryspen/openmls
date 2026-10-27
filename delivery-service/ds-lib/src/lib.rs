@@ -28,23 +28,24 @@ pub struct ClientInfo {
     pub auth_token: AuthToken,
 }
 
+// Encodes the set as a `Vec<Vec<u8>>`. The element order follows the
+// `HashSet`'s iteration order (not deterministic across instances), and
+// duplicate elements are merged on decoding.
 mod hashset_codec {
     use std::{
         collections::HashSet,
         io::{Read, Write},
     };
 
-    use crate::tls_codec::{self, Deserialize, Serialize};
+    use crate::tls_codec::{self, Deserialize, Serialize, Size};
 
     pub fn tls_serialized_len(hashset: &HashSet<Vec<u8>>) -> usize {
-        let hashset_len = hashset.len();
-        let length_encoding_bytes = match hashset_len {
-            0..=0x3f => 1,
-            0x40..=0x3fff => 2,
-            0x4000..=0x3fff_ffff => 4,
-            _ => 8,
-        };
-        hashset_len + length_encoding_bytes
+        // Same as the `Vec<&[u8]>` written by `tls_serialize`.
+        hashset
+            .iter()
+            .map(|v| v.as_slice())
+            .collect::<Vec<_>>()
+            .tls_serialized_len()
     }
 
     pub fn tls_serialize<W>(
