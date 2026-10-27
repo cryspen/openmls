@@ -578,16 +578,20 @@ mod private {
 }
 
 /// Can be implemented by a type to validate extensions.
+#[cfg_attr(hax, hax_lib::attributes)]
 pub trait ExtensionValidator: private::Sealed {
     /// The error returned by the validator
     type Error;
 
     /// Check if the extension is valid.
+    // Termination contract: implementations must return (no panic, no divergence).
+    #[cfg_attr(hax, hax_lib::ensures(|_| true))]
     fn validate_extension_type(ext: ExtensionType) -> Result<(), Self::Error>;
 }
 
 impl private::Sealed for AnyObject {}
 
+#[cfg_attr(hax, hax_lib::include)]
 impl ExtensionValidator for AnyObject {
     type Error = Infallible;
 
@@ -622,6 +626,7 @@ where
 impl private::Sealed for GroupInfo {}
 
 // https://validation.openmls.tech/#valn1602
+#[cfg_attr(hax, hax_lib::include)]
 impl ExtensionValidator for GroupInfo {
     type Error = ExtensionTypeNotValidInGroupInfoError;
 
@@ -641,6 +646,7 @@ impl ExtensionValidator for GroupInfo {
 impl private::Sealed for GroupContext {}
 
 // https://validation.openmls.tech/#valn1603
+#[cfg_attr(hax, hax_lib::include)]
 impl ExtensionValidator for GroupContext {
     type Error = ExtensionTypeNotValidInGroupContextError;
 
@@ -658,6 +664,7 @@ impl ExtensionValidator for GroupContext {
 impl private::Sealed for KeyPackage {}
 
 // https://validation.openmls.tech/#valn1604
+#[cfg_attr(hax, hax_lib::include)]
 impl ExtensionValidator for KeyPackage {
     type Error = ExtensionTypeNotValidInKeyPackageError;
 
@@ -675,6 +682,7 @@ impl ExtensionValidator for KeyPackage {
 impl private::Sealed for LeafNode {}
 
 // https://validation.openmls.tech/#valn1601
+#[cfg_attr(hax, hax_lib::include)]
 impl ExtensionValidator for LeafNode {
     type Error = ExtensionTypeNotValidInLeafNodeError;
 
