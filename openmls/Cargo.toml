@@ -42,6 +42,10 @@ web-time = { version = "1.1", optional = true, features = ["serde"] }
 zeroize = "1.8.1"
 serde_bytes = "0.11.17"
 
+# Only used by the hax extraction (specs in `#[cfg_attr(hax, ...)]` attributes).
+[target.'cfg(hax)'.dependencies]
+hax-lib = "0.4.2"
+
 [features]
 # The storage API is sync by default. `async` switches it to async.
 async = ["openmls_traits/async"]
@@ -208,3 +212,6 @@ features = [
     "unchecked-conversions",
 ]
 rustdoc-args = ["--cfg", "docsrs"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(hax)', 'cfg(hax_compilation)'] }
