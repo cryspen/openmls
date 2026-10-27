@@ -1,0 +1,255 @@
+# hax proof scenarios: the tls_codec impls of `openmls_traits`,
+# `openmls_basic_credential` and `openmls`, extracted (hax -> charon -> aeneas
+# -> Lean) against the Lean model of tls_codec, the `TlsCodec` Lean project of
+# the cryspen/formats fork that the workspace `Cargo.toml` patches tls_codec to
+# (multi-crate extraction: aeneas `-emit-json` / `-external-names`).
+# Replay (details in `proofs/README.md` once the Lean projects are in):
+#
+#   sh proofs/setup.sh                 # builds the aeneas binary of [tools]
+#   (cd <crate>/proofs/<scenario>/lean && lake exe cache get)   # each project
+#   cargo hax extract traits-codec basic-credential-codec openmls-codec
+#   sh <crate>/proofs/<scenario>/lean/scripts/post_extract.sh   # each project
+#
+# Scenarios, in dependency order: each one reads the Lean names of the
+# extractions it depends on from their `translation.json` (`-external-names`),
+# so run them in this order (a bare `cargo hax extract` runs all scenarios in
+# alphabetical order). Relative `-external-names` paths are resolved by aeneas
+# from the extracted package's directory; TlsCodec's `translation.json` is read
+# from the checkout of the `TlsCodec` Lean dependency in each project's
+# `.lake/packages` (populated by `lake exe cache get` / any `lake` command).
+#   1. `traits-codec`           (openmls_traits)           uses TlsCodec
+#   2. `basic-credential-codec` (openmls_basic_credential) uses TlsCodec, TraitsCodec
+#   3. `openmls-codec`          (openmls)                  uses TlsCodec, TraitsCodec
+
+[tools]
+# aeneas built from cryspen/aeneas 4aefccc8 (the revision of the aeneas Lean
+# library the Lean projects require) by `sh proofs/setup.sh`; the path is
+# relative to this file. charon: the version that aeneas expects (downloaded
+# by hax). Same aeneas / charon as the TlsCodec scenario that wrote the
+# translation.json files read below.
+aeneas = { path = ".hax-tools/aeneas/bin/aeneas" }
+charon = "nightly-2026.09.02"
+
+# 1. The tls_codec impls of `openmls_traits` (wire types in `src/types.rs`).
+#    Output: traits/proofs/traits-codec/lean;
+#    then `sh traits/proofs/traits-codec/lean/scripts/post_extract.sh`.
+[scenario.traits-codec]
+backend = "lean"
+package = "openmls_traits"
+output-dir = "proofs/traits-codec/lean"
+# Start from the tls_codec impls of the wire types of `src/types.rs`: bytes path
+# (Size / SerializeBytes / DeserializeBytes) and `std` path (Serialize /
+# Deserialize), plus `grease::is_grease_value` (used by openmls).
+# `HpkeKeyPair` and `ExporterSecret` have no tls_codec impls (serde / none).
+include = [
+  "openmls_traits::grease::is_grease_value",
+  "{impl tls_codec::Size for openmls_traits::types::SignatureScheme}",
+  "{impl tls_codec::SerializeBytes for openmls_traits::types::SignatureScheme}",
+  "{impl tls_codec::DeserializeBytes for openmls_traits::types::SignatureScheme}",
+  "{impl tls_codec::Serialize for openmls_traits::types::SignatureScheme}",
+  "{impl tls_codec::Deserialize for openmls_traits::types::SignatureScheme}",
+  "{impl tls_codec::Size for openmls_traits::types::HpkeCiphertext}",
+  "{impl tls_codec::DeserializeBytes for openmls_traits::types::HpkeCiphertext}",
+  "{impl tls_codec::Serialize for openmls_traits::types::HpkeCiphertext}",
+  "{impl tls_codec::Deserialize for openmls_traits::types::HpkeCiphertext}",
+  "{impl tls_codec::Size for openmls_traits::types::VerifiableCiphersuite}",
+  "{impl tls_codec::DeserializeBytes for openmls_traits::types::VerifiableCiphersuite}",
+  "{impl tls_codec::Serialize for openmls_traits::types::VerifiableCiphersuite}",
+  "{impl tls_codec::Deserialize for openmls_traits::types::VerifiableCiphersuite}",
+  "{impl tls_codec::Size for openmls_traits::types::Ciphersuite}",
+  "{impl tls_codec::DeserializeBytes for openmls_traits::types::Ciphersuite}",
+  "{impl tls_codec::Serialize for openmls_traits::types::Ciphersuite}",
+  "{impl tls_codec::Deserialize for openmls_traits::types::Ciphersuite}",
+  "{impl tls_codec::Size for openmls_traits::types::HpkePrivateKey}",
+  "{impl tls_codec::DeserializeBytes for openmls_traits::types::HpkePrivateKey}",
+  "{impl tls_codec::Serialize for openmls_traits::types::HpkePrivateKey}",
+  "{impl tls_codec::Deserialize for openmls_traits::types::HpkePrivateKey}",
+]
+# Aeneas cannot translate the signatures of the `try_*` iterator methods
+# (internal error, as `try_fold` in the tls_codec scenario); they come in
+# through serde's `Serializer` and `--translate-all-methods`.
+exclude = [
+  "core::iter::traits::iterator::Iterator::try_fold",
+  "core::iter::traits::iterator::Iterator::try_for_each",
+  "core::iter::traits::iterator::Iterator::try_reduce",
+  "core::iter::traits::iterator::Iterator::try_find",
+  "core::iter::traits::double_ended::DoubleEndedIterator::try_rfold",
+  # serde impls (opaque by default) are never called by codec code; their
+  # signatures drag in serde's `Serializer` / `Deserializer` and with them all
+  # of `Iterator`.
+  "{impl serde_core::ser::Serialize for _}",
+  "{impl serde_core::de::Deserialize for _}",
+]
+charon-args = ["--translate-all-methods"]
+aeneas-args = [
+  # emits translation.json, consumed by the openmls scenarios (-external-names).
+  "-emit-json",
+  "-external-names", "proofs/traits-codec/lean/.lake/packages/TlsCodec/tls_codec/proofs/tls-codec/lean/translation.json",
+  "-extra-includes=TlsCodec.Extraction,TlsCodec.Assumptions.MissingCoreModels,TlsCodec.Assumptions.MissingThirdPartyModels",
+]
+
+# 2. The tls_codec impls of `openmls_basic_credential` (`SignatureKeyPair`:
+#    derived Size / Serialize / Deserialize / DeserializeBytes).
+#    Output: basic_credential/proofs/basic-credential-codec/lean;
+#    then `sh basic_credential/proofs/basic-credential-codec/lean/scripts/post_extract.sh`.
+[scenario.basic-credential-codec]
+backend = "lean"
+package = "openmls_basic_credential"
+output-dir = "proofs/basic-credential-codec/lean"
+include = [
+  "{impl tls_codec::Size for openmls_basic_credential::SignatureKeyPair}",
+  "{impl tls_codec::Serialize for openmls_basic_credential::SignatureKeyPair}",
+  "{impl tls_codec::Deserialize for openmls_basic_credential::SignatureKeyPair}",
+  "{impl tls_codec::DeserializeBytes for openmls_basic_credential::SignatureKeyPair}",
+]
+# `--translate-all-methods` is what makes aeneas fill the provided (default)
+# methods of the tls_codec traits (`tls_serialize_detached`, `tls_deserialize_exact`,
+# ...) in the impls; without it the instances lack those fields. As in
+# traits-codec, the `Iterator::try_*` signatures (aeneas internal error) and
+# serde impls (which drag in `Iterator`) are excluded.
+exclude = [
+  "core::iter::traits::iterator::Iterator::try_fold",
+  "core::iter::traits::iterator::Iterator::try_for_each",
+  "core::iter::traits::iterator::Iterator::try_reduce",
+  "core::iter::traits::iterator::Iterator::try_find",
+  "core::iter::traits::double_ended::DoubleEndedIterator::try_rfold",
+  "{impl serde_core::ser::Serialize for _}",
+  "{impl serde_core::de::Deserialize for _}",
+]
+charon-args = ["--translate-all-methods"]
+aeneas-args = [
+  "-external-names", "proofs/basic-credential-codec/lean/.lake/packages/TlsCodec/tls_codec/proofs/tls-codec/lean/translation.json",
+  "-external-names", "../traits/proofs/traits-codec/lean/translation.json",
+  "-extra-includes=TlsCodec.Extraction,TlsCodec.Assumptions.MissingCoreModels,TlsCodec.Assumptions.MissingThirdPartyModels,TraitsCodec.Extraction",
+]
+
+# 3. The tls_codec impls of `openmls` (versions, ciphersuite, credentials,
+#    extensions).
+#    Output: openmls/proofs/openmls-codec/lean;
+#    then `sh openmls/proofs/openmls-codec/lean/scripts/post_extract.sh`.
+[scenario.openmls-codec]
+backend = "lean"
+package = "openmls"
+output-dir = "proofs/openmls-codec/lean"
+include = [
+  # provided (default) methods the impls need as fields
+  "tls_codec::Serialize::tls_serialize_detached",
+  "tls_codec::DeserializeBytes::tls_deserialize_exact_bytes",
+  "tls_codec::Deserialize::tls_deserialize_exact",
+  # step 1: versions
+  "{impl tls_codec::Size for openmls::versions::ProtocolVersion}",
+  "{impl tls_codec::DeserializeBytes for openmls::versions::ProtocolVersion}",
+  # std path (waits for the std model)
+  "{impl tls_codec::Serialize for openmls::versions::ProtocolVersion}",
+  "{impl tls_codec::Deserialize for openmls::versions::ProtocolVersion}",
+  # step 2: ciphersuite (bytes path)
+  "{impl tls_codec::Size for openmls::ciphersuite::secret::Secret}",
+  "{impl tls_codec::DeserializeBytes for openmls::ciphersuite::secret::Secret}",
+  "{impl tls_codec::Size for openmls::ciphersuite::hash_ref::HashReference}",
+  "{impl tls_codec::DeserializeBytes for openmls::ciphersuite::hash_ref::HashReference}",
+  "{impl tls_codec::Size for openmls::ciphersuite::signature::Signature}",
+  "{impl tls_codec::DeserializeBytes for openmls::ciphersuite::signature::Signature}",
+  "{impl tls_codec::Size for openmls::ciphersuite::signature::SignaturePublicKey}",
+  "{impl tls_codec::DeserializeBytes for openmls::ciphersuite::signature::SignaturePublicKey}",
+  "{impl tls_codec::Size for openmls::ciphersuite::signature::SignContent}",
+  "{impl tls_codec::DeserializeBytes for openmls::ciphersuite::signature::SignContent}",
+  "{impl tls_codec::Size for openmls::ciphersuite::hpke::EncryptContext}",
+  "{impl tls_codec::DeserializeBytes for openmls::ciphersuite::hpke::EncryptContext}",
+  "{impl tls_codec::Size for openmls::ciphersuite::reuse_guard::ReuseGuard}",
+  "{impl tls_codec::DeserializeBytes for openmls::ciphersuite::reuse_guard::ReuseGuard}",
+  # step 3: credentials (bytes path)
+  "{impl tls_codec::Size for openmls::credentials::CredentialType}",
+  "{impl tls_codec::DeserializeBytes for openmls::credentials::CredentialType}",
+  "{impl tls_codec::Size for openmls::credentials::Credential}",
+  "{impl tls_codec::DeserializeBytes for openmls::credentials::Credential}",
+  # step 4: extensions (bytes path)
+  "{impl tls_codec::Size for openmls::extensions::Extension}",
+  "{impl tls_codec::DeserializeBytes for openmls::extensions::Extension}",
+  "{impl tls_codec::Size for openmls::extensions::ExtensionType}",
+  "{impl tls_codec::DeserializeBytes for openmls::extensions::ExtensionType}",
+  # step 4b: extension payloads, generic Extensions<T>
+  "{impl tls_codec::DeserializeBytes for openmls::extensions::application_id_extension::ApplicationIdExtension}",
+  "{impl tls_codec::DeserializeBytes for openmls::extensions::required_capabilities::RequiredCapabilitiesExtension}",
+  "{impl tls_codec::DeserializeBytes for openmls::extensions::external_pub_extension::ExternalPubExtension}",
+  "{impl tls_codec::DeserializeBytes for openmls::extensions::external_sender_extension::ExternalSender}",
+  "{impl tls_codec::DeserializeBytes for openmls::extensions::last_resort::LastResortExtension}",
+  "{impl tls_codec::Size for openmls::extensions::Extensions<_>}",
+  "{impl tls_codec::DeserializeBytes for openmls::extensions::Extensions<_>}",
+  # step 4c: the extension validators (`validate_extension_type` has a termination
+  # contract, so each impl gets an `ExtensionValidator.Lawful` obligation). Workaround (charon
+  # nightly-2026.09.02): these patterns resolve, but charon's reachability re-check
+  # (reorder_decls) matches them against the impl *after* `lift_associated_types`, whose trait
+  # ref then has 2 type args (`Self`, the lifted `Error`) vs the pattern's 1, and silently drops
+  # the impls. The impls therefore also carry `#[cfg_attr(hax, hax_lib::include)]`, which charon
+  # keeps through `--start-from-attribute=_hax::json` (charon-args below). The attributes can
+  # go once charon matches impls with lifted associated types.
+  "{impl openmls::extensions::ExtensionValidator for openmls::extensions::AnyObject}",
+  "{impl openmls::extensions::ExtensionValidator for openmls::messages::group_info::GroupInfo}",
+  "{impl openmls::extensions::ExtensionValidator for openmls::group::group_context::GroupContext}",
+  "{impl openmls::extensions::ExtensionValidator for openmls::key_packages::KeyPackage}",
+  "{impl openmls::extensions::ExtensionValidator for openmls::treesync::node::leaf_node::LeafNode}",
+  # step 5: std Serialize path of the above (waits for the std model)
+  "{impl tls_codec::Serialize for openmls::ciphersuite::secret::Secret}",
+  "{impl tls_codec::Serialize for openmls::ciphersuite::hash_ref::HashReference}",
+  "{impl tls_codec::Serialize for openmls::ciphersuite::signature::Signature}",
+  "{impl tls_codec::Serialize for openmls::ciphersuite::signature::SignaturePublicKey}",
+  "{impl tls_codec::Serialize for openmls::ciphersuite::signature::SignContent}",
+  "{impl tls_codec::Serialize for openmls::ciphersuite::hpke::EncryptContext}",
+  "{impl tls_codec::Serialize for openmls::ciphersuite::reuse_guard::ReuseGuard}",
+  "{impl tls_codec::Serialize for openmls::credentials::CredentialType}",
+  "{impl tls_codec::Serialize for openmls::credentials::Credential}",
+  "{impl tls_codec::Serialize for openmls::extensions::Extension}",
+  "{impl tls_codec::Serialize for openmls::extensions::ExtensionType}",
+  "{impl tls_codec::Serialize for openmls::extensions::Extensions<_>}",
+  # the std `Deserialize` impls and the extension payload serializers, so that their
+  # `Lawful`s are generated obligations instead of hand-packaged `impl_def` records
+  "{impl tls_codec::Deserialize for openmls::ciphersuite::secret::Secret}",
+  "{impl tls_codec::Deserialize for openmls::ciphersuite::hash_ref::HashReference}",
+  "{impl tls_codec::Deserialize for openmls::ciphersuite::signature::Signature}",
+  "{impl tls_codec::Deserialize for openmls::ciphersuite::signature::SignaturePublicKey}",
+  "{impl tls_codec::Deserialize for openmls::ciphersuite::signature::SignContent}",
+  "{impl tls_codec::Deserialize for openmls::ciphersuite::hpke::EncryptContext}",
+  "{impl tls_codec::Deserialize for openmls::ciphersuite::reuse_guard::ReuseGuard}",
+  "{impl tls_codec::Deserialize for openmls::credentials::Credential}",
+  "{impl tls_codec::Deserialize for openmls::extensions::Extensions<_>}",
+  # upstream #2147-era rewrite: `Extensions<T>` now decodes through `ExtensionIn<T>`, so
+  # `Extension`'s own `Deserialize` impl is no longer reached; include it to keep its obligation
+  "{impl tls_codec::Deserialize for openmls::extensions::Extension}",
+  "{impl tls_codec::Serialize for openmls::extensions::application_id_extension::ApplicationIdExtension}",
+  "{impl tls_codec::Serialize for openmls::extensions::required_capabilities::RequiredCapabilitiesExtension}",
+  "{impl tls_codec::Serialize for openmls::extensions::external_pub_extension::ExternalPubExtension}",
+  "{impl tls_codec::Serialize for openmls::extensions::last_resort::LastResortExtension}",
+]
+opaque = [
+  # the validator marker types: only used as type indices of `ExtensionValidator`
+  # (the impls never touch a value); their definitions drag in most of the crate
+  "openmls::messages::group_info::GroupInfo",
+  "openmls::group::group_context::GroupContext",
+  "openmls::key_packages::KeyPackage",
+  "openmls::treesync::node::leaf_node::LeafNode",
+  "openmls::extensions::ratchet_tree_extension::RatchetTreeExtension",
+  # cuts the cycle Extension -> RatchetTreeExtension -> RatchetTreeIn -> NodeIn
+  # -> LeafNodeIn -> LeafNodePayload -> Extensions<_> -> Extension (aeneas:
+  # "Mixed declaration groups ... not supported yet")
+  "{impl tls_codec::Size for openmls::extensions::ratchet_tree_extension::RatchetTreeExtension}",
+  "{impl tls_codec::Deserialize for openmls::extensions::ratchet_tree_extension::RatchetTreeExtension}",
+  "{impl tls_codec::Serialize for openmls::extensions::ratchet_tree_extension::RatchetTreeExtension}",
+]
+# No `--translate-all-methods`: with it aeneas crashes on the `Iterator` trait
+# method signatures (Internal error, iterator.rs:42, translate_fun_sigs; charon
+# "Mismatched trait clause" on slice `Iter`'s `partition_in_place` / `unzip`).
+# Instead the provided methods the impls need are included by name.
+# The contract item `hax_lib::attributes` generates for `validate_extension_type` is an
+# `ensures` fn inside an anonymous `const _`: `--start-from` (rustc path resolution) cannot
+# name it, and charon does not follow the trait method's uid link to it. Start from every
+# hax-annotated item instead, minus the treemath contracts (their own scenario).
+charon-args = [
+  "--start-from-attribute=_hax::json",
+  "--exclude=openmls::binary_tree",
+]
+aeneas-args = [
+  "-emit-json",
+  "-external-names", "proofs/openmls-codec/lean/.lake/packages/TlsCodec/tls_codec/proofs/tls-codec/lean/translation.json",
+  "-external-names", "../traits/proofs/traits-codec/lean/translation.json",
+  "-extra-includes=TlsCodec.Extraction,TlsCodec.Assumptions.MissingCoreModels,TlsCodec.Assumptions.MissingThirdPartyModels,TraitsCodec.Extraction,OpenmlsCodec.Assumptions.MissingStdModels",
+]
