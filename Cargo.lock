@@ -3996,9 +3996,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 [[package]]
 name = "tls_codec"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18cc98286004cea38f717e2b03d990fc774fbfd38a82720de40e5c94365067c8"
+source = "git+https://github.com/cryspen/formats?rev=eb9795819d79469ab94d76585559c494573a58f6#eb9795819d79469ab94d76585559c494573a58f6"
 dependencies = [
+ "hax-lib 0.4.2",
  "serde",
  "serde_bytes",
  "tls_codec_derive",
@@ -4008,8 +4008,7 @@ dependencies = [
 [[package]]
 name = "tls_codec_derive"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "674f41dd95f76cdeb005c83f9444e20cf43daebef37cde9e49a9ca6f4e87b423"
+source = "git+https://github.com/cryspen/formats?rev=eb9795819d79469ab94d76585559c494573a58f6#eb9795819d79469ab94d76585559c494573a58f6"
 dependencies = [
  "proc-macro2",
  "quote",

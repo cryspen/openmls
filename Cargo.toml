@@ -42,3 +42,12 @@ openmls_libcrux_crypto = { version = "0.4.0", path = "libcrux_crypto" }
 openmls_memory_storage = { version = "0.6.0", path = "memory_storage" }
 openmls_serialization_helpers = { version = "0.1.0", path = "serialization_helpers" }
 openmls_sqlite_storage = { version = "0.3.0", path = "sqlite_storage" }
+
+# The tls_codec proofs (hax extraction of the codec impls of openmls,
+# openmls_traits and openmls_basic_credential) need the tls_codec fork with
+# the saturating / checked length sums (`len_add`, used by
+# `openmls::extensions`) and the hax specs of the codec traits:
+# cryspen/formats, branch `proofs/lean/tls_codec-clean`.
+[patch.crates-io]
+tls_codec = { git = "https://github.com/cryspen/formats", rev = "eb9795819d79469ab94d76585559c494573a58f6" }
+tls_codec_derive = { git = "https://github.com/cryspen/formats", rev = "eb9795819d79469ab94d76585559c494573a58f6" }
