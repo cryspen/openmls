@@ -28,3 +28,6 @@ targeted-messages-draft = []
 serde = { workspace = true, features = ["derive"] }
 tls_codec = { workspace = true }
 maybe-async = { workspace = true }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(hax)'] }

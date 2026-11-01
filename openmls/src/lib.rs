@@ -221,6 +221,8 @@ pub mod storage;
 
 // Private
 mod binary_tree;
+#[cfg(hax)]
+mod codec_specs;
 mod skip_validation;
 mod tree;
 

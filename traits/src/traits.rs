@@ -28,6 +28,9 @@ pub mod signatures;
 pub mod storage;
 pub mod types;
 
+#[cfg(hax)]
+mod codec_specs;
+
 #[cfg(feature = "async")]
 mod mode {
     /// Marks code that is written as async and follows the mode of
