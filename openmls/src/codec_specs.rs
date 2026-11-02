@@ -3,9 +3,9 @@
 //! `cfg(hax)`-only: empty lemma impls, whose contracts become proof obligations of the hax
 //! extraction. OpenMLS types have no `SerializeBytes` impl, so only the `std` lemmas apply.
 //! `SignContent`, `EncryptContext` and `ReuseGuard` derive `PartialEq` outside of tests only under
-//! `cfg(hax)`, for these lemmas.
-//! Left out: `Secret` (its constant-time `PartialEq` calls `log` macros, which the toolchain does
-//! not translate), `Extension` and `Extensions<T>` (through the opaque `RatchetTreeExtension`;
+//! `cfg(hax)`, for these lemmas. `Secret`'s round trip uses its constant-time `PartialEq`, whose
+//! `equal_ct` is opaque in the extraction (assumed to compare the bytes).
+//! Left out: `Extension` and `Extensions<T>` (through the opaque `RatchetTreeExtension`;
 //! `Extensions<T>` also rejects duplicate extension types when decoding), and
 //! `LastResortExtension`'s `NonEmptyStd` (its encoding is empty).
 
@@ -16,7 +16,7 @@ use crate::{
         hash_ref::HashReference,
         hpke::EncryptContext,
         signature::{SignContent, Signature, SignaturePublicKey},
-        ReuseGuard,
+        ReuseGuard, Secret,
     },
     credentials::{Credential, CredentialType},
     extensions::{
@@ -63,3 +63,5 @@ impl RoundTripStd for EncryptContext {}
 impl NonEmptyStd for EncryptContext {}
 impl RoundTripStd for ReuseGuard {}
 impl NonEmptyStd for ReuseGuard {}
+impl RoundTripStd for Secret {}
+impl NonEmptyStd for Secret {}

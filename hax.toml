@@ -272,8 +272,14 @@ include = [
   "{impl tls_codec::spec::io::NonEmptyStd for openmls::ciphersuite::hpke::EncryptContext}",
   "{impl tls_codec::spec::io::RoundTripStd for openmls::ciphersuite::reuse_guard::ReuseGuard}",
   "{impl tls_codec::spec::io::NonEmptyStd for openmls::ciphersuite::reuse_guard::ReuseGuard}",
+  # (they bring in `Secret`'s constant-time `PartialEq`: `equal_ct` is opaque, see below)
+  "{impl tls_codec::spec::io::RoundTripStd for openmls::ciphersuite::secret::Secret}",
+  "{impl tls_codec::spec::io::NonEmptyStd for openmls::ciphersuite::secret::Secret}",
 ]
 opaque = [
+  # the constant-time byte comparison of `Secret`'s `PartialEq`: its `log` macros are not
+  # translated; assumed to compare the bytes (`Assumptions/EqualCtSpec.lean`)
+  "openmls::ciphersuite::equal_ct",
   # the validator marker types: only used as type indices of `ExtensionValidator`
   # (the impls never touch a value); their definitions drag in most of the crate
   "openmls::messages::group_info::GroupInfo",
