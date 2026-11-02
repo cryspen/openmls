@@ -8,8 +8,12 @@
 //! Left out: `Extension` and `Extensions<T>` (through the opaque `RatchetTreeExtension`;
 //! `Extensions<T>` also rejects duplicate extension types when decoding), and
 //! `LastResortExtension`'s `NonEmptyStd` (its encoding is empty).
+//!
+//! `DecodersAgree` / `RoundTripMixed`: the `std` and byte-slice decoders agree, so the `std`
+//! encoding also round-trips through the byte-slice decoder (as `MlsMessageIn` decodes). Left
+//! out: `UnknownExtension` (no byte-slice decoder).
 
-use tls_codec::spec::io::{NonEmptyStd, RoundTripStd};
+use tls_codec::spec::io::{DecodersAgree, NonEmptyStd, RoundTripMixed, RoundTripStd};
 
 use crate::{
     ciphersuite::{
@@ -65,3 +69,40 @@ impl RoundTripStd for ReuseGuard {}
 impl NonEmptyStd for ReuseGuard {}
 impl RoundTripStd for Secret {}
 impl NonEmptyStd for Secret {}
+
+// Agreement of the `std` and byte-slice decoders, and the round trip of the `std` encoding
+// through the byte-slice decoder.
+impl DecodersAgree for ProtocolVersion {}
+impl RoundTripMixed for ProtocolVersion {}
+impl DecodersAgree for CredentialType {}
+impl RoundTripMixed for CredentialType {}
+impl DecodersAgree for ExtensionType {}
+impl RoundTripMixed for ExtensionType {}
+impl DecodersAgree for ProposalType {}
+impl RoundTripMixed for ProposalType {}
+impl DecodersAgree for HashReference {}
+impl RoundTripMixed for HashReference {}
+impl DecodersAgree for Signature {}
+impl RoundTripMixed for Signature {}
+impl DecodersAgree for SignaturePublicKey {}
+impl RoundTripMixed for SignaturePublicKey {}
+impl DecodersAgree for Credential {}
+impl RoundTripMixed for Credential {}
+impl DecodersAgree for ApplicationIdExtension {}
+impl RoundTripMixed for ApplicationIdExtension {}
+impl DecodersAgree for RequiredCapabilitiesExtension {}
+impl RoundTripMixed for RequiredCapabilitiesExtension {}
+impl DecodersAgree for ExternalPubExtension {}
+impl RoundTripMixed for ExternalPubExtension {}
+impl DecodersAgree for ExternalSender {}
+impl RoundTripMixed for ExternalSender {}
+impl DecodersAgree for LastResortExtension {}
+impl RoundTripMixed for LastResortExtension {}
+impl DecodersAgree for SignContent {}
+impl RoundTripMixed for SignContent {}
+impl DecodersAgree for EncryptContext {}
+impl RoundTripMixed for EncryptContext {}
+impl DecodersAgree for ReuseGuard {}
+impl RoundTripMixed for ReuseGuard {}
+impl DecodersAgree for Secret {}
+impl RoundTripMixed for Secret {}

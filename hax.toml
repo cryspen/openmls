@@ -77,6 +77,17 @@ include = [
   "{impl tls_codec::spec::io::NonEmptyStd for openmls_traits::types::Ciphersuite}",
   "{impl tls_codec::spec::io::RoundTripStd for openmls_traits::types::HpkePrivateKey}",
   "{impl tls_codec::spec::io::NonEmptyStd for openmls_traits::types::HpkePrivateKey}",
+  # agreement of the two decoders and the mixed round trip (`src/codec_specs.rs`)
+  "{impl tls_codec::spec::io::DecodersAgree for openmls_traits::types::SignatureScheme}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls_traits::types::SignatureScheme}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls_traits::types::HpkeCiphertext}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls_traits::types::HpkeCiphertext}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls_traits::types::VerifiableCiphersuite}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls_traits::types::VerifiableCiphersuite}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls_traits::types::Ciphersuite}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls_traits::types::Ciphersuite}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls_traits::types::HpkePrivateKey}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls_traits::types::HpkePrivateKey}",
 ]
 # Aeneas cannot translate the signatures of the `try_*` iterator methods
 # (internal error, as `try_fold` in the tls_codec scenario); they come in
@@ -117,6 +128,8 @@ include = [
   # round-trip lemmas (`src/codec_specs.rs`)
   "{impl tls_codec::spec::io::RoundTripStd for openmls_basic_credential::SignatureKeyPair}",
   "{impl tls_codec::spec::io::NonEmptyStd for openmls_basic_credential::SignatureKeyPair}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls_basic_credential::SignatureKeyPair}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls_basic_credential::SignatureKeyPair}",
 ]
 # `--translate-all-methods` is what makes aeneas fill the provided (default)
 # methods of the tls_codec traits (`tls_serialize_detached`, `tls_deserialize_exact`,
@@ -275,6 +288,44 @@ include = [
   # (they bring in `Secret`'s constant-time `PartialEq`: `equal_ct` is opaque, see below)
   "{impl tls_codec::spec::io::RoundTripStd for openmls::ciphersuite::secret::Secret}",
   "{impl tls_codec::spec::io::NonEmptyStd for openmls::ciphersuite::secret::Secret}",
+  # agreement of the two decoders and the mixed round trip (`src/codec_specs.rs`)
+  "tls_codec::spec::io::DecodersAgree::decoders_agree",
+  "tls_codec::spec::io::DecodersAgree::bytes_prefix_only",
+  "tls_codec::spec::io::RoundTripMixed::round_trip_mixed",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::versions::ProtocolVersion}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::versions::ProtocolVersion}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::credentials::CredentialType}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::credentials::CredentialType}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::extensions::ExtensionType}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::extensions::ExtensionType}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::messages::proposals::ProposalType}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::messages::proposals::ProposalType}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::ciphersuite::hash_ref::HashReference}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::ciphersuite::hash_ref::HashReference}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::ciphersuite::signature::Signature}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::ciphersuite::signature::Signature}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::ciphersuite::signature::SignaturePublicKey}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::ciphersuite::signature::SignaturePublicKey}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::credentials::Credential}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::credentials::Credential}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::extensions::application_id_extension::ApplicationIdExtension}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::extensions::application_id_extension::ApplicationIdExtension}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::extensions::required_capabilities::RequiredCapabilitiesExtension}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::extensions::required_capabilities::RequiredCapabilitiesExtension}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::extensions::external_pub_extension::ExternalPubExtension}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::extensions::external_pub_extension::ExternalPubExtension}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::extensions::external_sender_extension::ExternalSender}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::extensions::external_sender_extension::ExternalSender}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::extensions::last_resort::LastResortExtension}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::extensions::last_resort::LastResortExtension}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::ciphersuite::signature::SignContent}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::ciphersuite::signature::SignContent}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::ciphersuite::hpke::EncryptContext}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::ciphersuite::hpke::EncryptContext}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::ciphersuite::reuse_guard::ReuseGuard}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::ciphersuite::reuse_guard::ReuseGuard}",
+  "{impl tls_codec::spec::io::DecodersAgree for openmls::ciphersuite::secret::Secret}",
+  "{impl tls_codec::spec::io::RoundTripMixed for openmls::ciphersuite::secret::Secret}",
 ]
 opaque = [
   # the constant-time byte comparison of `Secret`'s `PartialEq`: its `log` macros are not

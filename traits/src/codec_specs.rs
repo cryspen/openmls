@@ -4,7 +4,7 @@
 //! extraction. `HpkePrivateKey` derives `PartialEq` outside of `test-utils` builds only under
 //! `cfg(hax)`, for these lemmas.
 
-use tls_codec::spec::io::{NonEmptyStd, RoundTripStd};
+use tls_codec::spec::io::{DecodersAgree, NonEmptyStd, RoundTripMixed, RoundTripStd};
 use tls_codec::spec::{NonEmpty, RoundTrip};
 
 use crate::types::{
@@ -30,3 +30,20 @@ impl NonEmptyStd for Ciphersuite {}
 
 impl RoundTripStd for HpkePrivateKey {}
 impl NonEmptyStd for HpkePrivateKey {}
+
+// Agreement of the `std` and byte-slice decoders, and the round trip of the `std` encoding
+// through the byte-slice decoder.
+impl DecodersAgree for SignatureScheme {}
+impl RoundTripMixed for SignatureScheme {}
+
+impl DecodersAgree for HpkeCiphertext {}
+impl RoundTripMixed for HpkeCiphertext {}
+
+impl DecodersAgree for VerifiableCiphersuite {}
+impl RoundTripMixed for VerifiableCiphersuite {}
+
+impl DecodersAgree for Ciphersuite {}
+impl RoundTripMixed for Ciphersuite {}
+
+impl DecodersAgree for HpkePrivateKey {}
+impl RoundTripMixed for HpkePrivateKey {}
