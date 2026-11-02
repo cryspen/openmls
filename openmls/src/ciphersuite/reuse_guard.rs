@@ -14,7 +14,7 @@ use openmls_traits::crypto::OpenMlsCrypto;
 pub(crate) const REUSE_GUARD_BYTES: usize = 4;
 
 #[derive(Debug, Clone, Copy, TlsSerialize, TlsDeserialize, TlsDeserializeBytes, TlsSize)]
-#[cfg_attr(test, derive(PartialEq, Eq))]
+#[cfg_attr(any(hax, test), derive(PartialEq, Eq))]
 pub struct ReuseGuard {
     pub(in crate::ciphersuite) value: [u8; REUSE_GUARD_BYTES],
 }

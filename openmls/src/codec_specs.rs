@@ -2,8 +2,10 @@
 //!
 //! `cfg(hax)`-only: empty lemma impls, whose contracts become proof obligations of the hax
 //! extraction. OpenMLS types have no `SerializeBytes` impl, so only the `std` lemmas apply.
-//! Left out: types without `PartialEq` in non-test builds (`SignContent`, `EncryptContext`,
-//! `ReuseGuard`), `Extension` and `Extensions<T>` (through the opaque `RatchetTreeExtension`;
+//! `SignContent`, `EncryptContext` and `ReuseGuard` derive `PartialEq` outside of tests only under
+//! `cfg(hax)`, for these lemmas.
+//! Left out: `Secret` (its constant-time `PartialEq` calls `log` macros, which the toolchain does
+//! not translate), `Extension` and `Extensions<T>` (through the opaque `RatchetTreeExtension`;
 //! `Extensions<T>` also rejects duplicate extension types when decoding), and
 //! `LastResortExtension`'s `NonEmptyStd` (its encoding is empty).
 
@@ -12,7 +14,9 @@ use tls_codec::spec::io::{NonEmptyStd, RoundTripStd};
 use crate::{
     ciphersuite::{
         hash_ref::HashReference,
-        signature::{Signature, SignaturePublicKey},
+        hpke::EncryptContext,
+        signature::{SignContent, Signature, SignaturePublicKey},
+        ReuseGuard,
     },
     credentials::{Credential, CredentialType},
     extensions::{
@@ -53,3 +57,9 @@ impl NonEmptyStd for ExternalSender {}
 impl RoundTripStd for UnknownExtension {}
 impl NonEmptyStd for UnknownExtension {}
 impl RoundTripStd for LastResortExtension {}
+impl RoundTripStd for SignContent {}
+impl NonEmptyStd for SignContent {}
+impl RoundTripStd for EncryptContext {}
+impl NonEmptyStd for EncryptContext {}
+impl RoundTripStd for ReuseGuard {}
+impl NonEmptyStd for ReuseGuard {}

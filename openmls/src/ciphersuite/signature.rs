@@ -38,6 +38,7 @@ impl From<Vec<u8>> for Signature {
 /// } SignContent;
 /// ```
 #[derive(Debug, Clone, TlsSerialize, TlsDeserialize, TlsDeserializeBytes, TlsSize)]
+#[cfg_attr(hax, derive(PartialEq))]
 pub struct SignContent {
     label: VLBytes,
     content: VLBytes,

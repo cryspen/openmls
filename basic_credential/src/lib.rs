@@ -27,6 +27,9 @@ use serde::{Deserialize, Serialize};
 use tls_codec::{SecretVLBytes, TlsDeserialize, TlsDeserializeBytes, TlsSerialize, TlsSize};
 use zeroize::Zeroize;
 
+#[cfg(hax)]
+mod codec_specs;
+
 /// A signature key pair for the basic credential.
 ///
 /// This can be used as keys to implement the MLS basic credential. It is a simple
@@ -35,6 +38,7 @@ use zeroize::Zeroize;
     TlsSerialize, TlsSize, TlsDeserialize, TlsDeserializeBytes, serde::Serialize, serde::Deserialize,
 )]
 #[cfg_attr(feature = "clonable", derive(Clone))]
+#[cfg_attr(hax, derive(PartialEq))]
 pub struct SignatureKeyPair {
     #[serde(with = "secret_bytes_as_vec")]
     private: SecretVLBytes,

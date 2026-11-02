@@ -77,6 +77,7 @@ impl From<CryptoError> for Error {
 
 /// Context for HPKE encryption
 #[derive(Debug, Clone, TlsSerialize, TlsDeserialize, TlsDeserializeBytes, TlsSize)]
+#[cfg_attr(hax, derive(PartialEq))]
 pub struct EncryptContext {
     /// Prefixed with LABEL_PREFIX
     label: VLBytes,

@@ -75,6 +75,8 @@ include = [
   "{impl tls_codec::spec::io::NonEmptyStd for openmls_traits::types::VerifiableCiphersuite}",
   "{impl tls_codec::spec::io::RoundTripStd for openmls_traits::types::Ciphersuite}",
   "{impl tls_codec::spec::io::NonEmptyStd for openmls_traits::types::Ciphersuite}",
+  "{impl tls_codec::spec::io::RoundTripStd for openmls_traits::types::HpkePrivateKey}",
+  "{impl tls_codec::spec::io::NonEmptyStd for openmls_traits::types::HpkePrivateKey}",
 ]
 # Aeneas cannot translate the signatures of the `try_*` iterator methods
 # (internal error, as `try_fold` in the tls_codec scenario); they come in
@@ -112,6 +114,9 @@ include = [
   "{impl tls_codec::Serialize for openmls_basic_credential::SignatureKeyPair}",
   "{impl tls_codec::Deserialize for openmls_basic_credential::SignatureKeyPair}",
   "{impl tls_codec::DeserializeBytes for openmls_basic_credential::SignatureKeyPair}",
+  # round-trip lemmas (`src/codec_specs.rs`)
+  "{impl tls_codec::spec::io::RoundTripStd for openmls_basic_credential::SignatureKeyPair}",
+  "{impl tls_codec::spec::io::NonEmptyStd for openmls_basic_credential::SignatureKeyPair}",
 ]
 # `--translate-all-methods` is what makes aeneas fill the provided (default)
 # methods of the tls_codec traits (`tls_serialize_detached`, `tls_deserialize_exact`,
@@ -261,6 +266,12 @@ include = [
   "{impl tls_codec::spec::io::RoundTripStd for openmls::extensions::UnknownExtension}",
   "{impl tls_codec::spec::io::NonEmptyStd for openmls::extensions::UnknownExtension}",
   "{impl tls_codec::spec::io::RoundTripStd for openmls::extensions::last_resort::LastResortExtension}",
+  "{impl tls_codec::spec::io::RoundTripStd for openmls::ciphersuite::signature::SignContent}",
+  "{impl tls_codec::spec::io::NonEmptyStd for openmls::ciphersuite::signature::SignContent}",
+  "{impl tls_codec::spec::io::RoundTripStd for openmls::ciphersuite::hpke::EncryptContext}",
+  "{impl tls_codec::spec::io::NonEmptyStd for openmls::ciphersuite::hpke::EncryptContext}",
+  "{impl tls_codec::spec::io::RoundTripStd for openmls::ciphersuite::reuse_guard::ReuseGuard}",
+  "{impl tls_codec::spec::io::NonEmptyStd for openmls::ciphersuite::reuse_guard::ReuseGuard}",
 ]
 opaque = [
   # the validator marker types: only used as type indices of `ExtensionValidator`

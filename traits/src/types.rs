@@ -301,7 +301,7 @@ pub struct HpkeCiphertext {
     TlsDeserializeBytes,
     TlsSize,
 )]
-#[cfg_attr(feature = "test-utils", derive(PartialEq, Eq))]
+#[cfg_attr(any(hax, feature = "test-utils"), derive(PartialEq, Eq))]
 #[serde(transparent)]
 pub struct HpkePrivateKey(SecretVLBytes);
 

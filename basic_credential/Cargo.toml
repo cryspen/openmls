@@ -38,3 +38,6 @@ draft-ietf-mls-pq-ciphersuites = [
 serde_json = "1.0.149"
 openmls_rust_crypto = { workspace = true }
 openmls_libcrux_crypto = { workspace = true }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(hax)'] }
