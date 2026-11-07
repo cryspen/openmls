@@ -1,4 +1,5 @@
 -- Imports the extraction modules. Rewritten by hax on every extraction.
+module
 
-import BasicCredentialCodec.Extraction.Types
-import BasicCredentialCodec.Extraction.Funs
+public import BasicCredentialCodec.Extraction.Types
+public import BasicCredentialCodec.Extraction.Funs

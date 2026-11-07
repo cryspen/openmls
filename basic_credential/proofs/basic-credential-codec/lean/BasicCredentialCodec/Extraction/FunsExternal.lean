@@ -1,2 +1,3 @@
+module
 
-import BasicCredentialCodec.Assumptions.FunsExternal
+public import BasicCredentialCodec.Assumptions.FunsExternal

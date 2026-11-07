@@ -1,2 +1,3 @@
+module
 
-import TraitsCodec.Assumptions.FunsExternal
+public import TraitsCodec.Assumptions.FunsExternal

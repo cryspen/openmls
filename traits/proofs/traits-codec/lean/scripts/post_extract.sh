@@ -1,14 +1,5 @@
 #!/bin/sh
-# WORKAROUND (tooling skew): the installed cargo-hax (hax main 721d1a27) writes
-# Lean-module wrappers (`module` / `public import`), but the pinned aeneas and
-# TlsCodec are on Lean v4.31 with non-module files, and a `module` cannot import
-# a non-module. Strip the module syntax from the three hax-written wrappers.
-# Run after every `cargo hax extract traits-codec`. Undo: delete this script
-# once the whole stack (TlsCodec, aeneas, Lean) moves to the module system.
 cd "$(dirname "$0")/.." || exit 1
-for f in TraitsCodec/Extraction.lean TraitsCodec/Extraction/FunsExternal.lean TraitsCodec/Extraction/TypesExternal.lean; do
-  sed -i -e '/^module$/d' -e 's/^public import /import /' "$f"
-done
 
 # WORKAROUND (aeneas, cross-crate default methods): the provided lemma methods of the
 # tls_codec `spec` traits (`round_trip`, `nonempty`, `round_trip_std`, `round_trip_exact`,

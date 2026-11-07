@@ -1,2 +1,3 @@
+module
 
-import OpenmlsCodec.Assumptions.TypesExternal
+public import OpenmlsCodec.Assumptions.TypesExternal

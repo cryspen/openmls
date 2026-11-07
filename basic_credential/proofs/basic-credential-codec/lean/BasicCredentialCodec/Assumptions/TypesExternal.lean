@@ -2,12 +2,15 @@
 -- Seeded by hax from Extraction/TypesExternal_Template.lean: fill the holes.
 -- hax never modifies this file; after re-extraction, compare it against the
 -- regenerated template to see what changed.
-import Aeneas
-import CoreModels
-import TlsCodec.Extraction
-import TlsCodec.Assumptions.MissingCoreModels
-import TlsCodec.Assumptions.MissingThirdPartyModels
-import TraitsCodec.Extraction
+module
+
+public import Aeneas
+public import CoreModels
+public import TlsCodec.Extraction
+public import TlsCodec.Assumptions.MissingCoreModels
+public import TlsCodec.Assumptions.MissingThirdPartyModels
+public import TraitsCodec.Extraction
+@[expose] public section
 open CoreModels Aeneas
 open Aeneas.Std hiding namespace core alloc
 open RustM ControlFlow Error

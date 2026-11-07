@@ -63,7 +63,7 @@ builds it (its extracted `tls_serialize`, the `Size` impl, the default `tls_seri
 impl_def extensions.ratchet_tree_extension.RatchetTreeExtension.serializeInst : tls_codec.Serialize
   extensions.ratchet_tree_extension.RatchetTreeExtension := {
   SizeInst := extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSize
-  tls_serialize := fun {W : Type} (coreiowriteWriteInst : core.io.write.Write W) =>
+  tls_serialize := fun {W : Type _} (coreiowriteWriteInst : core.io.write.Write W) =>
     extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSerialize.tls_serialize
     coreiowriteWriteInst
   tls_serialize_detached := tls_codec.Serialize.tls_serialize_detached.default

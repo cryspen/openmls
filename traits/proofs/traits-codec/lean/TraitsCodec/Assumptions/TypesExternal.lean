@@ -1,10 +1,13 @@
 -- [openmls_traits]: external types. Seeded from Extraction/TypesExternal_Template.lean
 -- (re-seeded by hand after the scope of the scenario changed).
-import Aeneas
-import CoreModels
-import TlsCodec.Extraction
-import TlsCodec.Assumptions.MissingCoreModels
-import TlsCodec.Assumptions.MissingThirdPartyModels
+module
+
+public import Aeneas
+public import CoreModels
+public import TlsCodec.Extraction
+public import TlsCodec.Assumptions.MissingCoreModels
+public import TlsCodec.Assumptions.MissingThirdPartyModels
+@[expose] public section
 open CoreModels Aeneas
 open Aeneas.Std hiding namespace core alloc
 open RustM ControlFlow Error

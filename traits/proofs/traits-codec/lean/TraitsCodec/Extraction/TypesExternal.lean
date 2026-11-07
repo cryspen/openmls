@@ -1,2 +1,3 @@
+module
 
-import TraitsCodec.Assumptions.TypesExternal
+public import TraitsCodec.Assumptions.TypesExternal

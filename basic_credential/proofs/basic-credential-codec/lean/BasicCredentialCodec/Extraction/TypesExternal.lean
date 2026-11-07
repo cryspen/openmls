@@ -1,2 +1,3 @@
+module
 
-import BasicCredentialCodec.Assumptions.TypesExternal
+public import BasicCredentialCodec.Assumptions.TypesExternal

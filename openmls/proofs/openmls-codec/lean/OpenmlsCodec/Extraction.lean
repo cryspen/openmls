@@ -1,5 +1,6 @@
 -- Imports the extraction modules. Rewritten by hax on every extraction.
+module
 
-import OpenmlsCodec.Extraction.Types
-import OpenmlsCodec.Extraction.Funs
-import OpenmlsCodec.Extraction.Specs
+public import OpenmlsCodec.Extraction.Types
+public import OpenmlsCodec.Extraction.Funs
+public import OpenmlsCodec.Extraction.Specs

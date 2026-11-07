@@ -2,13 +2,16 @@
 -- Seeded by hax from Extraction/FunsExternal_Template.lean: fill the holes.
 -- hax never modifies this file; after re-extraction, compare it against the
 -- regenerated template to see what changed.
-import Aeneas
-import CoreModels
-import OpenmlsCodec.Extraction.Types
-import TlsCodec.Extraction
-import TlsCodec.Assumptions.MissingCoreModels
-import TlsCodec.Assumptions.MissingThirdPartyModels
-import TraitsCodec.Extraction
+module
+
+public import Aeneas
+public import CoreModels
+public import OpenmlsCodec.Extraction.Types
+public import TlsCodec.Extraction
+public import TlsCodec.Assumptions.MissingCoreModels
+public import TlsCodec.Assumptions.MissingThirdPartyModels
+public import TraitsCodec.Extraction
+@[expose] public section
 open CoreModels Aeneas
 open Aeneas.Std hiding namespace core alloc
 open RustM ControlFlow Error
@@ -67,7 +70,7 @@ axiom extensions.ExtensionType.Insts.CoreFmtDebug.fmt
     Visibility: public -/
 axiom
   extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSerialize.tls_serialize
-  {W : Type} (coreiowriteWriteInst : core.io.write.Write W) :
+  {W : Type _} (coreiowriteWriteInst : core.io.write.Write W) :
   extensions.ratchet_tree_extension.RatchetTreeExtension → W → RustM
     ((core.result.Result Std.Usize tls_codec.Error) × W)
 
@@ -85,7 +88,7 @@ axiom
     Visibility: public -/
 axiom
   extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecDeserialize.tls_deserialize
-  {R : Type} (allocioreadReadInst : alloc.io.read.Read R) :
+  {R : Type _} (allocioreadReadInst : alloc.io.read.Read R) :
   R → RustM ((core.result.Result
     extensions.ratchet_tree_extension.RatchetTreeExtension tls_codec.Error) ×
     R)

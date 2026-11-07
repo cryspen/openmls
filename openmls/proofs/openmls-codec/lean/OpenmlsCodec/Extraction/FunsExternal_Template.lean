@@ -4,14 +4,16 @@
 -- from it, and that copy is yours to fill in. This file is regenerated on
 -- every extraction; diff it against your Assumptions file to see what the
 -- extraction now requires.
-import Aeneas
-import CoreModels
-import OpenmlsCodec.Extraction.Types
-import TlsCodec.Extraction
-import TlsCodec.Assumptions.MissingCoreModels
-import TlsCodec.Assumptions.MissingThirdPartyModels
-import TraitsCodec.Extraction
-import OpenmlsCodec.Assumptions.MissingStdModels
+module
+public import Aeneas
+public import CoreModels
+public import OpenmlsCodec.Extraction.Types
+public import TlsCodec.Extraction
+public import TlsCodec.Assumptions.MissingCoreModels
+public import TlsCodec.Assumptions.MissingThirdPartyModels
+public import TraitsCodec.Extraction
+public import OpenmlsCodec.Assumptions.MissingStdModels
+@[expose] public section
 open CoreModels Aeneas
 open Aeneas.Std hiding namespace core alloc
 open RustM ControlFlow Error
@@ -22,6 +24,7 @@ set_option linter.unusedVariables false
 set_option linter.style.whitespace false
 set_option linter.style.setOption false
 set_option linter.style.longLine false
+set_option linter.internalConstructors false
 
 /- You can set the `maxHeartbeats` value with the `-max-heartbeats` CLI option -/
 set_option maxHeartbeats 1000000
@@ -73,7 +76,7 @@ axiom
     Visibility: public -/
 axiom
   extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSerialize.tls_serialize
-  {W : Type} (coreiowriteWriteInst : core.io.write.Write W) :
+  {W : Type _} (coreiowriteWriteInst : core.io.write.Write W) :
   extensions.ratchet_tree_extension.RatchetTreeExtension → W → RustM
     ((core.result.Result Std.Usize tls_codec.Error) × W)
 
@@ -92,7 +95,7 @@ axiom
     Visibility: public -/
 axiom
   extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecDeserialize.tls_deserialize
-  {R : Type} (allocioreadReadInst : alloc.io.read.Read R) :
+  {R : Type _} (allocioreadReadInst : alloc.io.read.Read R) :
   R → RustM ((core.result.Result
     extensions.ratchet_tree_extension.RatchetTreeExtension tls_codec.Error) ×
     R)

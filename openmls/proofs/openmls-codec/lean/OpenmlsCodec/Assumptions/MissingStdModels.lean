@@ -1,6 +1,6 @@
 /- Missing std models for the openmls extraction: `core` / `alloc` / `std` items that
 upstream OpenMLS (2026-08, rebased onto `be248d4b1`) reaches and that neither CoreModels
-(hax-lean v0.3.27) nor TlsCodec's `Assumptions/MissingCoreModels.lean` provide.
+(hax-lean v0.3.34) nor TlsCodec's `Assumptions/MissingCoreModels.lean` provide.
 Crate-independent (imports only Aeneas, CoreModels and TlsCodec's core models), imported into
 every generated file through `-extra-includes` (`../../../../hax.toml`). Candidates for moving to
 TlsCodec's `MissingCoreModels.lean` / hax's core models.
@@ -13,9 +13,12 @@ Reached by:
 - `LowerHex` for `u16`: the `{value:#06x}` error messages of the canonicity checks
   (`CredentialType`, `ProposalType`, `ExtensionType` `Serialize`);
 - `HashSet<ExtensionType>`: the duplicate check of `Extensions<T>::try_from(Vec<ExtensionIn<T>>)`. -/
-import Aeneas
-import CoreModels
-import TlsCodec.Assumptions.MissingCoreModels
+module
+
+public import Aeneas
+public import CoreModels
+public import TlsCodec.Assumptions.MissingCoreModels
+@[expose] public section
 open CoreModels Aeneas
 open Aeneas.Std hiding namespace core alloc
 open RustM ControlFlow Error
@@ -32,7 +35,7 @@ namespace CoreModels
 /-! ## `ToString` -/
 
 /-- Trait declaration: [alloc::string::ToString] -/
-structure alloc.string.ToString (Self : Type) where
+structure alloc.string.ToString (Self : Type _) where
   to_string : Self → RustM alloc.string.String
 
 /-- [alloc::string::{impl ToString for T}::to_string] (`T: Display`): std writes `self` into a
@@ -41,7 +44,7 @@ structure alloc.string.ToString (Self : Type) where
     DEVIATION(std): the text is not modelled (`Formatter` is `Unit`): the empty string, as
     `alloc.fmt.format`. -/
 def alloc.string.ToString.Blanket.to_string
-    {T : Type} (DisplayInst : core.fmt.Display T) (x : T) : RustM alloc.string.String := do
+    {T : Type _} (DisplayInst : core.fmt.Display T) (x : T) : RustM alloc.string.String := do
   let (r, _) ← DisplayInst.fmt x ()
   match r with
   | .Ok () => ok ""
@@ -49,7 +52,7 @@ def alloc.string.ToString.Blanket.to_string
 
 /-- [alloc::string::{impl ToString for T}] (`T: Display`). -/
 @[reducible]
-def alloc.string.ToString.Blanket {T : Type} (DisplayInst : core.fmt.Display T) :
+def alloc.string.ToString.Blanket {T : Type _} (DisplayInst : core.fmt.Display T) :
     alloc.string.ToString T := {
   to_string := alloc.string.ToString.Blanket.to_string DisplayInst
 }
@@ -69,7 +72,7 @@ def core.Str.Insts.CoreFmtDisplay : core.fmt.Display Str := {
 /-! ## `LowerHex` -/
 
 /-- Trait declaration: [core::fmt::LowerHex] -/
-structure core.fmt.LowerHex (Self : Type) where
+structure core.fmt.LowerHex (Self : Type _) where
   fmt : Self → core.fmt.Formatter → RustM ((core.result.Result Unit core.fmt.Error) ×
     core.fmt.Formatter)
 
@@ -88,7 +91,7 @@ def core.U16.Insts.CoreFmtLowerHex : core.fmt.LowerHex Std.U16 := {
 /-- [core::fmt::rt::{Argument}::new_lower_hex]: as `new_display` (same DEVIATION: `fmt` is
     called here, eagerly, and an `Err` panics as `format` would). -/
 def core.fmt.rt.Argument.new_lower_hex
-    {T : Type} (LowerHexInst : core.fmt.LowerHex T) (x : T) :
+    {T : Type _} (LowerHexInst : core.fmt.LowerHex T) (x : T) :
     RustM core.fmt.rt.Argument := do
   let (r, _) ← LowerHexInst.fmt x ()
   match r with
@@ -106,7 +109,7 @@ def std.hash.random.RandomState := Unit
 def std.hash.random.DefaultHasher := Unit
 
 /-- Trait declaration: [core::hash::BuildHasher] (associated type `Hasher` lifted). -/
-structure core.hash.BuildHasher (Self : Type) (Self_Hasher : Type) where
+structure core.hash.BuildHasher (Self : Type _) (Self_Hasher : Type _) where
   build_hasher : Self → RustM Self_Hasher
 
 /-- [std::hash::random::{impl BuildHasher for RandomState}] -/
@@ -118,12 +121,12 @@ def std.hash.random.RandomState.Insts.CoreHashBuildHasherDefaultHasher :
 
 /-- [std::collections::hash::set::HashSet]: modelled by the list of its elements (most recent
     first, no duplicates). The hasher state `S` and the allocator `A` are type indices only. -/
-structure std.collections.hash.set.HashSet (T : Type) (S : Type) (A : Type) where
+structure std.collections.hash.set.HashSet (T : Type _) (S : Type _) (A : Type _) where
   elems : List T
 
 /-- [std::collections::hash::set::{HashSet<T, RandomState>}::with_capacity]: an empty set.
     DEVIATION(std): the capacity is not modelled (an allocation failure aborts in std). -/
-def std.collections.hash.set.HashSetTRandomStateGlobal.with_capacity (T : Type)
+def std.collections.hash.set.HashSetTRandomStateGlobal.with_capacity (T : Type _)
     (_capacity : Std.Usize) :
     RustM (std.collections.hash.set.HashSet T std.hash.random.RandomState alloc.alloc.Global) :=
   ok ⟨[]⟩
@@ -137,7 +140,7 @@ open Classical in
     documented requirement; derived impls satisfy both). Growth (allocation failure aborts) is
     not modelled. -/
 noncomputable def std.collections.hash.set.HashSet.insert
-    {T S A Hasher : Type} (EqInst : core.cmp.Eq T) (HashInst : core.hash.Hash T)
+    {T S A Hasher : Type _} (EqInst : core.cmp.Eq T) (HashInst : core.hash.Hash T)
     (BuildHasherInst : core.hash.BuildHasher S Hasher)
     (self : std.collections.hash.set.HashSet T S A) (value : T) :
     RustM (Bool × std.collections.hash.set.HashSet T S A) :=
@@ -153,7 +156,7 @@ namespace CoreModels
     unconstrained. A modelling choice (as `From.from`): the blanket impl panics only when the
     type's `Display::fmt` returns `Err` on a `String` sink, which std documents as a bug of that
     impl. A field is a proof obligation of each impl's `Lawful`, never an axiom. -/
-structure alloc.string.ToString.Lawful (Self : Type)
+structure alloc.string.ToString.Lawful (Self : Type _)
   (ToStringInst : alloc.string.ToString Self) : Prop where
   to_string_spec (x : Self) : ⦃ ⌜ True ⌝ ⦄ ToStringInst.to_string x ⦃ ⇓ _ => ⌜ True ⌝ ⦄
 

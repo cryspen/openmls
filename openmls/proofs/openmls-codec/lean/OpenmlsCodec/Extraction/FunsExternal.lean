@@ -1,2 +1,3 @@
+module
 
-import OpenmlsCodec.Assumptions.FunsExternal
+public import OpenmlsCodec.Assumptions.FunsExternal

@@ -1,4 +1,5 @@
 -- Imports the extraction modules. Rewritten by hax on every extraction.
+module
 
-import TraitsCodec.Extraction.Types
-import TraitsCodec.Extraction.Funs
+public import TraitsCodec.Extraction.Types
+public import TraitsCodec.Extraction.Funs

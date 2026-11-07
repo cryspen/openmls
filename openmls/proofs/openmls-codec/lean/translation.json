@@ -1,10 +1,10 @@
 {
-  "aeneas_version": "4aefccc8",
-  "charon_version": "0.1.247",
+  "aeneas_version": "3896040",
+  "charon_version": "0.1.304",
   "crate": "openmls",
   "functions": [
     {
-      "def_id": 306,
+      "def_id": 325,
       "lean_name": "ciphersuite.equal_ct",
       "extract_name": "ciphersuite.equal_ct",
       "lean_file": "OpenmlsCodec/Extraction/FunsExternal_Template.lean",
@@ -23,7 +23,7 @@
       "reducible": false
     },
     {
-      "def_id": 253,
+      "def_id": 276,
       "lean_name": "credentials.CredentialType.Insts.CoreFmtDebug.fmt",
       "extract_name": "credentials.CredentialType.Insts.CoreFmtDebug.fmt",
       "lean_file": "OpenmlsCodec/Extraction/FunsExternal_Template.lean",
@@ -42,7 +42,7 @@
       "reducible": false
     },
     {
-      "def_id": 270,
+      "def_id": 290,
       "lean_name": "extensions.ExtensionType.Insts.CoreFmtDebug.fmt",
       "extract_name": "extensions.ExtensionType.Insts.CoreFmtDebug.fmt",
       "lean_file": "OpenmlsCodec/Extraction/FunsExternal_Template.lean",
@@ -61,7 +61,7 @@
       "reducible": false
     },
     {
-      "def_id": 293,
+      "def_id": 312,
       "lean_name": "messages.proposals.ProposalType.Insts.CoreFmtDebug.fmt",
       "extract_name": "messages.proposals.ProposalType.Insts.CoreFmtDebug.fmt",
       "lean_file": "OpenmlsCodec/Extraction/FunsExternal_Template.lean",
@@ -80,7 +80,7 @@
       "reducible": false
     },
     {
-      "def_id": 130,
+      "def_id": 149,
       "lean_name": "extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/FunsExternal_Template.lean",
@@ -99,7 +99,7 @@
       "reducible": false
     },
     {
-      "def_id": 167,
+      "def_id": 188,
       "lean_name": "extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/FunsExternal_Template.lean",
@@ -118,7 +118,7 @@
       "reducible": false
     },
     {
-      "def_id": 264,
+      "def_id": 287,
       "lean_name": "extensions.external_sender_extension.ExternalSender.Insts.CoreFmtDebug.fmt",
       "extract_name": "extensions.external_sender_extension.ExternalSender.Insts.CoreFmtDebug.fmt",
       "lean_file": "OpenmlsCodec/Extraction/FunsExternal_Template.lean",
@@ -137,7 +137,7 @@
       "reducible": false
     },
     {
-      "def_id": 289,
+      "def_id": 308,
       "lean_name": "extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/FunsExternal_Template.lean",
@@ -156,7 +156,7 @@
       "reducible": false
     },
     {
-      "def_id": 271,
+      "def_id": 291,
       "lean_name": "extensions.Extension.Insts.CoreFmtDebug.fmt",
       "extract_name": "extensions.Extension.Insts.CoreFmtDebug.fmt",
       "lean_file": "OpenmlsCodec/Extraction/FunsExternal_Template.lean",
@@ -175,7 +175,7 @@
       "reducible": false
     },
     {
-      "def_id": 26,
+      "def_id": 44,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -194,7 +194,7 @@
       "reducible": false
     },
     {
-      "def_id": 60,
+      "def_id": 78,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -213,7 +213,7 @@
       "reducible": false
     },
     {
-      "def_id": 72,
+      "def_id": 90,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -232,7 +232,7 @@
       "reducible": false
     },
     {
-      "def_id": 27,
+      "def_id": 45,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -251,7 +251,7 @@
       "reducible": false
     },
     {
-      "def_id": 191,
+      "def_id": 213,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.CoreCmpPartialEqHashReference.eq",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.CoreCmpPartialEqHashReference.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -270,7 +270,7 @@
       "reducible": false
     },
     {
-      "def_id": 28,
+      "def_id": 46,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -289,7 +289,7 @@
       "reducible": false
     },
     {
-      "def_id": 73,
+      "def_id": 91,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -308,7 +308,7 @@
       "reducible": false
     },
     {
-      "def_id": 29,
+      "def_id": 47,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -327,7 +327,7 @@
       "reducible": false
     },
     {
-      "def_id": 147,
+      "def_id": 167,
       "lean_name": "openmls.Shared0HashReference.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0HashReference.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -346,7 +346,7 @@
       "reducible": false
     },
     {
-      "def_id": 61,
+      "def_id": 79,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -365,7 +365,7 @@
       "reducible": false
     },
     {
-      "def_id": 36,
+      "def_id": 54,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -384,7 +384,7 @@
       "reducible": false
     },
     {
-      "def_id": 155,
+      "def_id": 176,
       "lean_name": "openmls.Shared0EncryptContext.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0EncryptContext.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -403,7 +403,7 @@
       "reducible": false
     },
     {
-      "def_id": 65,
+      "def_id": 83,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -422,7 +422,7 @@
       "reducible": false
     },
     {
-      "def_id": 77,
+      "def_id": 95,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -441,7 +441,7 @@
       "reducible": false
     },
     {
-      "def_id": 37,
+      "def_id": 55,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -460,7 +460,7 @@
       "reducible": false
     },
     {
-      "def_id": 210,
+      "def_id": 232,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.CoreCmpPartialEqEncryptContext.eq",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.CoreCmpPartialEqEncryptContext.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -479,7 +479,7 @@
       "reducible": false
     },
     {
-      "def_id": 38,
+      "def_id": 56,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -498,7 +498,7 @@
       "reducible": false
     },
     {
-      "def_id": 157,
+      "def_id": 178,
       "lean_name": "openmls.Shared0ReuseGuard.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0ReuseGuard.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -517,7 +517,7 @@
       "reducible": false
     },
     {
-      "def_id": 66,
+      "def_id": 84,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -536,7 +536,7 @@
       "reducible": false
     },
     {
-      "def_id": 78,
+      "def_id": 96,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -555,7 +555,7 @@
       "reducible": false
     },
     {
-      "def_id": 39,
+      "def_id": 57,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -574,7 +574,7 @@
       "reducible": false
     },
     {
-      "def_id": 211,
+      "def_id": 233,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.CoreCmpPartialEqReuseGuard.eq",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.CoreCmpPartialEqReuseGuard.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -593,7 +593,7 @@
       "reducible": false
     },
     {
-      "def_id": 212,
+      "def_id": 234,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.CoreCmpPartialEqSecret.eq",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.CoreCmpPartialEqSecret.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -612,7 +612,7 @@
       "reducible": false
     },
     {
-      "def_id": 192,
+      "def_id": 214,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.CoreCmpPartialEqSignature.eq",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.CoreCmpPartialEqSignature.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -631,7 +631,7 @@
       "reducible": false
     },
     {
-      "def_id": 30,
+      "def_id": 48,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -650,7 +650,7 @@
       "reducible": false
     },
     {
-      "def_id": 74,
+      "def_id": 92,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -669,7 +669,7 @@
       "reducible": false
     },
     {
-      "def_id": 31,
+      "def_id": 49,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -688,7 +688,7 @@
       "reducible": false
     },
     {
-      "def_id": 152,
+      "def_id": 173,
       "lean_name": "openmls.Shared0Signature.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0Signature.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -707,7 +707,7 @@
       "reducible": false
     },
     {
-      "def_id": 62,
+      "def_id": 80,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -726,7 +726,7 @@
       "reducible": false
     },
     {
-      "def_id": 34,
+      "def_id": 52,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -745,7 +745,7 @@
       "reducible": false
     },
     {
-      "def_id": 154,
+      "def_id": 175,
       "lean_name": "openmls.Shared0SignContent.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0SignContent.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -764,7 +764,7 @@
       "reducible": false
     },
     {
-      "def_id": 64,
+      "def_id": 82,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -783,7 +783,7 @@
       "reducible": false
     },
     {
-      "def_id": 76,
+      "def_id": 94,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -802,7 +802,7 @@
       "reducible": false
     },
     {
-      "def_id": 35,
+      "def_id": 53,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -821,7 +821,7 @@
       "reducible": false
     },
     {
-      "def_id": 209,
+      "def_id": 231,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.CoreCmpPartialEqSignContent.eq",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.CoreCmpPartialEqSignContent.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -840,7 +840,7 @@
       "reducible": false
     },
     {
-      "def_id": 193,
+      "def_id": 215,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.CoreCmpPartialEqSignaturePublicKey.eq",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.CoreCmpPartialEqSignaturePublicKey.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -859,7 +859,7 @@
       "reducible": false
     },
     {
-      "def_id": 32,
+      "def_id": 50,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -878,7 +878,7 @@
       "reducible": false
     },
     {
-      "def_id": 153,
+      "def_id": 174,
       "lean_name": "openmls.Shared0SignaturePublicKey.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0SignaturePublicKey.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -897,7 +897,7 @@
       "reducible": false
     },
     {
-      "def_id": 63,
+      "def_id": 81,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -916,7 +916,7 @@
       "reducible": false
     },
     {
-      "def_id": 75,
+      "def_id": 93,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -935,7 +935,7 @@
       "reducible": false
     },
     {
-      "def_id": 33,
+      "def_id": 51,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -954,7 +954,7 @@
       "reducible": false
     },
     {
-      "def_id": 22,
+      "def_id": 40,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -973,7 +973,7 @@
       "reducible": false
     },
     {
-      "def_id": 94,
+      "def_id": 134,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.CoreConvertFromU16.from",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.CoreConvertFromU16.from",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -992,7 +992,7 @@
       "reducible": false
     },
     {
-      "def_id": 221,
+      "def_id": 243,
       "lean_name": "openmls.P.Insts.CoreOpsFunctionFnOnceTupleU16ProtocolVersion.call_once",
       "extract_name": "openmls.P.Insts.CoreOpsFunctionFnOnceTupleU16ProtocolVersion.call_once",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1011,7 +1011,7 @@
       "reducible": false
     },
     {
-      "def_id": 25,
+      "def_id": 43,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1030,7 +1030,7 @@
       "reducible": false
     },
     {
-      "def_id": 24,
+      "def_id": 42,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1049,7 +1049,7 @@
       "reducible": false
     },
     {
-      "def_id": 185,
+      "def_id": 207,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.CoreCmpPartialEqProtocolVersion.eq",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.CoreCmpPartialEqProtocolVersion.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1068,7 +1068,7 @@
       "reducible": false
     },
     {
-      "def_id": 158,
+      "def_id": 179,
       "lean_name": "openmls.U16.Insts.CoreConvertFromCredentialType.from",
       "extract_name": "openmls.U16.Insts.CoreConvertFromCredentialType.from",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1087,7 +1087,7 @@
       "reducible": false
     },
     {
-      "def_id": 159,
+      "def_id": 180,
       "lean_name": "openmls.credentials.CredentialType.Insts.CoreConvertFromU16.from",
       "extract_name": "openmls.credentials.CredentialType.Insts.CoreConvertFromU16.from",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1106,7 +1106,7 @@
       "reducible": false
     },
     {
-      "def_id": 186,
+      "def_id": 208,
       "lean_name": "openmls.credentials.CredentialType.Insts.CoreCmpPartialEqCredentialType.eq",
       "extract_name": "openmls.credentials.CredentialType.Insts.CoreCmpPartialEqCredentialType.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1125,7 +1125,7 @@
       "reducible": false
     },
     {
-      "def_id": 67,
+      "def_id": 85,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1144,7 +1144,7 @@
       "reducible": false
     },
     {
-      "def_id": 40,
+      "def_id": 58,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1163,7 +1163,7 @@
       "reducible": false
     },
     {
-      "def_id": 127,
+      "def_id": 146,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1182,7 +1182,7 @@
       "reducible": false
     },
     {
-      "def_id": 171,
+      "def_id": 193,
       "lean_name": "openmls.U16.Insts.CoreConvertFromExtensionType.from",
       "extract_name": "openmls.U16.Insts.CoreConvertFromExtensionType.from",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1201,7 +1201,7 @@
       "reducible": false
     },
     {
-      "def_id": 172,
+      "def_id": 194,
       "lean_name": "openmls.extensions.ExtensionType.Insts.CoreConvertFromU16.from",
       "extract_name": "openmls.extensions.ExtensionType.Insts.CoreConvertFromU16.from",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1220,7 +1220,7 @@
       "reducible": false
     },
     {
-      "def_id": 187,
+      "def_id": 209,
       "lean_name": "openmls.extensions.ExtensionType.Insts.CoreCmpPartialEqExtensionType.eq",
       "extract_name": "openmls.extensions.ExtensionType.Insts.CoreCmpPartialEqExtensionType.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1239,7 +1239,7 @@
       "reducible": false
     },
     {
-      "def_id": 70,
+      "def_id": 88,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1258,7 +1258,7 @@
       "reducible": false
     },
     {
-      "def_id": 46,
+      "def_id": 64,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1277,7 +1277,7 @@
       "reducible": false
     },
     {
-      "def_id": 136,
+      "def_id": 155,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1296,7 +1296,7 @@
       "reducible": false
     },
     {
-      "def_id": 297,
+      "def_id": 316,
       "lean_name": "openmls.U16.Insts.CoreConvertFromProposalType.from",
       "extract_name": "openmls.U16.Insts.CoreConvertFromProposalType.from",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1315,7 +1315,7 @@
       "reducible": false
     },
     {
-      "def_id": 298,
+      "def_id": 317,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.CoreConvertFromU16.from",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.CoreConvertFromU16.from",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1334,7 +1334,7 @@
       "reducible": false
     },
     {
-      "def_id": 190,
+      "def_id": 212,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.CoreCmpPartialEqProposalType.eq",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.CoreCmpPartialEqProposalType.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1353,7 +1353,7 @@
       "reducible": false
     },
     {
-      "def_id": 188,
+      "def_id": 210,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1372,7 +1372,7 @@
       "reducible": false
     },
     {
-      "def_id": 296,
+      "def_id": 315,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1391,7 +1391,7 @@
       "reducible": false
     },
     {
-      "def_id": 189,
+      "def_id": 211,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1410,7 +1410,7 @@
       "reducible": false
     },
     {
-      "def_id": 79,
+      "def_id": 97,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1429,7 +1429,7 @@
       "reducible": false
     },
     {
-      "def_id": 42,
+      "def_id": 60,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1448,7 +1448,7 @@
       "reducible": false
     },
     {
-      "def_id": 163,
+      "def_id": 184,
       "lean_name": "openmls.Shared0Credential.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0Credential.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1467,7 +1467,7 @@
       "reducible": false
     },
     {
-      "def_id": 68,
+      "def_id": 86,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1486,7 +1486,7 @@
       "reducible": false
     },
     {
-      "def_id": 194,
+      "def_id": 216,
       "lean_name": "openmls.credentials.Credential.Insts.CoreCmpPartialEqCredential.eq",
       "extract_name": "openmls.credentials.Credential.Insts.CoreCmpPartialEqCredential.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1505,7 +1505,7 @@
       "reducible": false
     },
     {
-      "def_id": 129,
+      "def_id": 148,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1524,7 +1524,7 @@
       "reducible": false
     },
     {
-      "def_id": 195,
+      "def_id": 217,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1543,7 +1543,7 @@
       "reducible": false
     },
     {
-      "def_id": 181,
+      "def_id": 203,
       "lean_name": "openmls.Shared0ApplicationIdExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0ApplicationIdExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1562,7 +1562,7 @@
       "reducible": false
     },
     {
-      "def_id": 82,
+      "def_id": 100,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1581,7 +1581,7 @@
       "reducible": false
     },
     {
-      "def_id": 196,
+      "def_id": 218,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.CoreCmpPartialEqApplicationIdExtension.eq",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.CoreCmpPartialEqApplicationIdExtension.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1600,7 +1600,7 @@
       "reducible": false
     },
     {
-      "def_id": 131,
+      "def_id": 150,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1619,7 +1619,7 @@
       "reducible": false
     },
     {
-      "def_id": 197,
+      "def_id": 219,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1638,7 +1638,7 @@
       "reducible": false
     },
     {
-      "def_id": 182,
+      "def_id": 204,
       "lean_name": "openmls.Shared0RequiredCapabilitiesExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0RequiredCapabilitiesExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1657,7 +1657,7 @@
       "reducible": false
     },
     {
-      "def_id": 83,
+      "def_id": 101,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1676,7 +1676,7 @@
       "reducible": false
     },
     {
-      "def_id": 198,
+      "def_id": 220,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.CoreCmpPartialEqRequiredCapabilitiesExtension.eq",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.CoreCmpPartialEqRequiredCapabilitiesExtension.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1695,7 +1695,7 @@
       "reducible": false
     },
     {
-      "def_id": 132,
+      "def_id": 151,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1714,7 +1714,7 @@
       "reducible": false
     },
     {
-      "def_id": 199,
+      "def_id": 221,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1733,7 +1733,7 @@
       "reducible": false
     },
     {
-      "def_id": 183,
+      "def_id": 205,
       "lean_name": "openmls.Shared0ExternalPubExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0ExternalPubExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1752,7 +1752,7 @@
       "reducible": false
     },
     {
-      "def_id": 84,
+      "def_id": 102,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1771,7 +1771,7 @@
       "reducible": false
     },
     {
-      "def_id": 200,
+      "def_id": 222,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.CoreCmpPartialEqExternalPubExtension.eq",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.CoreCmpPartialEqExternalPubExtension.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1790,7 +1790,7 @@
       "reducible": false
     },
     {
-      "def_id": 138,
+      "def_id": 157,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1809,7 +1809,7 @@
       "reducible": false
     },
     {
-      "def_id": 202,
+      "def_id": 224,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1828,7 +1828,7 @@
       "reducible": false
     },
     {
-      "def_id": 301,
+      "def_id": 320,
       "lean_name": "openmls.Shared0ExternalSender.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0ExternalSender.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1847,7 +1847,7 @@
       "reducible": false
     },
     {
-      "def_id": 201,
+      "def_id": 223,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1866,7 +1866,7 @@
       "reducible": false
     },
     {
-      "def_id": 203,
+      "def_id": 225,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.CoreCmpPartialEqExternalSender.eq",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.CoreCmpPartialEqExternalSender.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1885,7 +1885,7 @@
       "reducible": false
     },
     {
-      "def_id": 205,
+      "def_id": 227,
       "lean_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1904,7 +1904,7 @@
       "reducible": false
     },
     {
-      "def_id": 302,
+      "def_id": 321,
       "lean_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1923,7 +1923,7 @@
       "reducible": false
     },
     {
-      "def_id": 303,
+      "def_id": 322,
       "lean_name": "openmls.Shared0UnknownExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0UnknownExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1942,7 +1942,7 @@
       "reducible": false
     },
     {
-      "def_id": 204,
+      "def_id": 226,
       "lean_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1961,7 +1961,7 @@
       "reducible": false
     },
     {
-      "def_id": 206,
+      "def_id": 228,
       "lean_name": "openmls.extensions.UnknownExtension.Insts.CoreCmpPartialEqUnknownExtension.eq",
       "extract_name": "openmls.extensions.UnknownExtension.Insts.CoreCmpPartialEqUnknownExtension.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1980,7 +1980,7 @@
       "reducible": false
     },
     {
-      "def_id": 134,
+      "def_id": 153,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -1999,7 +1999,7 @@
       "reducible": false
     },
     {
-      "def_id": 207,
+      "def_id": 229,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2018,7 +2018,7 @@
       "reducible": false
     },
     {
-      "def_id": 184,
+      "def_id": 206,
       "lean_name": "openmls.Shared0LastResortExtension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.Shared0LastResortExtension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2037,7 +2037,7 @@
       "reducible": false
     },
     {
-      "def_id": 85,
+      "def_id": 103,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2056,7 +2056,7 @@
       "reducible": false
     },
     {
-      "def_id": 208,
+      "def_id": 230,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.CoreCmpPartialEqLastResortExtension.eq",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.CoreCmpPartialEqLastResortExtension.eq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2075,7 +2075,7 @@
       "reducible": false
     },
     {
-      "def_id": 23,
+      "def_id": 41,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2094,7 +2094,7 @@
       "reducible": false
     },
     {
-      "def_id": 41,
+      "def_id": 59,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2113,7 +2113,7 @@
       "reducible": false
     },
     {
-      "def_id": 47,
+      "def_id": 65,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2132,7 +2132,7 @@
       "reducible": false
     },
     {
-      "def_id": 213,
+      "def_id": 235,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2151,7 +2151,7 @@
       "reducible": false
     },
     {
-      "def_id": 43,
+      "def_id": 61,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2170,7 +2170,7 @@
       "reducible": false
     },
     {
-      "def_id": 48,
+      "def_id": 66,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2189,7 +2189,7 @@
       "reducible": false
     },
     {
-      "def_id": 49,
+      "def_id": 67,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2208,7 +2208,7 @@
       "reducible": false
     },
     {
-      "def_id": 50,
+      "def_id": 68,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2227,7 +2227,7 @@
       "reducible": false
     },
     {
-      "def_id": 51,
+      "def_id": 69,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2246,7 +2246,7 @@
       "reducible": false
     },
     {
-      "def_id": 52,
+      "def_id": 70,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2265,7 +2265,7 @@
       "reducible": false
     },
     {
-      "def_id": 179,
+      "def_id": 201,
       "lean_name": "openmls.extensions.codec.deserialize_extension_exact",
       "extract_name": "openmls.extensions.codec.deserialize_extension_exact",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2284,7 +2284,7 @@
       "reducible": false
     },
     {
-      "def_id": 135,
+      "def_id": 154,
       "lean_name": "openmls.extensions.codec.vlbytes_len_len",
       "extract_name": "openmls.extensions.codec.vlbytes_len_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2303,7 +2303,7 @@
       "reducible": false
     },
     {
-      "def_id": 44,
+      "def_id": 62,
       "lean_name": "openmls.extensions.Extension.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.extensions.Extension.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2322,7 +2322,7 @@
       "reducible": false
     },
     {
-      "def_id": 164,
+      "def_id": 185,
       "lean_name": "openmls.extensions.Extension.extension_type",
       "extract_name": "openmls.extensions.Extension.extension_type",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2341,11 +2341,11 @@
       "reducible": false
     },
     {
-      "def_id": 258,
+      "def_id": 281,
       "lean_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_2.Insts.CoreOpsFunctionFnOnceTupleUsizeUsize.call_once",
       "extract_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_2.Insts.CoreOpsFunctionFnOnceTupleUsizeUsize.call_once",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<(usize,), usize> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::closure#2<'_0, W>}::call_once",
+      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<(usize,), usize> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{closure#2}<'_0, W>}::call_once",
       "rust_pattern": "openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::{core::ops::function::FnOnce<openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::closure#2<'0, @W>, (usize), usize>}::call_once",
       "is_local": true,
       "source": {
@@ -2360,11 +2360,11 @@
       "reducible": false
     },
     {
-      "def_id": 257,
+      "def_id": 280,
       "lean_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_1.Insts.CoreOpsFunctionFnOnceTupleErrorError.call_once",
       "extract_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_1.Insts.CoreOpsFunctionFnOnceTupleErrorError.call_once",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<(core::io::error::Error,), tls_codec::Error> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::closure#1<W>}::call_once",
+      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<(core::io::error::Error,), tls_codec::Error> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{closure#1}<W>}::call_once",
       "rust_pattern": "openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::{core::ops::function::FnOnce<openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::closure#1<@W>, (core::io::error::Error), tls_codec::Error>}::call_once",
       "is_local": true,
       "source": {
@@ -2379,11 +2379,11 @@
       "reducible": false
     },
     {
-      "def_id": 256,
+      "def_id": 279,
       "lean_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure.Insts.CoreOpsFunctionFnOnceTupleTupleUsize.call_once",
       "extract_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure.Insts.CoreOpsFunctionFnOnceTupleTupleUsize.call_once",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<((),), usize> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::closure<'_0, W>}::call_once",
+      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<((),), usize> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{closure}<'_0, W>}::call_once",
       "rust_pattern": "openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::{core::ops::function::FnOnce<openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::closure<'0, @W>, (()), usize>}::call_once",
       "is_local": true,
       "source": {
@@ -2398,7 +2398,7 @@
       "reducible": false
     },
     {
-      "def_id": 69,
+      "def_id": 87,
       "lean_name": "openmls.extensions.Extension.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.extensions.Extension.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2417,7 +2417,7 @@
       "reducible": false
     },
     {
-      "def_id": 81,
+      "def_id": 99,
       "lean_name": "openmls.extensions.Extension.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.extensions.Extension.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2436,7 +2436,7 @@
       "reducible": false
     },
     {
-      "def_id": 45,
+      "def_id": 63,
       "lean_name": "openmls.extensions.Extension.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.extensions.Extension.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2455,7 +2455,7 @@
       "reducible": false
     },
     {
-      "def_id": 277,
+      "def_id": 297,
       "lean_name": "openmls.extensions.extension_in.ExtensionIn.into_extension",
       "extract_name": "openmls.extensions.extension_in.ExtensionIn.into_extension",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2474,7 +2474,7 @@
       "reducible": false
     },
     {
-      "def_id": 418,
+      "def_id": 438,
       "lean_name": "openmls.P.Insts.CoreOpsFunctionFnMutTupleExtensionInExtension.call_mut",
       "extract_name": "openmls.P.Insts.CoreOpsFunctionFnMutTupleExtensionInExtension.call_mut",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2493,7 +2493,7 @@
       "reducible": false
     },
     {
-      "def_id": 475,
+      "def_id": 495,
       "lean_name": "openmls.P.Insts.CoreOpsFunctionFnOnceTupleExtensionInExtension.call_once",
       "extract_name": "openmls.P.Insts.CoreOpsFunctionFnOnceTupleExtensionInExtension.call_once",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2512,7 +2512,7 @@
       "reducible": false
     },
     {
-      "def_id": 283,
+      "def_id": 303,
       "lean_name": "openmls.extensions.extension_in.ExtensionIn.extension_type",
       "extract_name": "openmls.extensions.extension_in.ExtensionIn.extension_type",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2531,7 +2531,7 @@
       "reducible": false
     },
     {
-      "def_id": 407,
+      "def_id": 427,
       "lean_name": "openmls.extensions.ExtensionType.Insts.CoreHashHash.hash",
       "extract_name": "openmls.extensions.ExtensionType.Insts.CoreHashHash.hash",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2550,7 +2550,7 @@
       "reducible": false
     },
     {
-      "def_id": 177,
+      "def_id": 199,
       "lean_name": "openmls.extensions.Extensions.Insts.CoreConvertTryFromVecExtensionInInvalidExtensionError.try_from_loop.body",
       "extract_name": "openmls.extensions.Extensions.Insts.CoreConvertTryFromVecExtensionInInvalidExtensionError.try_from_loop.body",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2571,7 +2571,7 @@
       "parent_lean_name": "openmls.extensions.Extensions.Insts.CoreConvertTryFromVecExtensionInInvalidExtensionError.try_from"
     },
     {
-      "def_id": 177,
+      "def_id": 199,
       "lean_name": "openmls.extensions.Extensions.Insts.CoreConvertTryFromVecExtensionInInvalidExtensionError.try_from_loop",
       "extract_name": "openmls.extensions.Extensions.Insts.CoreConvertTryFromVecExtensionInInvalidExtensionError.try_from_loop",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2592,7 +2592,7 @@
       "parent_lean_name": "openmls.extensions.Extensions.Insts.CoreConvertTryFromVecExtensionInInvalidExtensionError.try_from"
     },
     {
-      "def_id": 177,
+      "def_id": 199,
       "lean_name": "openmls.extensions.Extensions.Insts.CoreConvertTryFromVecExtensionInInvalidExtensionError.try_from",
       "extract_name": "openmls.extensions.Extensions.Insts.CoreConvertTryFromVecExtensionInInvalidExtensionError.try_from",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2611,7 +2611,7 @@
       "reducible": false
     },
     {
-      "def_id": 309,
+      "def_id": 329,
       "lean_name": "openmls.extensions.extension_in.ExtensionIn.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.extensions.extension_in.ExtensionIn.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2630,11 +2630,11 @@
       "reducible": false
     },
     {
-      "def_id": 438,
+      "def_id": 458,
       "lean_name": "openmls.extensions.extension_in.DeserializeExtensionIn.tls_deserialize.closure.Insts.CoreOpsFunctionFnOnceTupleClause0_ErrorError.call_once",
       "extract_name": "openmls.extensions.extension_in.DeserializeExtensionIn.tls_deserialize.closure.Insts.CoreOpsFunctionFnOnceTupleClause0_ErrorError.call_once",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::extension_in::{impl tls_codec::Deserialize for openmls::extensions::extension_in::ExtensionIn<T>}::tls_deserialize::{impl core::ops::function::FnOnce<(Clause0_Error,), tls_codec::Error> for openmls::extensions::extension_in::{impl tls_codec::Deserialize for openmls::extensions::extension_in::ExtensionIn<T>}::tls_deserialize::closure<T, R, Clause0_Error>}::call_once",
+      "rust_name": "openmls::extensions::extension_in::{impl tls_codec::Deserialize for openmls::extensions::extension_in::ExtensionIn<T>}::tls_deserialize::{impl core::ops::function::FnOnce<(Clause0_Error,), tls_codec::Error> for openmls::extensions::extension_in::{impl tls_codec::Deserialize for openmls::extensions::extension_in::ExtensionIn<T>}::tls_deserialize::{closure}<T, R, Clause0_Error>}::call_once",
       "rust_pattern": "openmls::extensions::extension_in::{tls_codec::Deserialize<openmls::extensions::extension_in::ExtensionIn<@T>>}::tls_deserialize::{core::ops::function::FnOnce<openmls::extensions::extension_in::{tls_codec::Deserialize<openmls::extensions::extension_in::ExtensionIn<@T>>}::tls_deserialize::closure<@T, @R, @Clause0_Error>, (@Clause0_Error), tls_codec::Error>}::call_once",
       "is_local": true,
       "source": {
@@ -2649,7 +2649,7 @@
       "reducible": false
     },
     {
-      "def_id": 276,
+      "def_id": 296,
       "lean_name": "openmls.extensions.extension_in.ExtensionIn.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.extensions.extension_in.ExtensionIn.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2668,7 +2668,7 @@
       "reducible": false
     },
     {
-      "def_id": 144,
+      "def_id": 163,
       "lean_name": "openmls.extensions.ExtensionType.is_valid_in_leaf_node",
       "extract_name": "openmls.extensions.ExtensionType.is_valid_in_leaf_node",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2687,7 +2687,7 @@
       "reducible": false
     },
     {
-      "def_id": 139,
+      "def_id": 158,
       "lean_name": "openmls.extensions.ExtensionType.is_valid_in_group_info",
       "extract_name": "openmls.extensions.ExtensionType.is_valid_in_group_info",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2706,7 +2706,7 @@
       "reducible": false
     },
     {
-      "def_id": 143,
+      "def_id": 162,
       "lean_name": "openmls.extensions.ExtensionType.is_valid_in_key_package",
       "extract_name": "openmls.extensions.ExtensionType.is_valid_in_key_package",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2725,7 +2725,7 @@
       "reducible": false
     },
     {
-      "def_id": 142,
+      "def_id": 161,
       "lean_name": "openmls.extensions.ExtensionType.is_valid_in_group_context",
       "extract_name": "openmls.extensions.ExtensionType.is_valid_in_group_context",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2744,7 +2744,7 @@
       "reducible": false
     },
     {
-      "def_id": 53,
+      "def_id": 71,
       "lean_name": "openmls.extensions.Extensions.Insts.Tls_codecSize.tls_serialized_len",
       "extract_name": "openmls.extensions.Extensions.Insts.Tls_codecSize.tls_serialized_len",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2763,7 +2763,7 @@
       "reducible": false
     },
     {
-      "def_id": 71,
+      "def_id": 89,
       "lean_name": "openmls.extensions.Extensions.Insts.Tls_codecSerialize.tls_serialize",
       "extract_name": "openmls.extensions.Extensions.Insts.Tls_codecSerialize.tls_serialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2782,11 +2782,11 @@
       "reducible": false
     },
     {
-      "def_id": 275,
+      "def_id": 295,
       "lean_name": "openmls.extensions.DeserializeExtensions.tls_deserialize.closure.Insts.CoreOpsFunctionFnOnceTupleInvalidExtensionErrorError.call_once",
       "extract_name": "openmls.extensions.DeserializeExtensions.tls_deserialize.closure.Insts.CoreOpsFunctionFnOnceTupleInvalidExtensionErrorError.call_once",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::{impl tls_codec::Deserialize for openmls::extensions::Extensions<T>}::tls_deserialize::{impl core::ops::function::FnOnce<(openmls::extensions::errors::InvalidExtensionError,), tls_codec::Error> for openmls::extensions::{impl tls_codec::Deserialize for openmls::extensions::Extensions<T>}::tls_deserialize::closure<T, R, Clause0_Error>}::call_once",
+      "rust_name": "openmls::extensions::{impl tls_codec::Deserialize for openmls::extensions::Extensions<T>}::tls_deserialize::{impl core::ops::function::FnOnce<(openmls::extensions::errors::InvalidExtensionError,), tls_codec::Error> for openmls::extensions::{impl tls_codec::Deserialize for openmls::extensions::Extensions<T>}::tls_deserialize::{closure}<T, R, Clause0_Error>}::call_once",
       "rust_pattern": "openmls::extensions::{tls_codec::Deserialize<openmls::extensions::Extensions<@T>>}::tls_deserialize::{core::ops::function::FnOnce<openmls::extensions::{tls_codec::Deserialize<openmls::extensions::Extensions<@T>>}::tls_deserialize::closure<@T, @R, @Clause0_Error>, (openmls::extensions::errors::InvalidExtensionError), tls_codec::Error>}::call_once",
       "is_local": true,
       "source": {
@@ -2801,7 +2801,7 @@
       "reducible": false
     },
     {
-      "def_id": 80,
+      "def_id": 98,
       "lean_name": "openmls.extensions.Extensions.Insts.Tls_codecDeserialize.tls_deserialize",
       "extract_name": "openmls.extensions.Extensions.Insts.Tls_codecDeserialize.tls_deserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2820,7 +2820,7 @@
       "reducible": false
     },
     {
-      "def_id": 54,
+      "def_id": 72,
       "lean_name": "openmls.extensions.Extensions.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "extract_name": "openmls.extensions.Extensions.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2839,12 +2839,12 @@
       "reducible": false
     },
     {
-      "def_id": 55,
-      "lean_name": "openmls.extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorInfallible.validate_extension_type",
-      "extract_name": "openmls.extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorInfallible.validate_extension_type",
+      "def_id": 73,
+      "lean_name": "openmls.extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorNever.validate_extension_type",
+      "extract_name": "openmls.extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorNever.validate_extension_type",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::{impl openmls::extensions::ExtensionValidator<core::convert::Infallible> for openmls::extensions::AnyObject}::validate_extension_type",
-      "rust_pattern": "openmls::extensions::{openmls::extensions::ExtensionValidator<openmls::extensions::AnyObject, core::convert::Infallible>}::validate_extension_type",
+      "rust_name": "openmls::extensions::{impl openmls::extensions::ExtensionValidator<!> for openmls::extensions::AnyObject}::validate_extension_type",
+      "rust_pattern": "openmls::extensions::{openmls::extensions::ExtensionValidator<openmls::extensions::AnyObject, !>}::validate_extension_type",
       "is_local": true,
       "source": {
         "file": "openmls/src/extensions/mod.rs",
@@ -2858,7 +2858,7 @@
       "reducible": false
     },
     {
-      "def_id": 56,
+      "def_id": 74,
       "lean_name": "openmls.messages.group_info.GroupInfo.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupInfoError.validate_extension_type",
       "extract_name": "openmls.messages.group_info.GroupInfo.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupInfoError.validate_extension_type",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2877,7 +2877,7 @@
       "reducible": false
     },
     {
-      "def_id": 57,
+      "def_id": 75,
       "lean_name": "openmls.group.group_context.GroupContext.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupContextError.validate_extension_type",
       "extract_name": "openmls.group.group_context.GroupContext.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupContextError.validate_extension_type",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2896,7 +2896,7 @@
       "reducible": false
     },
     {
-      "def_id": 58,
+      "def_id": 76,
       "lean_name": "openmls.key_packages.KeyPackage.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInKeyPackageError.validate_extension_type",
       "extract_name": "openmls.key_packages.KeyPackage.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInKeyPackageError.validate_extension_type",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2915,7 +2915,7 @@
       "reducible": false
     },
     {
-      "def_id": 59,
+      "def_id": 77,
       "lean_name": "openmls.treesync.node.leaf_node.LeafNode.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInLeafNodeError.validate_extension_type",
       "extract_name": "openmls.treesync.node.leaf_node.LeafNode.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInLeafNodeError.validate_extension_type",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -2936,7 +2936,7 @@
   ],
   "types": [
     {
-      "def_id": 60,
+      "def_id": 63,
       "lean_name": "extensions.ratchet_tree_extension.RatchetTreeExtension",
       "extract_name": "extensions.ratchet_tree_extension.RatchetTreeExtension",
       "lean_file": "OpenmlsCodec/Extraction/TypesExternal_Template.lean",
@@ -2950,7 +2950,7 @@
       }
     },
     {
-      "def_id": 28,
+      "def_id": 38,
       "lean_name": "messages.group_info.GroupInfo",
       "extract_name": "messages.group_info.GroupInfo",
       "lean_file": "OpenmlsCodec/Extraction/TypesExternal_Template.lean",
@@ -2964,7 +2964,7 @@
       }
     },
     {
-      "def_id": 30,
+      "def_id": 40,
       "lean_name": "group.group_context.GroupContext",
       "extract_name": "group.group_context.GroupContext",
       "lean_file": "OpenmlsCodec/Extraction/TypesExternal_Template.lean",
@@ -2978,7 +2978,7 @@
       }
     },
     {
-      "def_id": 32,
+      "def_id": 42,
       "lean_name": "key_packages.KeyPackage",
       "extract_name": "key_packages.KeyPackage",
       "lean_file": "OpenmlsCodec/Extraction/TypesExternal_Template.lean",
@@ -2992,7 +2992,7 @@
       }
     },
     {
-      "def_id": 34,
+      "def_id": 44,
       "lean_name": "treesync.node.leaf_node.LeafNode",
       "extract_name": "treesync.node.leaf_node.LeafNode",
       "lean_file": "OpenmlsCodec/Extraction/TypesExternal_Template.lean",
@@ -3006,7 +3006,7 @@
       }
     },
     {
-      "def_id": 8,
+      "def_id": 19,
       "lean_name": "openmls.ciphersuite.secret.Secret",
       "extract_name": "openmls.ciphersuite.secret.Secret",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3020,7 +3020,7 @@
       }
     },
     {
-      "def_id": 9,
+      "def_id": 20,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3034,7 +3034,7 @@
       }
     },
     {
-      "def_id": 13,
+      "def_id": 24,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3048,7 +3048,7 @@
       }
     },
     {
-      "def_id": 14,
+      "def_id": 25,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3062,7 +3062,7 @@
       }
     },
     {
-      "def_id": 10,
+      "def_id": 21,
       "lean_name": "openmls.ciphersuite.signature.Signature",
       "extract_name": "openmls.ciphersuite.signature.Signature",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3076,7 +3076,7 @@
       }
     },
     {
-      "def_id": 12,
+      "def_id": 23,
       "lean_name": "openmls.ciphersuite.signature.SignContent",
       "extract_name": "openmls.ciphersuite.signature.SignContent",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3090,7 +3090,7 @@
       }
     },
     {
-      "def_id": 11,
+      "def_id": 22,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3104,7 +3104,7 @@
       }
     },
     {
-      "def_id": 5,
+      "def_id": 17,
       "lean_name": "openmls.versions.ProtocolVersion",
       "extract_name": "openmls.versions.ProtocolVersion",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3118,7 +3118,7 @@
       }
     },
     {
-      "def_id": 15,
+      "def_id": 26,
       "lean_name": "openmls.credentials.CredentialType",
       "extract_name": "openmls.credentials.CredentialType",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3132,7 +3132,7 @@
       }
     },
     {
-      "def_id": 18,
+      "def_id": 29,
       "lean_name": "openmls.extensions.ExtensionType",
       "extract_name": "openmls.extensions.ExtensionType",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3146,7 +3146,7 @@
       }
     },
     {
-      "def_id": 36,
+      "def_id": 46,
       "lean_name": "openmls.messages.proposals.ProposalType",
       "extract_name": "openmls.messages.proposals.ProposalType",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3160,7 +3160,7 @@
       }
     },
     {
-      "def_id": 16,
+      "def_id": 27,
       "lean_name": "openmls.credentials.Credential",
       "extract_name": "openmls.credentials.Credential",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3174,7 +3174,7 @@
       }
     },
     {
-      "def_id": 19,
+      "def_id": 30,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3188,7 +3188,7 @@
       }
     },
     {
-      "def_id": 20,
+      "def_id": 31,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3202,7 +3202,7 @@
       }
     },
     {
-      "def_id": 21,
+      "def_id": 32,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3216,7 +3216,7 @@
       }
     },
     {
-      "def_id": 22,
+      "def_id": 33,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3230,7 +3230,7 @@
       }
     },
     {
-      "def_id": 37,
+      "def_id": 47,
       "lean_name": "openmls.extensions.UnknownExtension",
       "extract_name": "openmls.extensions.UnknownExtension",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3244,7 +3244,7 @@
       }
     },
     {
-      "def_id": 23,
+      "def_id": 34,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3258,7 +3258,7 @@
       }
     },
     {
-      "def_id": 17,
+      "def_id": 28,
       "lean_name": "openmls.extensions.Extension",
       "extract_name": "openmls.extensions.Extension",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3272,11 +3272,11 @@
       }
     },
     {
-      "def_id": 68,
+      "def_id": 71,
       "lean_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_2",
       "extract_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_2",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
-      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::closure#2",
+      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{closure#2}",
       "rust_pattern": "openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::closure#2",
       "is_local": true,
       "source": {
@@ -3286,11 +3286,11 @@
       }
     },
     {
-      "def_id": 67,
+      "def_id": 70,
       "lean_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_1",
       "extract_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_1",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
-      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::closure#1",
+      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{closure#1}",
       "rust_pattern": "openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::closure#1",
       "is_local": true,
       "source": {
@@ -3300,11 +3300,11 @@
       }
     },
     {
-      "def_id": 66,
+      "def_id": 69,
       "lean_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure",
       "extract_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
-      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::closure",
+      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{closure}",
       "rust_pattern": "openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::closure",
       "is_local": true,
       "source": {
@@ -3314,7 +3314,7 @@
       }
     },
     {
-      "def_id": 33,
+      "def_id": 43,
       "lean_name": "openmls.extensions.errors.ExtensionTypeNotValidInKeyPackageError",
       "extract_name": "openmls.extensions.errors.ExtensionTypeNotValidInKeyPackageError",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3328,7 +3328,7 @@
       }
     },
     {
-      "def_id": 35,
+      "def_id": 45,
       "lean_name": "openmls.extensions.errors.ExtensionTypeNotValidInLeafNodeError",
       "extract_name": "openmls.extensions.errors.ExtensionTypeNotValidInLeafNodeError",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3342,7 +3342,7 @@
       }
     },
     {
-      "def_id": 31,
+      "def_id": 41,
       "lean_name": "openmls.extensions.errors.ExtensionTypeNotValidInGroupContextError",
       "extract_name": "openmls.extensions.errors.ExtensionTypeNotValidInGroupContextError",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3356,7 +3356,7 @@
       }
     },
     {
-      "def_id": 29,
+      "def_id": 39,
       "lean_name": "openmls.extensions.errors.ExtensionTypeNotValidInGroupInfoError",
       "extract_name": "openmls.extensions.errors.ExtensionTypeNotValidInGroupInfoError",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3370,7 +3370,7 @@
       }
     },
     {
-      "def_id": 25,
+      "def_id": 36,
       "lean_name": "openmls.extensions.errors.InvalidExtensionError",
       "extract_name": "openmls.extensions.errors.InvalidExtensionError",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3384,7 +3384,7 @@
       }
     },
     {
-      "def_id": 69,
+      "def_id": 72,
       "lean_name": "openmls.extensions.extension_in.ExtensionIn",
       "extract_name": "openmls.extensions.extension_in.ExtensionIn",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3398,7 +3398,7 @@
       }
     },
     {
-      "def_id": 24,
+      "def_id": 35,
       "lean_name": "openmls.extensions.Extensions",
       "extract_name": "openmls.extensions.Extensions",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3412,11 +3412,11 @@
       }
     },
     {
-      "def_id": 82,
+      "def_id": 85,
       "lean_name": "openmls.extensions.extension_in.DeserializeExtensionIn.tls_deserialize.closure",
       "extract_name": "openmls.extensions.extension_in.DeserializeExtensionIn.tls_deserialize.closure",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
-      "rust_name": "openmls::extensions::extension_in::{impl tls_codec::Deserialize for openmls::extensions::extension_in::ExtensionIn<T>}::tls_deserialize::closure",
+      "rust_name": "openmls::extensions::extension_in::{impl tls_codec::Deserialize for openmls::extensions::extension_in::ExtensionIn<T>}::tls_deserialize::{closure}",
       "rust_pattern": "openmls::extensions::extension_in::{tls_codec::Deserialize<openmls::extensions::extension_in::ExtensionIn<@T>>}::tls_deserialize::closure",
       "is_local": true,
       "source": {
@@ -3426,7 +3426,7 @@
       }
     },
     {
-      "def_id": 26,
+      "def_id": 37,
       "lean_name": "openmls.extensions.AnyObject",
       "extract_name": "openmls.extensions.AnyObject",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3440,11 +3440,11 @@
       }
     },
     {
-      "def_id": 70,
+      "def_id": 73,
       "lean_name": "openmls.extensions.DeserializeExtensions.tls_deserialize.closure",
       "extract_name": "openmls.extensions.DeserializeExtensions.tls_deserialize.closure",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
-      "rust_name": "openmls::extensions::{impl tls_codec::Deserialize for openmls::extensions::Extensions<T>}::tls_deserialize::closure",
+      "rust_name": "openmls::extensions::{impl tls_codec::Deserialize for openmls::extensions::Extensions<T>}::tls_deserialize::{closure}",
       "rust_pattern": "openmls::extensions::{tls_codec::Deserialize<openmls::extensions::Extensions<@T>>}::tls_deserialize::closure",
       "is_local": true,
       "source": {
@@ -3456,7 +3456,7 @@
   ],
   "globals": [
     {
-      "def_id": 123,
+      "def_id": 129,
       "lean_name": "openmls.extensions.extension_in.EXTENSION_TYPE_SET_INITIAL_CAP",
       "extract_name": "openmls.extensions.extension_in.EXTENSION_TYPE_SET_INITIAL_CAP",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3473,7 +3473,7 @@
   ],
   "trait_decls": [
     {
-      "def_id": 16,
+      "def_id": 23,
       "lean_name": "openmls.extensions.private.Sealed",
       "extract_name": "openmls.extensions.private.Sealed",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3487,7 +3487,7 @@
       }
     },
     {
-      "def_id": 0,
+      "def_id": 12,
       "lean_name": "openmls.extensions.ExtensionValidator",
       "extract_name": "openmls.extensions.ExtensionValidator",
       "lean_file": "OpenmlsCodec/Extraction/Types.lean",
@@ -3503,7 +3503,7 @@
   ],
   "trait_impls": [
     {
-      "def_id": 4,
+      "def_id": 10,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSize",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3515,12 +3515,12 @@
         "begin_line": 11,
         "end_line": 15
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 38,
+      "def_id": 44,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSerialize",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3532,12 +3532,12 @@
         "begin_line": 17,
         "end_line": 21
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 50,
+      "def_id": 56,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3549,12 +3549,12 @@
         "begin_line": 23,
         "end_line": 30
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 5,
+      "def_id": 11,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3566,12 +3566,12 @@
         "begin_line": 32,
         "end_line": 41
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 151,
+      "def_id": 157,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.CoreCmpPartialEqHashReference",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.CoreCmpPartialEqHashReference",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3583,12 +3583,12 @@
         "begin_line": 45,
         "end_line": 45
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 6,
+      "def_id": 12,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSize",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3600,12 +3600,12 @@
         "begin_line": 54,
         "end_line": 54
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 51,
+      "def_id": 57,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3617,12 +3617,12 @@
         "begin_line": 51,
         "end_line": 51
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 7,
+      "def_id": 13,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3634,12 +3634,12 @@
         "begin_line": 52,
         "end_line": 52
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 39,
+      "def_id": 45,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSerialize",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3651,12 +3651,12 @@
         "begin_line": 53,
         "end_line": 53
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 14,
+      "def_id": 20,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSize",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3668,12 +3668,12 @@
         "begin_line": 79,
         "end_line": 79
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 43,
+      "def_id": 49,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSerialize",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3685,12 +3685,12 @@
         "begin_line": 79,
         "end_line": 79
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 55,
+      "def_id": 61,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3702,12 +3702,12 @@
         "begin_line": 79,
         "end_line": 79
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 15,
+      "def_id": 21,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3719,12 +3719,12 @@
         "begin_line": 79,
         "end_line": 79
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 170,
+      "def_id": 176,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.CoreCmpPartialEqEncryptContext",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.CoreCmpPartialEqEncryptContext",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3736,12 +3736,12 @@
         "begin_line": 80,
         "end_line": 80
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 16,
+      "def_id": 22,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSize",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3753,12 +3753,12 @@
         "begin_line": 16,
         "end_line": 16
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 44,
+      "def_id": 50,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSerialize",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3770,12 +3770,12 @@
         "begin_line": 16,
         "end_line": 16
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 56,
+      "def_id": 62,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3787,12 +3787,12 @@
         "begin_line": 16,
         "end_line": 16
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 17,
+      "def_id": 23,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3804,12 +3804,12 @@
         "begin_line": 16,
         "end_line": 16
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 171,
+      "def_id": 177,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.CoreCmpPartialEqReuseGuard",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.CoreCmpPartialEqReuseGuard",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3821,12 +3821,12 @@
         "begin_line": 17,
         "end_line": 17
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 172,
+      "def_id": 178,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.CoreCmpPartialEqSecret",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.CoreCmpPartialEqSecret",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3838,12 +3838,12 @@
         "begin_line": 37,
         "end_line": 42
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 152,
+      "def_id": 158,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.CoreCmpPartialEqSignature",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.CoreCmpPartialEqSignature",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3855,12 +3855,12 @@
         "begin_line": 10,
         "end_line": 10
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 8,
+      "def_id": 14,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSize",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3872,12 +3872,12 @@
         "begin_line": 18,
         "end_line": 18
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 52,
+      "def_id": 58,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3889,12 +3889,12 @@
         "begin_line": 15,
         "end_line": 15
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 9,
+      "def_id": 15,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3906,12 +3906,12 @@
         "begin_line": 16,
         "end_line": 16
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 40,
+      "def_id": 46,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSerialize",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3923,12 +3923,12 @@
         "begin_line": 17,
         "end_line": 17
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 12,
+      "def_id": 18,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSize",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3940,12 +3940,12 @@
         "begin_line": 40,
         "end_line": 40
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 42,
+      "def_id": 48,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSerialize",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3957,12 +3957,12 @@
         "begin_line": 40,
         "end_line": 40
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 54,
+      "def_id": 60,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3974,12 +3974,12 @@
         "begin_line": 40,
         "end_line": 40
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 13,
+      "def_id": 19,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -3991,12 +3991,12 @@
         "begin_line": 40,
         "end_line": 40
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 169,
+      "def_id": 175,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.CoreCmpPartialEqSignContent",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.CoreCmpPartialEqSignContent",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4008,12 +4008,12 @@
         "begin_line": 41,
         "end_line": 41
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 153,
+      "def_id": 159,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.CoreCmpPartialEqSignaturePublicKey",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.CoreCmpPartialEqSignaturePublicKey",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4025,12 +4025,12 @@
         "begin_line": 59,
         "end_line": 59
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 10,
+      "def_id": 16,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSize",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4042,12 +4042,12 @@
         "begin_line": 68,
         "end_line": 68
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 41,
+      "def_id": 47,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSerialize",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4059,12 +4059,12 @@
         "begin_line": 65,
         "end_line": 65
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 53,
+      "def_id": 59,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4076,12 +4076,12 @@
         "begin_line": 66,
         "end_line": 66
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 11,
+      "def_id": 17,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4093,12 +4093,12 @@
         "begin_line": 67,
         "end_line": 67
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 0,
+      "def_id": 6,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSize",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4110,12 +4110,12 @@
         "begin_line": 84,
         "end_line": 88
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 187,
+      "def_id": 193,
       "lean_name": "openmls.P.Insts.CoreOpsFunctionFnOnceTupleU16ProtocolVersion",
       "extract_name": "openmls.P.Insts.CoreOpsFunctionFnOnceTupleU16ProtocolVersion",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4127,12 +4127,12 @@
         "begin_line": 41,
         "end_line": 46
       },
-      "impl_trait_def_id": 23,
+      "impl_trait_def_id": 26,
       "impl_trait_rust_name": "core::ops::function::FnOnce",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 3,
+      "def_id": 9,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4144,12 +4144,12 @@
         "begin_line": 65,
         "end_line": 72
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 2,
+      "def_id": 8,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSerialize",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4161,12 +4161,12 @@
         "begin_line": 49,
         "end_line": 63
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 143,
+      "def_id": 149,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.CoreCmpPartialEqProtocolVersion",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.CoreCmpPartialEqProtocolVersion",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4178,12 +4178,12 @@
         "begin_line": 24,
         "end_line": 24
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 64,
+      "def_id": 70,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4195,12 +4195,12 @@
         "begin_line": 35,
         "end_line": 35
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 65,
+      "def_id": 71,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4212,12 +4212,12 @@
         "begin_line": 36,
         "end_line": 36
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 145,
+      "def_id": 151,
       "lean_name": "openmls.credentials.CredentialType.Insts.CoreCmpPartialEqCredentialType",
       "extract_name": "openmls.credentials.CredentialType.Insts.CoreCmpPartialEqCredentialType",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4229,12 +4229,12 @@
         "begin_line": 80,
         "end_line": 80
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 228,
+      "def_id": 236,
       "lean_name": "openmls.credentials.CredentialType.Insts.CoreFmtDebug",
       "extract_name": "openmls.credentials.CredentialType.Insts.CoreFmtDebug",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4246,12 +4246,12 @@
         "begin_line": 80,
         "end_line": 80
       },
-      "impl_trait_def_id": 24,
+      "impl_trait_def_id": 28,
       "impl_trait_rust_name": "core::fmt::Debug",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 18,
+      "def_id": 24,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecSize",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4263,12 +4263,12 @@
         "begin_line": 118,
         "end_line": 122
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 45,
+      "def_id": 51,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecSerialize",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4280,12 +4280,12 @@
         "begin_line": 136,
         "end_line": 150
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 144,
+      "def_id": 150,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4297,12 +4297,12 @@
         "begin_line": 124,
         "end_line": 134
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 66,
+      "def_id": 72,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4314,12 +4314,12 @@
         "begin_line": 37,
         "end_line": 37
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 67,
+      "def_id": 73,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4331,12 +4331,12 @@
         "begin_line": 38,
         "end_line": 38
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 147,
+      "def_id": 153,
       "lean_name": "openmls.extensions.ExtensionType.Insts.CoreCmpPartialEqExtensionType",
       "extract_name": "openmls.extensions.ExtensionType.Insts.CoreCmpPartialEqExtensionType",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4348,12 +4348,12 @@
         "begin_line": 93,
         "end_line": 93
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 246,
+      "def_id": 251,
       "lean_name": "openmls.extensions.ExtensionType.Insts.CoreFmtDebug",
       "extract_name": "openmls.extensions.ExtensionType.Insts.CoreFmtDebug",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4365,12 +4365,12 @@
         "begin_line": 93,
         "end_line": 93
       },
-      "impl_trait_def_id": 24,
+      "impl_trait_def_id": 28,
       "impl_trait_rust_name": "core::fmt::Debug",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 24,
+      "def_id": 30,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4382,12 +4382,12 @@
         "begin_line": 249,
         "end_line": 253
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 48,
+      "def_id": 54,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSerialize",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4399,12 +4399,12 @@
         "begin_line": 278,
         "end_line": 292
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 146,
+      "def_id": 152,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4416,12 +4416,12 @@
         "begin_line": 255,
         "end_line": 265
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 68,
+      "def_id": 74,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4433,12 +4433,12 @@
         "begin_line": 39,
         "end_line": 39
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 69,
+      "def_id": 75,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4450,12 +4450,12 @@
         "begin_line": 40,
         "end_line": 40
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 264,
+      "def_id": 268,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.CoreFmtDebug",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.CoreFmtDebug",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4467,12 +4467,12 @@
         "begin_line": 75,
         "end_line": 75
       },
-      "impl_trait_def_id": 24,
+      "impl_trait_def_id": 28,
       "impl_trait_rust_name": "core::fmt::Debug",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 150,
+      "def_id": 156,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.CoreCmpPartialEqProposalType",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.CoreCmpPartialEqProposalType",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4484,12 +4484,12 @@
         "begin_line": 75,
         "end_line": 75
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 268,
+      "def_id": 272,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSize",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4501,12 +4501,12 @@
         "begin_line": 146,
         "end_line": 150
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 148,
+      "def_id": 154,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSerialize",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4518,12 +4518,12 @@
         "begin_line": 164,
         "end_line": 178
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 149,
+      "def_id": 155,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4535,12 +4535,12 @@
         "begin_line": 152,
         "end_line": 162
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 70,
+      "def_id": 76,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4552,12 +4552,12 @@
         "begin_line": 41,
         "end_line": 41
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 71,
+      "def_id": 77,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4569,12 +4569,12 @@
         "begin_line": 42,
         "end_line": 42
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 72,
+      "def_id": 78,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4586,12 +4586,12 @@
         "begin_line": 45,
         "end_line": 45
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 73,
+      "def_id": 79,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4603,12 +4603,12 @@
         "begin_line": 46,
         "end_line": 46
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 74,
+      "def_id": 80,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4620,12 +4620,12 @@
         "begin_line": 47,
         "end_line": 47
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 75,
+      "def_id": 81,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4637,12 +4637,12 @@
         "begin_line": 48,
         "end_line": 48
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 76,
+      "def_id": 82,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4654,12 +4654,12 @@
         "begin_line": 49,
         "end_line": 49
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 77,
+      "def_id": 83,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4671,12 +4671,12 @@
         "begin_line": 50,
         "end_line": 50
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 20,
+      "def_id": 26,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecSize",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4688,12 +4688,12 @@
         "begin_line": 236,
         "end_line": 236
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 57,
+      "def_id": 63,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4705,12 +4705,12 @@
         "begin_line": 238,
         "end_line": 238
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 46,
+      "def_id": 52,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecSerialize",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4722,12 +4722,12 @@
         "begin_line": 237,
         "end_line": 237
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 154,
+      "def_id": 160,
       "lean_name": "openmls.credentials.Credential.Insts.CoreCmpPartialEqCredential",
       "extract_name": "openmls.credentials.Credential.Insts.CoreCmpPartialEqCredential",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4739,12 +4739,12 @@
         "begin_line": 231,
         "end_line": 231
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 78,
+      "def_id": 84,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4756,12 +4756,12 @@
         "begin_line": 51,
         "end_line": 51
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 79,
+      "def_id": 85,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4773,12 +4773,12 @@
         "begin_line": 52,
         "end_line": 52
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 133,
+      "def_id": 139,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4790,12 +4790,12 @@
         "begin_line": 19,
         "end_line": 19
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 155,
+      "def_id": 161,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4807,12 +4807,12 @@
         "begin_line": 17,
         "end_line": 17
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 60,
+      "def_id": 66,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSerialize",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4824,12 +4824,12 @@
         "begin_line": 16,
         "end_line": 16
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 156,
+      "def_id": 162,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.CoreCmpPartialEqApplicationIdExtension",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.CoreCmpPartialEqApplicationIdExtension",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4841,12 +4841,12 @@
         "begin_line": 10,
         "end_line": 10
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 80,
+      "def_id": 86,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4858,12 +4858,12 @@
         "begin_line": 53,
         "end_line": 53
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 81,
+      "def_id": 87,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4875,12 +4875,12 @@
         "begin_line": 54,
         "end_line": 54
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 134,
+      "def_id": 140,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4892,12 +4892,12 @@
         "begin_line": 41,
         "end_line": 41
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 157,
+      "def_id": 163,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4909,12 +4909,12 @@
         "begin_line": 39,
         "end_line": 39
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 61,
+      "def_id": 67,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSerialize",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4926,12 +4926,12 @@
         "begin_line": 38,
         "end_line": 38
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 158,
+      "def_id": 164,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.CoreCmpPartialEqRequiredCapabilitiesExtension",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.CoreCmpPartialEqRequiredCapabilitiesExtension",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4943,12 +4943,12 @@
         "begin_line": 31,
         "end_line": 31
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 82,
+      "def_id": 88,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4960,12 +4960,12 @@
         "begin_line": 55,
         "end_line": 55
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 83,
+      "def_id": 89,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4977,12 +4977,12 @@
         "begin_line": 56,
         "end_line": 56
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 135,
+      "def_id": 141,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -4994,12 +4994,12 @@
         "begin_line": 22,
         "end_line": 22
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 159,
+      "def_id": 165,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5011,12 +5011,12 @@
         "begin_line": 20,
         "end_line": 20
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 62,
+      "def_id": 68,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSerialize",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5028,12 +5028,12 @@
         "begin_line": 19,
         "end_line": 19
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 160,
+      "def_id": 166,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.CoreCmpPartialEqExternalPubExtension",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.CoreCmpPartialEqExternalPubExtension",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5045,12 +5045,12 @@
         "begin_line": 13,
         "end_line": 13
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 84,
+      "def_id": 90,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5062,12 +5062,12 @@
         "begin_line": 57,
         "end_line": 57
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 85,
+      "def_id": 91,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5079,12 +5079,12 @@
         "begin_line": 58,
         "end_line": 58
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 136,
+      "def_id": 142,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5096,12 +5096,12 @@
         "begin_line": 25,
         "end_line": 25
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 162,
+      "def_id": 168,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5113,12 +5113,12 @@
         "begin_line": 23,
         "end_line": 23
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 161,
+      "def_id": 167,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSerialize",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5130,12 +5130,12 @@
         "begin_line": 22,
         "end_line": 22
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 163,
+      "def_id": 169,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.CoreCmpPartialEqExternalSender",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.CoreCmpPartialEqExternalSender",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5147,12 +5147,12 @@
         "begin_line": 17,
         "end_line": 17
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 86,
+      "def_id": 92,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5164,12 +5164,12 @@
         "begin_line": 59,
         "end_line": 59
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 87,
+      "def_id": 93,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5181,12 +5181,12 @@
         "begin_line": 60,
         "end_line": 60
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 269,
+      "def_id": 273,
       "lean_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5198,12 +5198,12 @@
         "begin_line": 391,
         "end_line": 391
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 165,
+      "def_id": 171,
       "lean_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5215,12 +5215,12 @@
         "begin_line": 391,
         "end_line": 391
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 164,
+      "def_id": 170,
       "lean_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSerialize",
       "extract_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5232,12 +5232,12 @@
         "begin_line": 391,
         "end_line": 391
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 166,
+      "def_id": 172,
       "lean_name": "openmls.extensions.UnknownExtension.Insts.CoreCmpPartialEqUnknownExtension",
       "extract_name": "openmls.extensions.UnknownExtension.Insts.CoreCmpPartialEqUnknownExtension",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5249,12 +5249,12 @@
         "begin_line": 391,
         "end_line": 391
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 88,
+      "def_id": 94,
       "lean_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5266,12 +5266,12 @@
         "begin_line": 61,
         "end_line": 61
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 89,
+      "def_id": 95,
       "lean_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.extensions.UnknownExtension.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5283,12 +5283,12 @@
         "begin_line": 62,
         "end_line": 62
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 137,
+      "def_id": 143,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5300,12 +5300,12 @@
         "begin_line": 19,
         "end_line": 19
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 167,
+      "def_id": 173,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5317,12 +5317,12 @@
         "begin_line": 17,
         "end_line": 17
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 63,
+      "def_id": 69,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSerialize",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5334,12 +5334,12 @@
         "begin_line": 16,
         "end_line": 16
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 168,
+      "def_id": 174,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.CoreCmpPartialEqLastResortExtension",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.CoreCmpPartialEqLastResortExtension",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5351,12 +5351,12 @@
         "begin_line": 10,
         "end_line": 10
       },
-      "impl_trait_def_id": 3,
+      "impl_trait_def_id": 1,
       "impl_trait_rust_name": "core::cmp::PartialEq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 90,
+      "def_id": 96,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5368,12 +5368,12 @@
         "begin_line": 63,
         "end_line": 63
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 91,
+      "def_id": 97,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5385,12 +5385,12 @@
         "begin_line": 64,
         "end_line": 64
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 92,
+      "def_id": 98,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5402,12 +5402,12 @@
         "begin_line": 65,
         "end_line": 65
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 93,
+      "def_id": 99,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5419,12 +5419,12 @@
         "begin_line": 66,
         "end_line": 66
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 94,
+      "def_id": 100,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5436,12 +5436,12 @@
         "begin_line": 67,
         "end_line": 67
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 95,
+      "def_id": 101,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5453,12 +5453,12 @@
         "begin_line": 68,
         "end_line": 68
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 96,
+      "def_id": 102,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5470,12 +5470,12 @@
         "begin_line": 69,
         "end_line": 69
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 97,
+      "def_id": 103,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSpecIoRoundTripStd",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSpecIoRoundTripStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5487,12 +5487,12 @@
         "begin_line": 70,
         "end_line": 70
       },
-      "impl_trait_def_id": 17,
+      "impl_trait_def_id": 8,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 98,
+      "def_id": 104,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSpecIoNonEmptyStd",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSpecIoNonEmptyStd",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5504,12 +5504,12 @@
         "begin_line": 71,
         "end_line": 71
       },
-      "impl_trait_def_id": 18,
+      "impl_trait_def_id": 9,
       "impl_trait_rust_name": "tls_codec::spec::io::NonEmptyStd",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 1,
+      "def_id": 7,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5521,12 +5521,12 @@
         "begin_line": 74,
         "end_line": 82
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 99,
+      "def_id": 105,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5538,12 +5538,12 @@
         "begin_line": 75,
         "end_line": 75
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 100,
+      "def_id": 106,
       "lean_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.versions.ProtocolVersion.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5555,12 +5555,12 @@
         "begin_line": 76,
         "end_line": 76
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 19,
+      "def_id": 25,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5572,12 +5572,12 @@
         "begin_line": 152,
         "end_line": 161
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 101,
+      "def_id": 107,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5589,12 +5589,12 @@
         "begin_line": 77,
         "end_line": 77
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 102,
+      "def_id": 108,
       "lean_name": "openmls.credentials.CredentialType.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.credentials.CredentialType.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5606,12 +5606,12 @@
         "begin_line": 78,
         "end_line": 78
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 25,
+      "def_id": 31,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5623,12 +5623,12 @@
         "begin_line": 267,
         "end_line": 276
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 103,
+      "def_id": 109,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5640,12 +5640,12 @@
         "begin_line": 79,
         "end_line": 79
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 104,
+      "def_id": 110,
       "lean_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.extensions.ExtensionType.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5657,12 +5657,12 @@
         "begin_line": 80,
         "end_line": 80
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 173,
+      "def_id": 179,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5674,12 +5674,12 @@
         "begin_line": 180,
         "end_line": 189
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 105,
+      "def_id": 111,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5691,12 +5691,12 @@
         "begin_line": 81,
         "end_line": 81
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 106,
+      "def_id": 112,
       "lean_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.messages.proposals.ProposalType.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5708,12 +5708,12 @@
         "begin_line": 82,
         "end_line": 82
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 107,
+      "def_id": 113,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5725,12 +5725,12 @@
         "begin_line": 83,
         "end_line": 83
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 108,
+      "def_id": 114,
       "lean_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.ciphersuite.hash_ref.HashReference.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5742,12 +5742,12 @@
         "begin_line": 84,
         "end_line": 84
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 109,
+      "def_id": 115,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5759,12 +5759,12 @@
         "begin_line": 85,
         "end_line": 85
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 110,
+      "def_id": 116,
       "lean_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.ciphersuite.signature.Signature.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5776,12 +5776,12 @@
         "begin_line": 86,
         "end_line": 86
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 111,
+      "def_id": 117,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5793,12 +5793,12 @@
         "begin_line": 87,
         "end_line": 87
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 112,
+      "def_id": 118,
       "lean_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.ciphersuite.signature.SignaturePublicKey.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5810,12 +5810,12 @@
         "begin_line": 88,
         "end_line": 88
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 21,
+      "def_id": 27,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5827,12 +5827,12 @@
         "begin_line": 239,
         "end_line": 239
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 113,
+      "def_id": 119,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5844,12 +5844,12 @@
         "begin_line": 89,
         "end_line": 89
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 114,
+      "def_id": 120,
       "lean_name": "openmls.credentials.Credential.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.credentials.Credential.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5861,12 +5861,12 @@
         "begin_line": 90,
         "end_line": 90
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 26,
+      "def_id": 32,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5878,12 +5878,12 @@
         "begin_line": 18,
         "end_line": 18
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 115,
+      "def_id": 121,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5895,12 +5895,12 @@
         "begin_line": 91,
         "end_line": 91
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 116,
+      "def_id": 122,
       "lean_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5912,12 +5912,12 @@
         "begin_line": 92,
         "end_line": 92
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 27,
+      "def_id": 33,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5929,12 +5929,12 @@
         "begin_line": 40,
         "end_line": 40
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 117,
+      "def_id": 123,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5946,12 +5946,12 @@
         "begin_line": 93,
         "end_line": 93
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 118,
+      "def_id": 124,
       "lean_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5963,12 +5963,12 @@
         "begin_line": 94,
         "end_line": 94
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 28,
+      "def_id": 34,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5980,12 +5980,12 @@
         "begin_line": 21,
         "end_line": 21
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 119,
+      "def_id": 125,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -5997,12 +5997,12 @@
         "begin_line": 95,
         "end_line": 95
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 120,
+      "def_id": 126,
       "lean_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6014,12 +6014,12 @@
         "begin_line": 96,
         "end_line": 96
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 29,
+      "def_id": 35,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6031,12 +6031,12 @@
         "begin_line": 24,
         "end_line": 24
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 121,
+      "def_id": 127,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6048,12 +6048,12 @@
         "begin_line": 97,
         "end_line": 97
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 122,
+      "def_id": 128,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6065,12 +6065,12 @@
         "begin_line": 98,
         "end_line": 98
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 30,
+      "def_id": 36,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6082,12 +6082,12 @@
         "begin_line": 18,
         "end_line": 18
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 123,
+      "def_id": 129,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6099,12 +6099,12 @@
         "begin_line": 99,
         "end_line": 99
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 124,
+      "def_id": 130,
       "lean_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.extensions.last_resort.LastResortExtension.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6116,12 +6116,12 @@
         "begin_line": 100,
         "end_line": 100
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 125,
+      "def_id": 131,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6133,12 +6133,12 @@
         "begin_line": 101,
         "end_line": 101
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 126,
+      "def_id": 132,
       "lean_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.ciphersuite.signature.SignContent.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6150,12 +6150,12 @@
         "begin_line": 102,
         "end_line": 102
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 127,
+      "def_id": 133,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6167,12 +6167,12 @@
         "begin_line": 103,
         "end_line": 103
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 128,
+      "def_id": 134,
       "lean_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.ciphersuite.hpke.EncryptContext.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6184,12 +6184,12 @@
         "begin_line": 104,
         "end_line": 104
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 129,
+      "def_id": 135,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6201,12 +6201,12 @@
         "begin_line": 105,
         "end_line": 105
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 130,
+      "def_id": 136,
       "lean_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.ciphersuite.reuse_guard.ReuseGuard.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6218,12 +6218,12 @@
         "begin_line": 106,
         "end_line": 106
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 131,
+      "def_id": 137,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSpecIoDecodersAgree",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSpecIoDecodersAgree",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6235,12 +6235,12 @@
         "begin_line": 107,
         "end_line": 107
       },
-      "impl_trait_def_id": 19,
+      "impl_trait_def_id": 10,
       "impl_trait_rust_name": "tls_codec::spec::io::DecodersAgree",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 132,
+      "def_id": 138,
       "lean_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSpecIoRoundTripMixed",
       "extract_name": "openmls.ciphersuite.secret.Secret.Insts.Tls_codecSpecIoRoundTripMixed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6252,12 +6252,12 @@
         "begin_line": 108,
         "end_line": 108
       },
-      "impl_trait_def_id": 20,
+      "impl_trait_def_id": 11,
       "impl_trait_rust_name": "tls_codec::spec::io::RoundTripMixed",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 22,
+      "def_id": 28,
       "lean_name": "openmls.extensions.Extension.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.Extension.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6269,12 +6269,12 @@
         "begin_line": 26,
         "end_line": 53
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 238,
+      "def_id": 243,
       "lean_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.CoreFmtDebug",
       "extract_name": "openmls.extensions.external_sender_extension.ExternalSender.Insts.CoreFmtDebug",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6286,16 +6286,16 @@
         "begin_line": 19,
         "end_line": 19
       },
-      "impl_trait_def_id": 24,
+      "impl_trait_def_id": 28,
       "impl_trait_rust_name": "core::fmt::Debug",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 234,
+      "def_id": 248,
       "lean_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_2.Insts.CoreOpsFunctionFnOnceTupleUsizeUsize",
       "extract_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_2.Insts.CoreOpsFunctionFnOnceTupleUsizeUsize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<(usize,), usize> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::closure#2<'_0, W>}",
+      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<(usize,), usize> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{closure#2}<'_0, W>}",
       "rust_pattern": "core::ops::function::FnOnce<openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::closure#2<'_, @Self>, (usize), usize>",
       "is_local": true,
       "source": {
@@ -6303,16 +6303,16 @@
         "begin_line": 92,
         "end_line": 92
       },
-      "impl_trait_def_id": 23,
+      "impl_trait_def_id": 26,
       "impl_trait_rust_name": "core::ops::function::FnOnce",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 233,
+      "def_id": 245,
       "lean_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_1.Insts.CoreOpsFunctionFnOnceTupleErrorError",
       "extract_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure_1.Insts.CoreOpsFunctionFnOnceTupleErrorError",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<(core::io::error::Error,), tls_codec::Error> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::closure#1<W>}",
+      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<(core::io::error::Error,), tls_codec::Error> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{closure#1}<W>}",
       "rust_pattern": "core::ops::function::FnOnce<openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::closure#1<@Self>, (core::io::error::Error), tls_codec::Error>",
       "is_local": true,
       "source": {
@@ -6320,16 +6320,16 @@
         "begin_line": 83,
         "end_line": 83
       },
-      "impl_trait_def_id": 23,
+      "impl_trait_def_id": 26,
       "impl_trait_rust_name": "core::ops::function::FnOnce",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 232,
+      "def_id": 244,
       "lean_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure.Insts.CoreOpsFunctionFnOnceTupleTupleUsize",
       "extract_name": "openmls.extensions.codec.SerializeExtension.tls_serialize.closure.Insts.CoreOpsFunctionFnOnceTupleTupleUsize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<((),), usize> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::closure<'_0, W>}",
+      "rust_name": "openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{impl core::ops::function::FnOnce<((),), usize> for openmls::extensions::codec::{impl tls_codec::Serialize for openmls::extensions::Extension}::tls_serialize::{closure}<'_0, W>}",
       "rust_pattern": "core::ops::function::FnOnce<openmls::extensions::codec::{tls_codec::Serialize<openmls::extensions::Extension>}::tls_serialize::closure<'_, @Self>, (()), usize>",
       "is_local": true,
       "source": {
@@ -6337,12 +6337,12 @@
         "begin_line": 82,
         "end_line": 82
       },
-      "impl_trait_def_id": 23,
+      "impl_trait_def_id": 26,
       "impl_trait_rust_name": "core::ops::function::FnOnce",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 47,
+      "def_id": 53,
       "lean_name": "openmls.extensions.Extension.Insts.Tls_codecSerialize",
       "extract_name": "openmls.extensions.Extension.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6354,12 +6354,12 @@
         "begin_line": 62,
         "end_line": 94
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 203,
+      "def_id": 209,
       "lean_name": "openmls.extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6371,12 +6371,12 @@
         "begin_line": 25,
         "end_line": 25
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 259,
+      "def_id": 263,
       "lean_name": "openmls.extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6388,12 +6388,12 @@
         "begin_line": 23,
         "end_line": 23
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 59,
+      "def_id": 65,
       "lean_name": "openmls.extensions.Extension.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.Extension.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6405,12 +6405,12 @@
         "begin_line": 102,
         "end_line": 138
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 23,
+      "def_id": 29,
       "lean_name": "openmls.extensions.Extension.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.extensions.Extension.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6422,12 +6422,12 @@
         "begin_line": 140,
         "end_line": 149
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 307,
+      "def_id": 312,
       "lean_name": "openmls.P.Insts.CoreOpsFunctionFnOnceTupleExtensionInExtension",
       "extract_name": "openmls.P.Insts.CoreOpsFunctionFnOnceTupleExtensionInExtension",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6439,12 +6439,12 @@
         "begin_line": 35,
         "end_line": 37
       },
-      "impl_trait_def_id": 23,
+      "impl_trait_def_id": 26,
       "impl_trait_rust_name": "core::ops::function::FnOnce",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 283,
+      "def_id": 289,
       "lean_name": "openmls.P.Insts.CoreOpsFunctionFnMutTupleExtensionInExtension",
       "extract_name": "openmls.P.Insts.CoreOpsFunctionFnMutTupleExtensionInExtension",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6456,12 +6456,12 @@
         "begin_line": 35,
         "end_line": 37
       },
-      "impl_trait_def_id": 35,
+      "impl_trait_def_id": 39,
       "impl_trait_rust_name": "core::ops::function::FnMut",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 280,
+      "def_id": 286,
       "lean_name": "openmls.extensions.ExtensionType.Insts.CoreHashHash",
       "extract_name": "openmls.extensions.ExtensionType.Insts.CoreHashHash",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6473,12 +6473,12 @@
         "begin_line": 93,
         "end_line": 93
       },
-      "impl_trait_def_id": 33,
+      "impl_trait_def_id": 37,
       "impl_trait_rust_name": "core::hash::Hash",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 279,
+      "def_id": 285,
       "lean_name": "openmls.extensions.ExtensionType.Insts.CoreCmpEq",
       "extract_name": "openmls.extensions.ExtensionType.Insts.CoreCmpEq",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6490,12 +6490,12 @@
         "begin_line": 93,
         "end_line": 93
       },
-      "impl_trait_def_id": 32,
+      "impl_trait_def_id": 36,
       "impl_trait_rust_name": "core::cmp::Eq",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 273,
+      "def_id": 279,
       "lean_name": "openmls.extensions.extension_in.ExtensionIn.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.extension_in.ExtensionIn.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6507,16 +6507,16 @@
         "begin_line": 69,
         "end_line": 73
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 302,
+      "def_id": 308,
       "lean_name": "openmls.extensions.extension_in.DeserializeExtensionIn.tls_deserialize.closure.Insts.CoreOpsFunctionFnOnceTupleClause0_ErrorError",
       "extract_name": "openmls.extensions.extension_in.DeserializeExtensionIn.tls_deserialize.closure.Insts.CoreOpsFunctionFnOnceTupleClause0_ErrorError",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::extension_in::{impl tls_codec::Deserialize for openmls::extensions::extension_in::ExtensionIn<T>}::tls_deserialize::{impl core::ops::function::FnOnce<(Clause0_Error,), tls_codec::Error> for openmls::extensions::extension_in::{impl tls_codec::Deserialize for openmls::extensions::extension_in::ExtensionIn<T>}::tls_deserialize::closure<T, R, Clause0_Error>}",
+      "rust_name": "openmls::extensions::extension_in::{impl tls_codec::Deserialize for openmls::extensions::extension_in::ExtensionIn<T>}::tls_deserialize::{impl core::ops::function::FnOnce<(Clause0_Error,), tls_codec::Error> for openmls::extensions::extension_in::{impl tls_codec::Deserialize for openmls::extensions::extension_in::ExtensionIn<T>}::tls_deserialize::{closure}<T, R, Clause0_Error>}",
       "rust_pattern": "core::ops::function::FnOnce<openmls::extensions::extension_in::{tls_codec::Deserialize<openmls::extensions::extension_in::ExtensionIn<@T>>}::tls_deserialize::closure<@Self, @Args, @Self_Output>, (@Self_Output), tls_codec::Error>",
       "is_local": true,
       "source": {
@@ -6524,12 +6524,12 @@
         "begin_line": 86,
         "end_line": 86
       },
-      "impl_trait_def_id": 23,
+      "impl_trait_def_id": 26,
       "impl_trait_rust_name": "core::ops::function::FnOnce",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 256,
+      "def_id": 260,
       "lean_name": "openmls.extensions.extension_in.ExtensionIn.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.extension_in.ExtensionIn.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6541,12 +6541,12 @@
         "begin_line": 75,
         "end_line": 120
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 247,
+      "def_id": 252,
       "lean_name": "openmls.extensions.Extension.Insts.CoreFmtDebug",
       "extract_name": "openmls.extensions.Extension.Insts.CoreFmtDebug",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6558,12 +6558,12 @@
         "begin_line": 342,
         "end_line": 342
       },
-      "impl_trait_def_id": 24,
+      "impl_trait_def_id": 28,
       "impl_trait_rust_name": "core::fmt::Debug",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 31,
+      "def_id": 37,
       "lean_name": "openmls.extensions.Extensions.Insts.Tls_codecSize",
       "extract_name": "openmls.extensions.Extensions.Insts.Tls_codecSize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6575,12 +6575,12 @@
         "begin_line": 420,
         "end_line": 424
       },
-      "impl_trait_def_id": 11,
+      "impl_trait_def_id": 17,
       "impl_trait_rust_name": "tls_codec::Size",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 49,
+      "def_id": 55,
       "lean_name": "openmls.extensions.Extensions.Insts.Tls_codecSerialize",
       "extract_name": "openmls.extensions.Extensions.Insts.Tls_codecSerialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6592,16 +6592,16 @@
         "begin_line": 426,
         "end_line": 430
       },
-      "impl_trait_def_id": 7,
+      "impl_trait_def_id": 5,
       "impl_trait_rust_name": "tls_codec::Serialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 255,
+      "def_id": 262,
       "lean_name": "openmls.extensions.DeserializeExtensions.tls_deserialize.closure.Insts.CoreOpsFunctionFnOnceTupleInvalidExtensionErrorError",
       "extract_name": "openmls.extensions.DeserializeExtensions.tls_deserialize.closure.Insts.CoreOpsFunctionFnOnceTupleInvalidExtensionErrorError",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::{impl tls_codec::Deserialize for openmls::extensions::Extensions<T>}::tls_deserialize::{impl core::ops::function::FnOnce<(openmls::extensions::errors::InvalidExtensionError,), tls_codec::Error> for openmls::extensions::{impl tls_codec::Deserialize for openmls::extensions::Extensions<T>}::tls_deserialize::closure<T, R, Clause0_Error>}",
+      "rust_name": "openmls::extensions::{impl tls_codec::Deserialize for openmls::extensions::Extensions<T>}::tls_deserialize::{impl core::ops::function::FnOnce<(openmls::extensions::errors::InvalidExtensionError,), tls_codec::Error> for openmls::extensions::{impl tls_codec::Deserialize for openmls::extensions::Extensions<T>}::tls_deserialize::{closure}<T, R, Clause0_Error>}",
       "rust_pattern": "core::ops::function::FnOnce<openmls::extensions::{tls_codec::Deserialize<openmls::extensions::Extensions<@T>>}::tls_deserialize::closure<@Self, @Args, @Self_Output>, (openmls::extensions::errors::InvalidExtensionError), tls_codec::Error>",
       "is_local": true,
       "source": {
@@ -6609,12 +6609,12 @@
         "begin_line": 442,
         "end_line": 442
       },
-      "impl_trait_def_id": 23,
+      "impl_trait_def_id": 26,
       "impl_trait_rust_name": "core::ops::function::FnOnce",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 58,
+      "def_id": 64,
       "lean_name": "openmls.extensions.Extensions.Insts.Tls_codecDeserialize",
       "extract_name": "openmls.extensions.Extensions.Insts.Tls_codecDeserialize",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6626,12 +6626,12 @@
         "begin_line": 432,
         "end_line": 444
       },
-      "impl_trait_def_id": 9,
+      "impl_trait_def_id": 7,
       "impl_trait_rust_name": "tls_codec::Deserialize",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 32,
+      "def_id": 38,
       "lean_name": "openmls.extensions.Extensions.Insts.Tls_codecDeserializeBytes",
       "extract_name": "openmls.extensions.Extensions.Insts.Tls_codecDeserializeBytes",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6643,12 +6643,12 @@
         "begin_line": 446,
         "end_line": 458
       },
-      "impl_trait_def_id": 8,
+      "impl_trait_def_id": 6,
       "impl_trait_rust_name": "tls_codec::DeserializeBytes",
       "impl_trait_is_builtin": true
     },
     {
-      "def_id": 138,
+      "def_id": 144,
       "lean_name": "openmls.extensions.AnyObject.Insts.OpenmlsExtensionsPrivateSealed",
       "extract_name": "openmls.extensions.AnyObject.Insts.OpenmlsExtensionsPrivateSealed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6660,29 +6660,29 @@
         "begin_line": 592,
         "end_line": 592
       },
-      "impl_trait_def_id": 16,
+      "impl_trait_def_id": 23,
       "impl_trait_rust_name": "openmls::extensions::private::Sealed",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 33,
-      "lean_name": "openmls.extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorInfallible",
-      "extract_name": "openmls.extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorInfallible",
+      "def_id": 39,
+      "lean_name": "openmls.extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorNever",
+      "extract_name": "openmls.extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorNever",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
-      "rust_name": "openmls::extensions::{impl openmls::extensions::ExtensionValidator<core::convert::Infallible> for openmls::extensions::AnyObject}",
-      "rust_pattern": "openmls::extensions::ExtensionValidator<openmls::extensions::AnyObject, core::convert::Infallible>",
+      "rust_name": "openmls::extensions::{impl openmls::extensions::ExtensionValidator<!> for openmls::extensions::AnyObject}",
+      "rust_pattern": "openmls::extensions::ExtensionValidator<openmls::extensions::AnyObject, !>",
       "is_local": true,
       "source": {
         "file": "openmls/src/extensions/mod.rs",
         "begin_line": 595,
         "end_line": 601
       },
-      "impl_trait_def_id": 0,
+      "impl_trait_def_id": 12,
       "impl_trait_rust_name": "openmls::extensions::ExtensionValidator",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 139,
+      "def_id": 145,
       "lean_name": "openmls.messages.group_info.GroupInfo.Insts.OpenmlsExtensionsPrivateSealed",
       "extract_name": "openmls.messages.group_info.GroupInfo.Insts.OpenmlsExtensionsPrivateSealed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6694,12 +6694,12 @@
         "begin_line": 626,
         "end_line": 626
       },
-      "impl_trait_def_id": 16,
+      "impl_trait_def_id": 23,
       "impl_trait_rust_name": "openmls::extensions::private::Sealed",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 34,
+      "def_id": 40,
       "lean_name": "openmls.messages.group_info.GroupInfo.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupInfoError",
       "extract_name": "openmls.messages.group_info.GroupInfo.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupInfoError",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6711,12 +6711,12 @@
         "begin_line": 630,
         "end_line": 644
       },
-      "impl_trait_def_id": 0,
+      "impl_trait_def_id": 12,
       "impl_trait_rust_name": "openmls::extensions::ExtensionValidator",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 140,
+      "def_id": 146,
       "lean_name": "openmls.group.group_context.GroupContext.Insts.OpenmlsExtensionsPrivateSealed",
       "extract_name": "openmls.group.group_context.GroupContext.Insts.OpenmlsExtensionsPrivateSealed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6728,12 +6728,12 @@
         "begin_line": 646,
         "end_line": 646
       },
-      "impl_trait_def_id": 16,
+      "impl_trait_def_id": 23,
       "impl_trait_rust_name": "openmls::extensions::private::Sealed",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 35,
+      "def_id": 41,
       "lean_name": "openmls.group.group_context.GroupContext.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupContextError",
       "extract_name": "openmls.group.group_context.GroupContext.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupContextError",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6745,12 +6745,12 @@
         "begin_line": 650,
         "end_line": 662
       },
-      "impl_trait_def_id": 0,
+      "impl_trait_def_id": 12,
       "impl_trait_rust_name": "openmls::extensions::ExtensionValidator",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 141,
+      "def_id": 147,
       "lean_name": "openmls.key_packages.KeyPackage.Insts.OpenmlsExtensionsPrivateSealed",
       "extract_name": "openmls.key_packages.KeyPackage.Insts.OpenmlsExtensionsPrivateSealed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6762,12 +6762,12 @@
         "begin_line": 664,
         "end_line": 664
       },
-      "impl_trait_def_id": 16,
+      "impl_trait_def_id": 23,
       "impl_trait_rust_name": "openmls::extensions::private::Sealed",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 36,
+      "def_id": 42,
       "lean_name": "openmls.key_packages.KeyPackage.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInKeyPackageError",
       "extract_name": "openmls.key_packages.KeyPackage.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInKeyPackageError",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6779,12 +6779,12 @@
         "begin_line": 668,
         "end_line": 680
       },
-      "impl_trait_def_id": 0,
+      "impl_trait_def_id": 12,
       "impl_trait_rust_name": "openmls::extensions::ExtensionValidator",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 142,
+      "def_id": 148,
       "lean_name": "openmls.treesync.node.leaf_node.LeafNode.Insts.OpenmlsExtensionsPrivateSealed",
       "extract_name": "openmls.treesync.node.leaf_node.LeafNode.Insts.OpenmlsExtensionsPrivateSealed",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6796,12 +6796,12 @@
         "begin_line": 682,
         "end_line": 682
       },
-      "impl_trait_def_id": 16,
+      "impl_trait_def_id": 23,
       "impl_trait_rust_name": "openmls::extensions::private::Sealed",
       "impl_trait_is_builtin": false
     },
     {
-      "def_id": 37,
+      "def_id": 43,
       "lean_name": "openmls.treesync.node.leaf_node.LeafNode.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInLeafNodeError",
       "extract_name": "openmls.treesync.node.leaf_node.LeafNode.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInLeafNodeError",
       "lean_file": "OpenmlsCodec/Extraction/Funs.lean",
@@ -6813,7 +6813,7 @@
         "begin_line": 686,
         "end_line": 698
       },
-      "impl_trait_def_id": 0,
+      "impl_trait_def_id": 12,
       "impl_trait_rust_name": "openmls::extensions::ExtensionValidator",
       "impl_trait_is_builtin": false
     }
