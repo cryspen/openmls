@@ -22,13 +22,13 @@
 #   3. `openmls-codec`          (openmls)                  uses TlsCodec, TraitsCodec
 
 [tools]
-# aeneas built from cryspen/aeneas 4aefccc8 (the revision of the aeneas Lean
+# aeneas built from cryspen/aeneas 38960402 (the revision of the aeneas Lean
 # library the Lean projects require) by `sh proofs/setup.sh`; the path is
 # relative to this file. charon: the version that aeneas expects (downloaded
 # by hax). Same aeneas / charon as the TlsCodec scenario that wrote the
 # translation.json files read below.
 aeneas = { path = ".hax-tools/aeneas/bin/aeneas" }
-charon = "nightly-2026.09.02"
+charon = "nightly-2026.10.31"
 
 # 1. The tls_codec impls of `openmls_traits` (wire types in `src/types.rs`).
 #    Output: traits/proofs/traits-codec/lean;
@@ -206,7 +206,7 @@ include = [
   "{impl tls_codec::DeserializeBytes for openmls::extensions::Extensions<_>}",
   # step 4c: the extension validators (`validate_extension_type` has a termination
   # contract, so each impl gets an `ExtensionValidator.Lawful` obligation). Workaround (charon
-  # nightly-2026.09.02): these patterns resolve, but charon's reachability re-check
+  # nightly-2026.10.31): these patterns resolve, but charon's reachability re-check
   # (reorder_decls) matches them against the impl *after* `lift_associated_types`, whose trait
   # ref then has 2 type args (`Self`, the lifted `Error`) vs the pattern's 1, and silently drops
   # the impls. The impls therefore also carry `#[cfg_attr(hax, hax_lib::include)]`, which charon

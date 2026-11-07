@@ -11,12 +11,12 @@ leanOptions = { weak.linter.style.nameCheck = false }
 # (`-external-names` in the workspace `hax.toml`): tls_codec and openmls_traits.
 # TlsCodec: the Lean project of the tls_codec fork that the workspace
 # `Cargo.toml` patches tls_codec to (cryspen/formats, same revision). It brings
-# the aeneas Lean library (cryspen/aeneas 4aefccc8, the revision of the aeneas
+# the aeneas Lean library (cryspen/aeneas 38960402, the revision of the aeneas
 # binary built by `proofs/setup.sh`), hax-lean and mathlib with it.
 [[require]]
 name = "TlsCodec"
 git = "https://github.com/cryspen/formats"
-rev = "eb9795819d79469ab94d76585559c494573a58f6"
+rev = "51fb27393f3dde769a181f93b4cddfc346113478"
 subDir = "tls_codec/proofs/tls-codec/lean"
 
 [[require]]

@@ -47,7 +47,7 @@ openmls_sqlite_storage = { version = "0.3.0", path = "sqlite_storage" }
 # openmls_traits and openmls_basic_credential) need the tls_codec fork with
 # the saturating / checked length sums (`len_add`, used by
 # `openmls::extensions`) and the hax specs of the codec traits:
-# cryspen/formats, branch `proofs/lean/tls_codec-clean`.
+# cryspen/formats, branch `proofs/lean/tls_codec-aeneas-4.35`.
 [patch.crates-io]
-tls_codec = { git = "https://github.com/cryspen/formats", rev = "eb9795819d79469ab94d76585559c494573a58f6" }
-tls_codec_derive = { git = "https://github.com/cryspen/formats", rev = "eb9795819d79469ab94d76585559c494573a58f6" }
+tls_codec = { git = "https://github.com/cryspen/formats", rev = "51fb27393f3dde769a181f93b4cddfc346113478" }
+tls_codec_derive = { git = "https://github.com/cryspen/formats", rev = "51fb27393f3dde769a181f93b4cddfc346113478" }
