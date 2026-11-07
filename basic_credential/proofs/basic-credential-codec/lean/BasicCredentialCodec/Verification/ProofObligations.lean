@@ -7,7 +7,7 @@ proof is one call of TlsCodec's derive tactics (`Verification/Derive/Bytes.lean`
 Obligations: all 9 of `Extraction/ProofObligations.lean`.
 Axioms reached (`scripts/axiom_whitelist.txt`): ASSUMED `size_of`, `size_of_U16`, `size_of_U8`,
 `numBits_eq_64` (the round trip's bound, `imax_64`); 1 signature-only stub
-(`core.io.error.Error.Insts.CoreFmtDebug.fmt`); `native_decide` (1). -/
+(`core.io.error.Error.Insts.CoreFmtDebug.fmt`). -/
 import BasicCredentialCodec.Extraction
 import TlsCodec.Verification.ProofObligations
 import TlsCodec.Verification.Derive.Std
@@ -73,9 +73,8 @@ theorem SignatureKeyPair.Insts.CoreCmpPartialEqSignatureKeyPair.Lawful :
 
 private theorem SS.size2 (x : openmls_traits.types.SignatureScheme) :
     openmls_traits.types.SignatureScheme.Insts.Tls_codecSize.tls_serialized_len x = ok 2#usize := by
-  simp only [openmls_traits.types.SignatureScheme.Insts.Tls_codecSize.tls_serialized_len,
-    CoreModels.core.mem.size_of_U16, tls_codec.len_add_ok, bind_tc_ok, ok.injEq]
-  exact UScalar.eq_of_val_eq (by rw [lenAddVal_min]; have := imax_ge; have := imax_le; simp; omega)
+  simp only [openmls_traits.types.SignatureScheme.Insts.Tls_codecSize.tls_serialized_len]
+  exact tls_codec.Derive.u16_enum_size
 
 /-- `SignatureScheme` (`openmls_traits`, a `u16` enum): its 2 bytes, from its round-trip
 obligation. -/

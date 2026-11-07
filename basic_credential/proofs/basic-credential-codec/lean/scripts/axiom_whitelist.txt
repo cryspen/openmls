@@ -17,6 +17,3 @@ numBits_eq_64
 
 # TlsCodec: signature-only stub (MissingCoreModels.lean; no spec)
 CoreModels.core.io.error.Error.Insts.CoreFmtDebug.fmt
-
-# `native_decide` in TlsCodec (kernel-checked by evaluation; the compiler is trusted)
-tls_codec.alloc.vec.Vec.Insts.Tls_codecDeserializeBytes.tls_deserialize_bytes_loop.body._native.decide.ax_3

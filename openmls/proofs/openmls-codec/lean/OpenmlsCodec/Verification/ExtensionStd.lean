@@ -8,8 +8,7 @@ Axioms reached (`scripts/axiom_whitelist.txt`): nothing ASSUMED; 4 signature-onl
 (`core.io.error.Error.Insts.CoreFmtDebug.fmt`,
 `extensions.ratchet_tree_extension.RatchetTreeExtension`,
 `extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecDeserialize.tls_deserialize`,
-`extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSize.tls_serialized_len`);
-`native_decide` (1). -/
+`extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSize.tls_serialized_len`). -/
 import OpenmlsCodec.Extraction
 import TlsCodec.Verification.Derive.HandWritten
 import TlsCodec.Verification.Std.SecretFrom
@@ -52,7 +51,7 @@ theorem extensions.Extension.size_tail (p : Std.Usize) (hp : p.val ≤ 2 ^ 30 - 
 
 /-- `T::tls_deserialize_exact(data)` (`deserialize_extension_exact`), from `T`'s
 `Deserialize.Lawful`: an `Ok v` has the size of `data`. -/
-theorem extensions.codec.deserialize_extension_exact_spec {T : Type} {DI : Deserialize T}
+theorem extensions.codec.deserialize_extension_exact_spec {T : Type _} {DI : Deserialize T}
     (h : Deserialize.Lawful T DI) (s : Slice Std.U8) :
     ⦃ ⌜ True ⌝ ⦄ extensions.codec.deserialize_extension_exact DI s
     ⦃ ⇓ r => ⌜ ∀ v, r = .Ok v → (szv DI.SizeInst v).val = s.val.length ⌝ ⦄ := by
@@ -61,7 +60,7 @@ theorem extensions.codec.deserialize_extension_exact_spec {T : Type} {DI : Deser
 
 /-- The size of an `Extension` whose payload (of instance `Sz`, wrapped by `C`) has size `L`
 (a varint-encodable length). -/
-theorem extensions.Extension.size_arm {T : Type} {Sz : Size T} (hS : Size.Lawful T Sz)
+theorem extensions.Extension.size_arm {T : Type _} {Sz : Size T} (hS : Size.Lawful T Sz)
     (C : T → extensions.Extension)
     (hC : ∀ e, extensions.Extension.Insts.Tls_codecSize.tls_serialized_len (C e) = (do
       let p ← Sz.tls_serialized_len e
@@ -74,7 +73,7 @@ theorem extensions.Extension.size_arm {T : Type} {Sz : Size T} (hS : Size.Lawful
   obtain ⟨s, hs, hsv⟩ := extensions.Extension.size_tail (szv Sz e) (by omega)
   refine ⟨s, ?_, by rw [hsv, he]⟩
   rw [hC, size_ok hS e]
-  simpa only [bind_tc_ok] using hs
+  simpa only [bind_tc_ok, Aeneas.Std.bind_ok] using hs
 
 /-- The size of an `Extension::Unknown` with a varint-encodable payload. -/
 theorem extensions.Extension.size_unknown (g : Std.U16) (e : alloc.vec.Vec Std.U8)
@@ -86,7 +85,7 @@ theorem extensions.Extension.size_unknown (g : Std.U16) (e : alloc.vec.Vec Std.U
     ⟨_, rfl, by simp⟩
   obtain ⟨s, hs, hsv⟩ := extensions.Extension.size_tail l (by omega)
   refine ⟨s, ?_, by rw [hsv, hlv]⟩
-  simp only [extensions.Extension.Insts.Tls_codecSize.tls_serialized_len, hl, bind_tc_ok]
+  simp only [extensions.Extension.Insts.Tls_codecSize.tls_serialized_len, hl, Aeneas.Std.bind_ok]
   exact hs
 
 /-- The success VC of `Extension`'s deserializer: type (2 bytes), then a `VLBytes` of length `L`
@@ -120,7 +119,7 @@ theorem extensions.Extension.de_close {R : Type} {RI : alloc.io.read.Read R}
   refine ⟨2 + n, s, adv_le law hle1 hn, adv_adv' law hle1 hn, hs, by rw [hsv, hnv]; omega⟩
 
 /-- The payload of the deserialized `Extension` has the `VLBytes`' length. -/
-theorem extensions.Extension.arm_len {T : Type} {Sz : Size T} {r2 : core.result.Result T tls_codec.Error}
+theorem extensions.Extension.arm_len {T : Type _} {Sz : Size T} {r2 : core.result.Result T tls_codec.Error}
     {val2 : T} {s : Slice Std.U8} {vb : quic_vec.VLBytes}
     (h : ∀ v, r2 = .Ok v → (szv Sz v).val = s.val.length)
     (hc : core.ops.control_flow.ControlFlow.Continue val2 = tryCF r2) (hs : s = vb.vec) :

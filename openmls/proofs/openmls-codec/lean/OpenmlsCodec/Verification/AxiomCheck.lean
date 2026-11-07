@@ -93,7 +93,7 @@ open openmls
 #print axioms extensions.Extensions.Insts.Tls_codecDeserialize.Lawful
 #print axioms extensions.Extensions.Insts.Tls_codecDeserializeBytes.Lawful
 #print axioms extensions.AnyObject.Insts.OpenmlsExtensionsPrivateSealed.Lawful
-#print axioms extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorInfallible.Lawful
+#print axioms extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorNever.Lawful
 #print axioms messages.group_info.GroupInfo.Insts.OpenmlsExtensionsPrivateSealed.Lawful
 #print axioms messages.group_info.GroupInfo.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupInfoError.Lawful
 #print axioms group.group_context.GroupContext.Insts.OpenmlsExtensionsPrivateSealed.Lawful

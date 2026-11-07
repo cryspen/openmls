@@ -25,7 +25,7 @@ its round trip); 11 signature-only stubs (`ciphersuite.equal_ct`,
 `extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecDeserialize.tls_deserialize`,
 `extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSerialize.tls_serialize`,
 `extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSize.tls_serialized_len`,
-`messages.proposals.ProposalType.Insts.CoreFmtDebug.fmt`); `native_decide` (2). -/
+`messages.proposals.ProposalType.Insts.CoreFmtDebug.fmt`). -/
 import OpenmlsCodec.Extraction
 import TlsCodec.Verification.ProofObligations
 import TlsCodec.Verification.Derive.Std
@@ -74,7 +74,7 @@ macro "u16_enum_eq_lawful" inst:ident "," eqd:ident "," rd:ident : tactic => `(t
     exact ok_triple_of (by rw [heq_iff_eq]; exact hbv)
   · intro x y
     obtain ⟨b, hb, -⟩ := key x y
-    simp only [$inst:ident, core.cmp.PartialEq.ne.default, hb, bind_tc_ok]
+    simp only [$inst:ident, core.cmp.PartialEq.ne.default, hb, bind_tc_ok, Aeneas.Std.bind_ok]
     exact ok_triple_of trivial))
 
 /-- `Serialize.Lawful` of a hand-written `u16`-coded enum serializer that rejects non-canonical
@@ -90,28 +90,31 @@ macro "canon_u16_ser" hS:term "," hEq:term "," toU:ident "," fromU:ident "," ser
     unfold $fromU:ident; split
     all_goals first
       | exact ⟨_, rfl⟩
-      | (obtain ⟨b, hb⟩ := grease_ok k; simp only [hb, bind_tc_ok]; split <;> exact ⟨_, rfl⟩)
+      | (obtain ⟨b, hb⟩ := grease_ok k; simp only [hb, bind_tc_ok, Aeneas.Std.bind_ok]; split <;> exact ⟨_, rfl⟩)
   have hne := ne_default_eq $hEq y x
-  obtain ⟨_, he, hbe⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp (core.num.U16.to_be_bytes_spec k)
+  obtain ⟨_, he, hbe⟩ := Aeneas.Std.triple_iff_exists_ok.mp (core.num.U16.to_be_bytes_spec k)
   by_cases hc : y = x
   · left
     refine ⟨Array.to_slice (Aeneas.Std.core.num.U16.to_be_bytes k), by simp [Array.to_slice],
       fun WI w w' hw => ?_⟩
     subst hc
-    simp only [$ser:ident, $serfn:ident, hk, hy, hne, he, hbe, lift, bind_tc_ok, hw, ne_eq,
-      not_true_eq_false, decide_false, Bool.false_eq_true, if_false]
-    rfl
+    simp only [$ser:ident, $serfn:ident, hk, hy, hne, he, hbe, lift, bind_tc_ok, Aeneas.Std.bind_ok, hw, ne_eq,
+      not_true_eq_false, decide_false, Bool.false_eq_true, if_false, core.array.Array.as_slice,
+      rust_primitives.slice.array_as_slice, core.result.Result.Insts.CoreOpsTry_traitTry.branch,
+      core.result.Result.Insts.CoreOpsTry_traitTryTResultInfallibleE.branch]
+    simp [Aeneas.Std.bind_ok]
   · right
     intro W WI w
-    obtain ⟨⟨r0, f0⟩, hf, hr0⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp ($okspec x ())
+    obtain ⟨⟨r0, f0⟩, hf, hr0⟩ := Aeneas.Std.triple_iff_exists_ok.mp ($okspec x ())
     simp only at hr0
     subst hr0
-    simp only [$ser:ident, $serfn:ident, hk, hy, hne, hc, bind_tc_ok, ne_eq, not_false_eq_true,
+    simp only [$ser:ident, $serfn:ident, hk, hy, hne, hc, bind_tc_ok, Aeneas.Std.bind_ok, ne_eq, not_false_eq_true,
       decide_true, if_true, core.fmt.rt.Argument.new_debug, core.Shared0T.Insts.CoreFmtDebug,
       core.Shared0T.Insts.CoreFmtDebug.fmt, $dbg:ident, hf, core.fmt.rt.Argument.new_lower_hex,
       core.U16.Insts.CoreFmtLowerHex, core.U16.Insts.CoreFmtLowerHex.fmt, core.fmt.Arguments.new,
       alloc.fmt.format, core.hint.must_use]
-    try exact ⟨_, rfl⟩))
+    simp [Aeneas.Std.bind_ok, bind_tc_ok]
+    first | exact ⟨_, Aeneas.Std.bind_ok _ _⟩ | exact ⟨_, bind_tc_ok _ _⟩))
 
 /-- `Deserialize.Lawful` of a hand-written `u16`-coded enum deserializer (`read_exact` of 2 bytes,
 `from_be_bytes`, then a total `From<u16>` `f`): it consumes 2 bytes, its size. -/
@@ -124,17 +127,20 @@ macro "u16_read_de" hS:term "," de:ident "," f:ident : tactic => `(tactic| (
       unfold $f:ident; split
       all_goals first
         | exact ⟨_, rfl⟩
-        | (obtain ⟨b, hb⟩ := grease_ok u; simp only [hb, bind_tc_ok]; split <;> exact ⟨_, rfl⟩)
+        | (obtain ⟨b, hb⟩ := grease_ok u; simp only [hb, bind_tc_ok, Aeneas.Std.bind_ok]; split <;> exact ⟨_, rfl⟩)
     obtain ⟨y, hy⟩ := hy; rw [hy]; exact ok_triple_of trivial
-  mvcgen [$de:ident, hre, hf, core.num.U16.from_be_bytes_spec]
-  · rename_i arr p hp _ _ _ _ hcf _ _ _
+  mvcgen [$de:ident, hre, hf, core.num.U16.from_be_bytes_spec, core.array.Array.as_mut_slice,
+    rust_primitives.slice.array_as_mut_slice]
+  · rename_i p hp _ _ _ _ hcf _ _ _
+    set arr := Aeneas.Std.Array.repeat 2#usize 0#u8
     intro val _
     have hl : (arr.to_slice_mut.1 : Slice Std.U8).val.length = 2 := to_slice_mut_len arr
     by_cases h1 : 2 ≤ (v r).length
     · rw [hp.1 (by rw [hl]; exact h1), hl]
       exact ⟨2, 2#usize, h1, rfl, rfl, rfl⟩
     · rw [hp.2 (by rw [hl]; omega)] at hcf; simp [tryCF] at hcf
-  · rename_i arr p hp _ res _ hbr
+  · rename_i p hp _ res _ hbr
+    set arr := Aeneas.Std.Array.repeat 2#usize 0#u8
     have hl : (arr.to_slice_mut.1 : Slice Std.U8).val.length = 2 := to_slice_mut_len arr
     refine try_break_vc (x := p.1) (fun e he => ?_) hbr
     by_cases h1 : 2 ≤ (v r).length
@@ -613,7 +619,7 @@ theorem
 
 theorem
   extensions.codec.SerializeExtension.tls_serialize.closure_2.Insts.CoreOpsFunctionFnOnceTupleUsizeUsize.Lawful
-  {W : Type} (coreiowriteWriteInst : core.io.write.Write W)
+  {W : Type _} (coreiowriteWriteInst : core.io.write.Write W)
   (coreiowriteWriteInstLawful : core.io.write.Write.Lawful W
   coreiowriteWriteInst) :
   core.ops.function.FnOnce.Lawful
@@ -626,7 +632,7 @@ theorem
 
 theorem
   extensions.codec.SerializeExtension.tls_serialize.closure_1.Insts.CoreOpsFunctionFnOnceTupleErrorError.Lawful
-  {W : Type} (coreiowriteWriteInst : core.io.write.Write W)
+  {W : Type _} (coreiowriteWriteInst : core.io.write.Write W)
   (coreiowriteWriteInstLawful : core.io.write.Write.Lawful W
   coreiowriteWriteInst) :
   core.ops.function.FnOnce.Lawful
@@ -639,7 +645,7 @@ theorem
 
 theorem
   extensions.codec.SerializeExtension.tls_serialize.closure.Insts.CoreOpsFunctionFnOnceTupleTupleUsize.Lawful
-  {W : Type} (coreiowriteWriteInst : core.io.write.Write W)
+  {W : Type _} (coreiowriteWriteInst : core.io.write.Write W)
   (coreiowriteWriteInstLawful : core.io.write.Write.Lawful W
   coreiowriteWriteInst) :
   core.ops.function.FnOnce.Lawful
@@ -835,7 +841,7 @@ theorem extensions.Extension.Insts.Tls_codecSize.Lawful :
   extensions.Extension.size_lawful_of
     extensions.ratchet_tree_extension.RatchetTreeExtension.Insts.Tls_codecSize.Lawful
 
-theorem extensions.Extensions.Insts.Tls_codecSize.Lawful (T : Type) :
+theorem extensions.Extensions.Insts.Tls_codecSize.Lawful (T : Type _) :
   tls_codec.Size.Lawful (extensions.Extensions T)
   (extensions.Extensions.Insts.Tls_codecSize T)
   := by
@@ -843,7 +849,7 @@ theorem extensions.Extensions.Insts.Tls_codecSize.Lawful (T : Type) :
 
 theorem
   extensions.DeserializeExtensions.tls_deserialize.closure.Insts.CoreOpsFunctionFnOnceTupleInvalidExtensionErrorError.Lawful
-  {T : Type} {R : Type} {Clause0_Error : Type} (ExtensionValidatorInst :
+  {T : Type _} {R : Type _} {Clause0_Error : Type _} (ExtensionValidatorInst :
   extensions.ExtensionValidator T Clause0_Error) (allocstringToStringInst :
   alloc.string.ToString Clause0_Error)
   (coreconvertFromInvalidExtensionErrorClause0_ErrorInst : core.convert.From
@@ -870,15 +876,14 @@ theorem
 /-! ## The extension validators: `validate_extension_type` returns. -/
 
 theorem
-  extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorInfallible.Lawful
+  extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorNever.Lawful
   :
-  extensions.ExtensionValidator.Lawful extensions.AnyObject
-  core.convert.Infallible
-  extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorInfallible
+  extensions.ExtensionValidator.Lawful extensions.AnyObject Never
+  extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorNever
   := by
   refine ⟨⟨⟩, ?_⟩
   intro ext _
-  mvcgen [extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorInfallible.validate_extension_type]
+  mvcgen [extensions.AnyObject.Insts.OpenmlsExtensionsExtensionValidatorNever.validate_extension_type]
 
 theorem
   messages.group_info.GroupInfo.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupInfoError.Lawful
@@ -890,7 +895,9 @@ theorem
   refine ⟨⟨⟩, ?_⟩
   intro ext _
   cases ext <;> mvcgen [messages.group_info.GroupInfo.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupInfoError.validate_extension_type,
-    extensions.Extension.extension_type, extensions.ExtensionType.is_valid_in_group_info]
+    extensions.Extension.extension_type, extensions.ExtensionType.is_valid_in_group_info,
+    core.option.Option.Insts.CoreCmpPartialEqOption.eq, core.option.Option.is_none,
+    core.Bool.Insts.CoreCmpPartialEqBool]
 
 theorem
   group.group_context.GroupContext.Insts.OpenmlsExtensionsExtensionValidatorExtensionTypeNotValidInGroupContextError.Lawful
@@ -981,7 +988,11 @@ theorem versions.ProtocolVersion.Insts.Tls_codecSerialize.Lawful :
     | Other v =>
       by_cases hv : v = 1#u16
       · subst hv
-        refine ⟨_, w, rfl, fun b hb => by simp at hb, fun _ => ⟨_, rfl⟩⟩
+        refine ⟨.Err (.EncodingError ""), w, ?_, fun b hb => by simp at hb, fun _ => ⟨_, rfl⟩⟩
+        simp only [versions.ProtocolVersion.Insts.Tls_codecSerialize,
+          versions.ProtocolVersion.Insts.Tls_codecSerialize.tls_serialize, str_to_string_ok,
+          Aeneas.Std.bind_ok]
+        exact Aeneas.Std.bind_ok _ _
       · simp only [hv, if_false]
         have h := U16.ser_runs v W WI hWI w hroom
         simp only [versions.ProtocolVersion.Insts.Tls_codecSerialize,
@@ -997,7 +1008,7 @@ theorem versions.ProtocolVersion.Insts.Tls_codecDeserialize.Lawful :
   refine de_lawful_of_runs _ versions.ProtocolVersion.Insts.Tls_codecSize.Lawful
     (P := fun _ _ _ => True) ?_ (fun _ _ => rfl)
   intro R RI v a law r
-  obtain ⟨⟨res, r'⟩, hr, hp⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp (U16.de_runs R RI v a law r)
+  obtain ⟨⟨res, r'⟩, hr, hp⟩ := Aeneas.Std.triple_iff_exists_ok.mp (U16.de_runs R RI v a law r)
   have hf : ∀ u, ∃ y, versions.ProtocolVersion.Insts.CoreConvertFromU16.from u = ok y := by
     intro u; unfold versions.ProtocolVersion.Insts.CoreConvertFromU16.from; split <;> exact ⟨_, rfl⟩
   simp only [versions.ProtocolVersion.Insts.Tls_codecDeserialize,
@@ -1012,7 +1023,7 @@ theorem versions.ProtocolVersion.Insts.Tls_codecDeserialize.Lawful :
     obtain ⟨y, hy⟩ := hf u
     obtain ⟨n, sz, hn, h2, hsz, hszn, -⟩ := hp u rfl
     have h2' : sz = 2#usize := by
-      have := hsz.symm.trans (u16_size u); cases this; rfl
+      have := hsz.symm.trans (u16_size u); exact RustM.ok_injective this
     subst h2'
     simp only [bind_tc_ok, core.result.Result.map,
       P.Insts.CoreOpsFunctionFnOnceTupleU16ProtocolVersion,
@@ -1116,7 +1127,7 @@ theorem extensions.Extension.Insts.Tls_codecDeserializeBytes.Lawful :
     extensions.Extension.Insts.Tls_codecDeserialize.Lawful,
     extensions.Extension.Insts.Tls_codecSize.Lawful
 
-theorem extensions.Extensions.Insts.Tls_codecSerialize.Lawful (T : Type) :
+theorem extensions.Extensions.Insts.Tls_codecSerialize.Lawful (T : Type _) :
   tls_codec.Serialize.Lawful (extensions.Extensions T)
   (extensions.Extensions.Insts.Tls_codecSerialize T)
   := by
@@ -1129,8 +1140,8 @@ theorem extensions.Extensions.Insts.Tls_codecSerialize.Lawful (T : Type) :
       fun hle b hb => hV.enc_len x.unique _ (size_ok hV.SizeInstLawful x.unique) hle b hb,
       hV.runs x.unique _ (size_ok hV.SizeInstLawful x.unique)⟩) (fun _ => rfl)
 
-theorem extensions.Extensions.Insts.Tls_codecDeserialize.Lawful {T : Type}
-  {Clause0_Error : Type} (ExtensionValidatorInst :
+theorem extensions.Extensions.Insts.Tls_codecDeserialize.Lawful {T : Type _}
+  {Clause0_Error : Type _} (ExtensionValidatorInst :
   extensions.ExtensionValidator T Clause0_Error) (allocstringToStringInst :
   alloc.string.ToString Clause0_Error)
   (coreconvertFromInvalidExtensionErrorClause0_ErrorInst : core.convert.From
@@ -1164,8 +1175,8 @@ theorem extensions.Extensions.Insts.Tls_codecDeserialize.Lawful {T : Type}
       ExtensionValidatorInst allocstringToStringInst ExtensionValidatorInstLawful
       allocstringToStringInstLawful extensions.Extension.Insts.Tls_codecSize.Lawful)
 
-theorem extensions.Extensions.Insts.Tls_codecDeserializeBytes.Lawful {T : Type}
-  {Clause0_Error : Type} (ExtensionValidatorInst :
+theorem extensions.Extensions.Insts.Tls_codecDeserializeBytes.Lawful {T : Type _}
+  {Clause0_Error : Type _} (ExtensionValidatorInst :
   extensions.ExtensionValidator T Clause0_Error) (allocstringToStringInst :
   alloc.string.ToString Clause0_Error)
   (coreconvertFromInvalidExtensionErrorClause0_ErrorInst : core.convert.From
@@ -1217,7 +1228,7 @@ theorem extensions.Extensions.Insts.Tls_codecDeserializeBytes.Lawful {T : Type}
 `Hash` / `Eq`) -/
 
 theorem P.Insts.CoreOpsFunctionFnOnceTupleExtensionInExtension.Lawful {T :
-  Type} {Clause0_Error : Type} (ExtensionValidatorInst :
+  Type _} {Clause0_Error : Type _} (ExtensionValidatorInst :
   extensions.ExtensionValidator T Clause0_Error)
   (ExtensionValidatorInstLawful : extensions.ExtensionValidator.Lawful T
   Clause0_Error ExtensionValidatorInst) :
@@ -1228,8 +1239,8 @@ theorem P.Insts.CoreOpsFunctionFnOnceTupleExtensionInExtension.Lawful {T :
   :=
   ⟨⟩
 
-theorem P.Insts.CoreOpsFunctionFnMutTupleExtensionInExtension.Lawful {T : Type}
-  {Clause0_Error : Type} (ExtensionValidatorInst :
+theorem P.Insts.CoreOpsFunctionFnMutTupleExtensionInExtension.Lawful {T : Type _}
+  {Clause0_Error : Type _} (ExtensionValidatorInst :
   extensions.ExtensionValidator T Clause0_Error)
   (ExtensionValidatorInstLawful : extensions.ExtensionValidator.Lawful T
   Clause0_Error ExtensionValidatorInst) :
@@ -1256,7 +1267,7 @@ theorem extensions.ExtensionType.Insts.CoreCmpEq.Lawful :
   simpa only [heq_iff_eq] using h
 
 theorem extensions.extension_in.ExtensionIn.Insts.Tls_codecSize.Lawful {T :
-  Type} {Clause0_Error : Type} (ExtensionValidatorInst :
+  Type _} {Clause0_Error : Type _} (ExtensionValidatorInst :
   extensions.ExtensionValidator T Clause0_Error)
   (ExtensionValidatorInstLawful : extensions.ExtensionValidator.Lawful T
   Clause0_Error ExtensionValidatorInst) :
@@ -1269,7 +1280,7 @@ theorem extensions.extension_in.ExtensionIn.Insts.Tls_codecSize.Lawful {T :
 
 theorem
   extensions.extension_in.DeserializeExtensionIn.tls_deserialize.closure.Insts.CoreOpsFunctionFnOnceTupleClause0_ErrorError.Lawful
-  {T : Type} {R : Type} {Clause0_Error : Type} (ExtensionValidatorInst :
+  {T : Type _} {R : Type _} {Clause0_Error : Type _} (ExtensionValidatorInst :
   extensions.ExtensionValidator T Clause0_Error) (allocstringToStringInst :
   alloc.string.ToString Clause0_Error) (allocioreadReadInst :
   alloc.io.read.Read R)
@@ -1288,7 +1299,7 @@ theorem
   ⟨⟩
 
 theorem extensions.extension_in.ExtensionIn.Insts.Tls_codecDeserialize.Lawful
-  {T : Type} {Clause0_Error : Type} (ExtensionValidatorInst :
+  {T : Type _} {Clause0_Error : Type _} (ExtensionValidatorInst :
   extensions.ExtensionValidator T Clause0_Error) (allocstringToStringInst :
   alloc.string.ToString Clause0_Error)
   (ExtensionValidatorInstLawful : extensions.ExtensionValidator.Lawful T
@@ -1447,7 +1458,11 @@ private theorem PV.encOut (x : versions.ProtocolVersion) :
   | Other v =>
     by_cases hv : v = 1#u16
     · subst hv
-      refine ⟨_, w, rfl, fun b hb => by simp [PV.out] at hb, fun _ => ⟨_, rfl⟩⟩
+      refine ⟨.Err (.EncodingError ""), w, ?_, fun b hb => by simp [PV.out] at hb, fun _ => ⟨_, rfl⟩⟩
+      simp only [versions.ProtocolVersion.Insts.Tls_codecSerialize,
+        versions.ProtocolVersion.Insts.Tls_codecSerialize.tls_serialize, str_to_string_ok,
+        Aeneas.Std.bind_ok]
+      exact Aeneas.Std.bind_ok _ _
     · simp only [PV.out, hv, if_false]
       have h := U16.ser_runs v W WI hWI w hroom
       simp only [versions.ProtocolVersion.Insts.Tls_codecSerialize,
@@ -1461,7 +1476,7 @@ private theorem PV.decodes (k : Std.U16) (y : versions.ProtocolVersion)
     DecodesTo versions.ProtocolVersion.Insts.Tls_codecDeserialize
       (Aeneas.Std.core.num.U16.to_be_bytes k).val y := by
   intro R RI v a law r rest hv
-  obtain ⟨⟨res, r'⟩, hp, hres, hv'⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp
+  obtain ⟨⟨res, r'⟩, hp, hres, hv'⟩ := Aeneas.Std.triple_iff_exists_ok.mp
     (U16.decodes k R RI v a law r rest hv)
   simp only at hres hv'
   subst hres
@@ -1952,13 +1967,13 @@ theorem ciphersuite.secret.Secret.Insts.CoreCmpPartialEqSecret.Lawful :
     simp only [key]
     refine ok_triple_of ?_
     rw [heq_iff_eq, decide_eq_true_iff]
-    obtain ⟨⟨⟨a, ha⟩⟩⟩ := x
-    obtain ⟨⟨⟨b, hb⟩⟩⟩ := y
+    obtain ⟨⟨a⟩⟩ := x
+    obtain ⟨⟨b⟩⟩ := y
     constructor
-    · intro h; simp only at h; subst h; rfl
+    · intro h; obtain rfl := (Slice.eq_iff a b).mpr h; rfl
     · intro h; cases h; rfl
   · intro x y
-    simp only [key, bind_tc_ok]
+    simp only [key, bind_tc_ok, Aeneas.Std.bind_ok]
     exact ok_triple_of trivial
 
 

@@ -20,17 +20,17 @@ namespace openmls
 open tls_codec tls_codec.Derive
 
 /-- `x` serializes as the 2 bytes `bs`, written with one `write_all`. -/
-def U16Ser {T : Type} (SI : Serialize T) (x : T) (bs : Slice Std.U8) : Prop :=
+def U16Ser {T : Type _} (SI : Serialize T) (x : T) (bs : Slice Std.U8) : Prop :=
   bs.val.length = 2 ∧ ∀ {W : Type} (WI : core.io.write.Write W) (w w' : W),
     WI.write_all w bs = ok (.Ok (), w') → SI.tls_serialize WI x w = ok (.Ok 2#usize, w')
 
 /-- `x`'s serializer returns `Err`, leaving the writer unchanged. -/
-def SerErr {T : Type} (SI : Serialize T) (x : T) : Prop :=
+def SerErr {T : Type _} (SI : Serialize T) (x : T) : Prop :=
   ∀ {W : Type} (WI : core.io.write.Write W) (w : W), ∃ e, SI.tls_serialize WI x w = ok (.Err e, w)
 
 open Classical in
 /-- `Serialize.Lawful` of a 2-byte serializer that either writes or rejects each value. -/
-theorem ser_lawful_u16_or_err {T : Type} (SI : Serialize T) (hS : Size.Lawful T SI.SizeInst)
+theorem ser_lawful_u16_or_err {T : Type _} (SI : Serialize T) (hS : Size.Lawful T SI.SizeInst)
     (hsz : ∀ x, SI.SizeInst.tls_serialized_len x = ok 2#usize)
     (h : ∀ x, (∃ bs, U16Ser SI x bs) ∨ SerErr SI x)
     (hdet : ∀ x, SI.tls_serialize_detached x = Serialize.tls_serialize_detached.default SI x) :
@@ -56,11 +56,18 @@ theorem ser_lawful_u16_or_err {T : Type} (SI : Serialize T) (hS : Size.Lawful T 
 
 open Classical in
 /-- `PartialEq::ne` of a lawful `PartialEq` decides `≠`. -/
-theorem ne_default_eq {T : Type} {PI : core.cmp.PartialEq T T} (h : core.cmp.PartialEq.Lawful T T PI)
+theorem ne_default_eq {T : Type _} {PI : core.cmp.PartialEq T T} (h : core.cmp.PartialEq.Lawful T T PI)
     (x y : T) : core.cmp.PartialEq.ne.default PI x y = ok (decide (x ≠ y)) := by
-  obtain ⟨b, hb, hbv⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp (h.eq_spec x y)
-  simp only [core.cmp.PartialEq.ne.default, hb, bind_tc_ok]
+  obtain ⟨b, hb, hbv⟩ := Aeneas.Std.triple_iff_exists_ok.mp (h.eq_spec x y)
+  simp only [core.cmp.PartialEq.ne.default, hb, bind_tc_ok, Aeneas.Std.bind_ok]
   congr 1
   cases b <;> simp_all
+
+/-- `str::to_string` (the text is not modelled: the empty string). -/
+theorem str_to_string_ok (s : Str) :
+    alloc.string.ToString.Blanket.to_string core.Str.Insts.CoreFmtDisplay s = ok "" := by
+  simp [alloc.string.ToString.Blanket.to_string, core.Str.Insts.CoreFmtDisplay,
+    core.Str.Insts.CoreFmtDisplay.fmt, bind_tc_ok, Aeneas.Std.bind_ok]
+  rfl
 
 end openmls

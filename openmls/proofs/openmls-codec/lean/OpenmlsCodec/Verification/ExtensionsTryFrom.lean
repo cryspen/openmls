@@ -9,7 +9,7 @@ the `Vec<ExtensionIn<T>>`'s.
 Obligations: none directly; `ProofObligations.lean` instantiates `extensions.extension_in.ExtensionIn.de_lawful_of`,
 `extensions.Extensions.de_lawful_of` and `extensions.extension_in.ExtensionIn.size_lawful`.
 Axioms reached (`scripts/axiom_whitelist.txt`): nothing ASSUMED; the signature-only stubs of
-`ExtensionStd.lean`; `native_decide`. -/
+`ExtensionStd.lean`. -/
 import OpenmlsCodec.Extraction
 import OpenmlsCodec.Verification.ExtensionStdSer
 import TlsCodec.Verification.Derive.Std
@@ -27,7 +27,7 @@ open tls_codec tls_codec.Derive
 /-! ## `map(f).collect::<Vec<_>>()` over a `Vec`'s `IntoIter` -/
 
 /-- The `collect` loop over `map(f)` of a `Vec` iterator pushes the images of the remaining items. -/
-theorem from_iter_loop_map {A B F : Type} (f : A → B) (FI : core.ops.function.FnMut F A B) (g : F)
+theorem from_iter_loop_map {A B F : Type _} (f : A → B) (FI : core.ops.function.FnMut F A B) (g : F)
     (hf : ∀ a, FI.call_mut g a = ok (f a, g)) :
     ∀ (l : List A) (it : alloc.vec.into_iter.IntoIter A) (res : alloc.vec.Vec B),
       it.val = l → res.val.length + l.length ≤ Usize.max →
@@ -52,8 +52,8 @@ theorem from_iter_loop_map {A B F : Type} (f : A → B) (FI : core.ops.function.
       intro h; have := congrArg UScalar.val h; simp [hit] at this
     have hpos : 0 < it.val.length := by simp [hit]
     have hres : res.val.length + 1 ≤ Usize.max := by simp at hlen; omega
-    obtain ⟨r, hr, hrv⟩ := ih ⟨it.val.tail, by have := it.property; simp; omega⟩
-      ⟨res.val ++ [f x], by simp; omega⟩ (by simp [hit]) (by simp at hlen ⊢; omega)
+    obtain ⟨r, hr, hrv⟩ := ih (Slice.from it.val.tail (by have := it.property; simp; omega))
+      (Slice.from (res.val ++ [f x]) (by simp; omega)) (by simp [hit]) (by simp at hlen ⊢; omega)
     refine ⟨r, ?_, by rw [hrv]; simp⟩
     rw [alloc.vec.Vec.Insts.CoreIterTraitsCollectFromIterator.from_iter_loop.eq_1]
     simp [core.iter.adapters.map.Map.Insts.CoreIterTraitsIteratorIterator.next,
@@ -65,7 +65,7 @@ theorem from_iter_loop_map {A B F : Type} (f : A → B) (FI : core.ops.function.
 
 /-- `candidate.into_iter().map(ExtensionIn::into_extension).collect()` is the list of the
 extensions. -/
-theorem collect_into_extension {T E : Type} (VI : extensions.ExtensionValidator T E)
+theorem collect_into_extension {T E : Type _} (VI : extensions.ExtensionValidator T E)
     (cand : alloc.vec.Vec (extensions.extension_in.ExtensionIn T)) :
     ∃ v : alloc.vec.Vec extensions.Extension, (do
       let ii ← alloc.vec.Vec.Insts.CoreIterTraitsCollectIntoIteratorTIntoIter.into_iter cand
@@ -89,20 +89,21 @@ theorem collect_into_extension {T E : Type} (VI : extensions.ExtensionValidator 
       simp [P.Insts.CoreOpsFunctionFnMutTupleExtensionInExtension,
         P.Insts.CoreOpsFunctionFnMutTupleExtensionInExtension.call_mut,
         extensions.extension_in.ExtensionIn.into_extension])
-    cand.val cand ⟨[], by simp⟩ rfl (by simp only [List.length_nil, Nat.zero_add]; exact cand.property)
+    cand.val cand (Slice.new _) rfl (by simp only [Slice.new_val, List.length_nil, Nat.zero_add]; exact cand.property)
   refine ⟨r, ?_, by rw [hrv]; simp⟩
   simp only [alloc.vec.Vec.Insts.CoreIterTraitsCollectIntoIteratorTIntoIter.into_iter,
     core.iter.traits.iterator.Iterator.map.default, core.iter.adapters.map.Map.new,
     core.iter.traits.iterator.Iterator.collect.default,
     alloc.vec.Vec.Insts.CoreIterTraitsCollectFromIterator,
     alloc.vec.Vec.Insts.CoreIterTraitsCollectFromIterator.from_iter,
-    core.iter.traits.collect.IntoIterator.Blanket, bind_tc_ok]
+    core.iter.traits.collect.IntoIterator.Blanket, core.iter.traits.collect.IntoIterator.Blanket.into_iter,
+    CoreModels.alloc.vec.Vec.new, rust_primitives.sequence.seq_empty, bind_tc_ok, Aeneas.Std.bind_ok]
   exact hr
 
 /-! ## `Extensions::try_from(Vec<ExtensionIn<T>>)` -/
 
 /-- The `try_from` loop returns; on `Ok`, `unique` is the list of the candidate's extensions. -/
-theorem try_from_loop_spec {T E : Type} (VI : extensions.ExtensionValidator T E)
+theorem try_from_loop_spec {T E : Type _} (VI : extensions.ExtensionValidator T E)
     (cand : alloc.vec.Vec (extensions.extension_in.ExtensionIn T))
     (it : core.slice.iter.Iter (extensions.extension_in.ExtensionIn T))
     (seen : std.collections.hash.set.HashSet extensions.ExtensionType
@@ -131,7 +132,8 @@ theorem try_from_loop_spec {T E : Type} (VI : extensions.ExtensionValidator T E)
         core.iter.traits.iterator.Iterator.collect.default,
         alloc.vec.Vec.Insts.CoreIterTraitsCollectFromIterator,
         alloc.vec.Vec.Insts.CoreIterTraitsCollectFromIterator.from_iter,
-        core.iter.traits.collect.IntoIterator.Blanket, bind_tc_ok] at hv ⊢
+        core.iter.traits.collect.IntoIterator.Blanket, core.iter.traits.collect.IntoIterator.Blanket.into_iter,
+    CoreModels.alloc.vec.Vec.new, rust_primitives.sequence.seq_empty, bind_tc_ok, Aeneas.Std.bind_ok] at hv ⊢
       simp [hv, hvv]
     · have h0 : Slice.len it ≠ 0#usize := by scalar_tac
       have hpos : 0 < it.val.length := Nat.pos_of_ne_zero hl
@@ -142,7 +144,7 @@ theorem try_from_loop_spec {T E : Type} (VI : extensions.ExtensionValidator T E)
       by_cases hm : e0.etOf ∈ u.elems <;> simp [hm, hpos]
   · trivial
 
-theorem try_from_spec {T E : Type} (VI : extensions.ExtensionValidator T E)
+theorem try_from_spec {T E : Type _} (VI : extensions.ExtensionValidator T E)
     (FI : core.convert.From extensions.errors.InvalidExtensionError E)
     (cand : alloc.vec.Vec (extensions.extension_in.ExtensionIn T)) :
     ⦃ ⌜ True ⌝ ⦄
@@ -152,12 +154,12 @@ theorem try_from_spec {T E : Type} (VI : extensions.ExtensionValidator T E)
     std.collections.hash.set.HashSetTRandomStateGlobal.with_capacity,
     alloc.vec.Vec.Insts.CoreOpsDerefDerefSlice.deref, alloc.vec.Vec.as_slice,
     rust_primitives.sequence.seq_to_slice, core.slice.Slice.iter,
-    rust_primitives.sequence.seq_from_slice, bind_tc_ok]
+    rust_primitives.sequence.seq_from_slice, bind_tc_ok, Aeneas.Std.bind_ok]
   exact try_from_loop_spec VI cand _ _
 
 /-! ## `ExtensionIn<T>`: `Extension` decoded with the validator check -/
 
-theorem extensions.extension_in.ExtensionIn.size_lawful {T E : Type}
+theorem extensions.extension_in.ExtensionIn.size_lawful {T E : Type _}
     (VI : extensions.ExtensionValidator T E)
     (hS : Size.Lawful extensions.Extension extensions.Extension.Insts.Tls_codecSize) :
     Size.Lawful (extensions.extension_in.ExtensionIn T)
@@ -166,7 +168,7 @@ theorem extensions.extension_in.ExtensionIn.size_lawful {T E : Type}
     obtain ⟨e, u⟩ := x
     exact hS.tls_serialized_len_spec e hp⟩
 
-theorem extensions.extension_in.ExtensionIn.size_eq {T E : Type}
+theorem extensions.extension_in.ExtensionIn.size_eq {T E : Type _}
     (VI : extensions.ExtensionValidator T E) (x : extensions.Extension)
     (p : core.marker.PhantomData T) :
     extensions.extension_in.ExtensionIn.Insts.Tls_codecSize.tls_serialized_len VI (x, p) =
@@ -190,7 +192,7 @@ variable
     extensions.last_resort.LastResortExtension.Insts.Tls_codecDeserialize)
 
 include hT hA hR hQ hP hE hL in
-theorem extensions.extension_in.ExtensionIn.de_runs {T E : Type}
+theorem extensions.extension_in.ExtensionIn.de_runs {T E : Type _}
     (VI : extensions.ExtensionValidator T E) (TS : alloc.string.ToString E)
     (hV : extensions.ExtensionValidator.Lawful T E VI) (hTS : alloc.string.ToString.Lawful E TS) :
     DeRuns (extensions.extension_in.ExtensionIn.Insts.Tls_codecDeserialize VI TS)
@@ -217,7 +219,7 @@ theorem extensions.extension_in.ExtensionIn.de_runs {T E : Type}
     | (rename_i hbr; exact try_break_vc (fun e _ => by mvcgen; intro _; mvcgen; all_goals simp) hbr)
     | (intro val hval
        cases hval
-       rw [extensions.extension_in.ExtensionIn.size_eq]
+       erw [extensions.extension_in.ExtensionIn.size_eq]
        refine extensions.Extension.de_close law (by assumption) (by assumption) (by assumption)
          (by assumption) _ (fun hlen => ?_)
        first
@@ -238,7 +240,7 @@ theorem extensions.extension_in.ExtensionIn.de_runs {T E : Type}
 include hT hA hR hQ hP hE hL in
 /-- `ExtensionIn<T>`'s `Deserialize.Lawful`, from the validator's, `ToString`'s and
 `Extension`'s payloads'. -/
-theorem extensions.extension_in.ExtensionIn.de_lawful_of {T E : Type}
+theorem extensions.extension_in.ExtensionIn.de_lawful_of {T E : Type _}
     (VI : extensions.ExtensionValidator T E) (TS : alloc.string.ToString E)
     (hV : extensions.ExtensionValidator.Lawful T E VI) (hTS : alloc.string.ToString.Lawful E TS)
     (hS : Size.Lawful extensions.Extension extensions.Extension.Insts.Tls_codecSize) :
@@ -252,7 +254,7 @@ end de
 /-! ## `Extensions<T>` -/
 
 /-- The size fold is preserved by a size-preserving map. -/
-theorem SizeFoldRel.map {A B : Type} {SA : Size A} {SB : Size B} (f : A → B)
+theorem SizeFoldRel.map {A B : Type _} {SA : Size A} {SB : Size B} (f : A → B)
     (hf : ∀ x, SB.tls_serialized_len (f x) = SA.tls_serialized_len x) {a : Std.Usize}
     {l : List A} {r : Std.Usize} (h : SizeFoldRel SA a l r) : SizeFoldRel SB a (l.map f) r := by
   induction h with
@@ -260,15 +262,15 @@ theorem SizeFoldRel.map {A B : Type} {SA : Size A} {SB : Size B} (f : A → B)
   | cons a x l n r hx _ ih => exact .cons a (f x) _ n r (by rw [hf]; exact hx) ih
 
 /-- Two vectors related by a size-preserving map have the same size. -/
-theorem vec_size_map {A B : Type} {SA : Size A} {SB : Size B} (hA : Size.Lawful A SA)
+theorem vec_size_map {A B : Type _} {SA : Size A} {SB : Size B} (hA : Size.Lawful A SA)
     (hB : Size.Lawful B SB) (f : A → B)
     (hf : ∀ x, SB.tls_serialized_len (f x) = SA.tls_serialized_len x)
     (v : alloc.vec.Vec A) (w : alloc.vec.Vec B) (hw : w.val = v.val.map f) :
     alloc.vec.Vec.Insts.Tls_codecSize.tls_serialized_len SB w =
       alloc.vec.Vec.Insts.Tls_codecSize.tls_serialized_len SA v := by
-  obtain ⟨r, hr, c, ll, hrel, rfl, hll⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp
+  obtain ⟨r, hr, c, ll, hrel, rfl, hll⟩ := Aeneas.Std.triple_iff_exists_ok.mp
     (alloc.vec.Vec.size_rel SA hA v)
-  obtain ⟨r2, hr2, c2, ll2, hrel2, rfl, hll2⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp
+  obtain ⟨r2, hr2, c2, ll2, hrel2, rfl, hll2⟩ := Aeneas.Std.triple_iff_exists_ok.mp
     (alloc.vec.Vec.size_rel SB hB w)
   have hm := SizeFoldRel.map f hf hrel
   rw [← hw] at hm
@@ -279,7 +281,7 @@ theorem vec_size_map {A B : Type} {SA : Size A} {SB : Size B} (hA : Size.Lawful 
 
 /-- `Extensions<T>`'s `std` `Deserialize.Lawful` (generated instance), from `ExtensionIn<T>`'s and
 the `Size.Lawful`s. -/
-theorem extensions.Extensions.de_lawful_of {T E : Type} (VI : extensions.ExtensionValidator T E)
+theorem extensions.Extensions.de_lawful_of {T E : Type _} (VI : extensions.ExtensionValidator T E)
     (TS : alloc.string.ToString E)
     (FI : core.convert.From extensions.errors.InvalidExtensionError E)
     (hS : tls_codec.Size.Lawful (extensions.Extensions T) (extensions.Extensions.Insts.Tls_codecSize T))

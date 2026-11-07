@@ -30,11 +30,13 @@ macro "u16_from_fixedM" de:ident "," fromU:ident : tactic => `(tactic| (
       unfold $fromU:ident; split
       all_goals first
         | exact ⟨_, rfl⟩
-        | (obtain ⟨b, hb⟩ := grease_total u; simp only [hb, bind_tc_ok]; split <;> exact ⟨_, rfl⟩)
+        | (obtain ⟨b, hb⟩ := grease_total u; simp only [hb, bind_tc_ok, Aeneas.Std.bind_ok]; split <;> exact ⟨_, rfl⟩)
     rw [hz]; exact ok_triple_of rfl
   dsimp only
-  mvcgen [$de:ident, hre, core.num.U16.from_be_bytes_spec, hfu]
-  · rename_i arr p hp _ _ _ ext1 hcf i hi z hz
+  mvcgen [$de:ident, hre, core.num.U16.from_be_bytes_spec, hfu, core.array.Array.as_mut_slice,
+    rust_primitives.slice.array_as_mut_slice]
+  · rename_i p hp _ _ _ ext1 hcf i hi z hz
+    set arr := Aeneas.Std.Array.repeat 2#usize 0#u8
     have hl : (arr.to_slice_mut.1 : Slice Std.U8).val.length = 2 := to_slice_mut_len arr
     refine ⟨fun h1 => ?_, fun h1 => ?_⟩
     · have hpe := hp.1 (by rw [hl]; simpa using h1)
@@ -43,11 +45,12 @@ macro "u16_from_fixedM" de:ident "," fromU:ident : tactic => `(tactic| (
         rw [hpe]
         exact read_fixed arr (v r) (by simpa using h1)
       · rw [show core.num.U16.from_be_bytes ext1 = ok i from by rw [hi]; rfl]
-        simp only [bind_tc_ok, hz]
+        simp only [bind_tc_ok, Aeneas.Std.bind_ok, hz]
     · exfalso
       rw [hp.2 (by rw [hl]; simpa using h1)] at hcf
       simp [tryCF] at hcf
-  · rename_i arr p hp _ res _ hbr
+  · rename_i p hp _ res _ hbr
+    set arr := Aeneas.Std.Array.repeat 2#usize 0#u8
     have hl : (arr.to_slice_mut.1 : Slice Std.U8).val.length = 2 := to_slice_mut_len arr
     refine try_break_vc (x := p.1) (fun e he => ?_) hbr
     by_cases h1 : 2 ≤ (v r).length
@@ -143,9 +146,13 @@ theorem PV.agree :
   obtain ⟨res, b⟩ := x
   cases res with
   | Ok v =>
-    simp only [core.result.Result.map, P.Insts.CoreOpsFunctionFnOnceTupleU16ProtocolVersion.call_once, hfrom]
-    rfl
-  | Err e => rfl
+    simp [core.result.Result.map, P.Insts.CoreOpsFunctionFnOnceTupleU16ProtocolVersion.call_once, hfrom,
+      Aeneas.Std.bind_ok, core.result.Result.Insts.CoreOpsTry_traitTryTResultInfallibleE.branch]
+  | Err e =>
+    simp [core.result.Result.map, Aeneas.Std.bind_ok,
+      core.result.Result.Insts.CoreOpsTry_traitTryTResultInfallibleE.branch,
+      core.result.Result.Insts.CoreOpsTry_traitFromResidualResultInfallibleE.from_residual,
+      core.convert.From.Blanket, core.convert.From.Blanket.from]
 
 /-- `Secret`: the `Vec<u8>` decoder, then `SecretVLBytes::from`; its byte-slice decoder runs the
 `std` one on the slice. -/

@@ -27,7 +27,7 @@ theorem grease_total (u : Std.U16) : ∃ b, openmls_traits.grease.is_grease_valu
   unfold openmls_traits.grease.is_grease_value; split <;> exact ⟨_, rfl⟩
 
 /-- The encoding of a value written with one `write_all` of `bs`. -/
-theorem encOut_of_u16Ser {T : Type} {SI : Serialize T} {x : T} {bs : Slice Std.U8}
+theorem encOut_of_u16Ser {T : Type _} {SI : Serialize T} {x : T} {bs : Slice Std.U8}
     (h : U16Ser SI x bs) : encOut SI x = some bs.val := by
   have := imax_ge
   obtain ⟨e, he, hs, -⟩ := encode_of_runs SI x 2#usize _
@@ -36,7 +36,7 @@ theorem encOut_of_u16Ser {T : Type} {SI : Serialize T} {x : T} {bs : Slice Std.U
   rw [encOut_ok he, hbv]
 
 /-- The encoding of a value whose serializer runs as `o` on writers with room for `sz`. -/
-theorem encOut_of_runs' {T : Type} {SI : Serialize T} {x : T} {sz : Std.Usize}
+theorem encOut_of_runs' {T : Type _} {SI : Serialize T} {x : T} {sz : Std.Usize}
     {o : Option (List Std.U8)} (h : SerRuns SI x sz o) (hroom : sz.val ≤ imax) :
     encOut SI x = o := by
   obtain ⟨e, he, hs, hn⟩ := encode_of_runs SI x sz o h hroom
@@ -45,7 +45,7 @@ theorem encOut_of_runs' {T : Type} {SI : Serialize T} {x : T} {sz : Std.Usize}
   | none => obtain ⟨err, rfl⟩ := hn rfl; exact encOut_err he
 
 /-- A rejected value has no encoding. -/
-theorem encOut_of_serErr {T : Type} {SI : Serialize T} {x : T} (h : SerErr SI x) :
+theorem encOut_of_serErr {T : Type _} {SI : Serialize T} {x : T} (h : SerErr SI x) :
     encOut SI x = none := by
   have := imax_ge
   refine encOut_of_post SI x none 0 0 (by omega) fun W WI _ w _ => ?_
@@ -55,7 +55,7 @@ theorem encOut_of_serErr {T : Type} {SI : Serialize T} {x : T} (h : SerErr SI x)
 
 /-- `RtStd` of a 2-byte codec that writes the big-endian bytes of `toU x` when `fromU` maps them
 back to `x` (and rejects `x` otherwise), and whose decoder maps 2 bytes `k` to `fromU k`. -/
-theorem RtStd.of_canon_u16 {T : Type} {SI : Serialize T} {DI : Deserialize T}
+theorem RtStd.of_canon_u16 {T : Type _} {SI : Serialize T} {DI : Deserialize T}
     (hL : Serialize.Lawful T SI) (hsz : ∀ x, SI.SizeInst.tls_serialized_len x = ok 2#usize)
     (toU : T → RustM Std.U16) (fromU : Std.U16 → RustM T)
     (hcanon : ∀ x, ∃ k, toU x = ok k ∧ ((fromU k = ok x ∧
@@ -88,11 +88,13 @@ macro "u16_from_decodes" de:ident "," fromU:ident : tactic => `(tactic| (
       unfold $fromU:ident; split
       all_goals first
         | exact ⟨_, rfl⟩
-        | (obtain ⟨b, hb⟩ := grease_total u; simp only [hb, bind_tc_ok]; split <;> exact ⟨_, rfl⟩)
+        | (obtain ⟨b, hb⟩ := grease_total u; simp only [hb, bind_tc_ok, Aeneas.Std.bind_ok]; split <;> exact ⟨_, rfl⟩)
     rw [hz]; exact ok_triple_of rfl
   have hl2 : (Aeneas.Std.core.num.U16.to_be_bytes k).val.length = 2 := by simp
-  mvcgen [$de:ident, hre, core.num.U16.from_be_bytes_spec, hfu]
-  · rename_i arr p hp _ _ _ _ _ i hi z hz
+  mvcgen [$de:ident, hre, core.num.U16.from_be_bytes_spec, hfu, core.array.Array.as_mut_slice,
+    rust_primitives.slice.array_as_mut_slice]
+  · rename_i p hp _ _ _ _ _ i hi z hz
+    set arr := Aeneas.Std.Array.repeat 2#usize 0#u8
     have hl : (arr.to_slice_mut.1 : Slice Std.U8).val.length = 2 := to_slice_mut_len arr
     have h1 : 2 ≤ (v r).length := by rw [hv]; simp
     have hpe := hp.1 (by rw [hl]; exact h1)
@@ -102,16 +104,17 @@ macro "u16_from_decodes" de:ident "," fromU:ident : tactic => `(tactic| (
       rw [hi]
       have : arr.to_slice_mut.2 (alloc.io.read.cut (v r) arr.to_slice_mut.1) =
           Aeneas.Std.core.num.U16.to_be_bytes k := by
-        apply Subtype.ext; rw [harr, hv]; exact List.take_left' hl2
+        apply Aeneas.Std.Array.ext; rw [harr, hv]; exact List.take_left' hl2
       show Aeneas.Std.core.num.U16.from_be_bytes
         (arr.to_slice_mut.2 (alloc.io.read.cut (v r) arr.to_slice_mut.1)) = k
       rw [this, U16_from_be_bytes_to_be_bytes]
     subst hk
-    rw [hy] at hz; cases hz
+    rw [hy] at hz; ok_cases hz
     refine ⟨rfl, ?_⟩
     simp only [hl]
     rw [law.adv_view r 2 h1, hv, List.drop_left' hl2]
-  · rename_i arr p hp _ res _ hbr
+  · rename_i p hp _ res _ hbr
+    set arr := Aeneas.Std.Array.repeat 2#usize 0#u8
     have hl : (arr.to_slice_mut.1 : Slice Std.U8).val.length = 2 := to_slice_mut_len arr
     have h1 : 2 ≤ (v r).length := by rw [hv]; simp
     rw [hp.1 (by rw [hl]; exact h1)] at hbr
@@ -128,28 +131,31 @@ macro "canon_u16_facts" hEq:term "," toU:ident "," fromU:ident "," ser:ident ","
     unfold $fromU:ident; split
     all_goals first
       | exact ⟨_, rfl⟩
-      | (obtain ⟨b, hb⟩ := grease_total k; simp only [hb, bind_tc_ok]; split <;> exact ⟨_, rfl⟩)
+      | (obtain ⟨b, hb⟩ := grease_total k; simp only [hb, bind_tc_ok, Aeneas.Std.bind_ok]; split <;> exact ⟨_, rfl⟩)
   refine ⟨k, hk, ?_⟩
   have hne := ne_default_eq $hEq y x
-  obtain ⟨_, he, hbe⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp (core.num.U16.to_be_bytes_spec k)
+  obtain ⟨_, he, hbe⟩ := Aeneas.Std.triple_iff_exists_ok.mp (core.num.U16.to_be_bytes_spec k)
   by_cases hc : y = x
   · left
     subst hc
     refine ⟨hy, by simp [Array.to_slice], fun WI w w' hw => ?_⟩
-    simp only [$ser:ident, $serfn:ident, hk, hy, hne, he, hbe, lift, bind_tc_ok, hw, ne_eq,
-      not_true_eq_false, decide_false, Bool.false_eq_true, if_false]
-    rfl
+    simp only [$ser:ident, $serfn:ident, hk, hy, hne, he, hbe, lift, bind_tc_ok, Aeneas.Std.bind_ok, hw, ne_eq,
+      not_true_eq_false, decide_false, Bool.false_eq_true, if_false, core.array.Array.as_slice,
+      rust_primitives.slice.array_as_slice, core.result.Result.Insts.CoreOpsTry_traitTry.branch,
+      core.result.Result.Insts.CoreOpsTry_traitTryTResultInfallibleE.branch]
+    simp [Aeneas.Std.bind_ok]
   · right
     intro W WI w
-    obtain ⟨⟨r0, f0⟩, hf, hr0⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp ($okspec x ())
+    obtain ⟨⟨r0, f0⟩, hf, hr0⟩ := Aeneas.Std.triple_iff_exists_ok.mp ($okspec x ())
     simp only at hr0
     subst hr0
-    simp only [$ser:ident, $serfn:ident, hk, hy, hne, hc, bind_tc_ok, ne_eq, not_false_eq_true,
+    simp only [$ser:ident, $serfn:ident, hk, hy, hne, hc, bind_tc_ok, Aeneas.Std.bind_ok, ne_eq, not_false_eq_true,
       decide_true, if_true, core.fmt.rt.Argument.new_debug, core.Shared0T.Insts.CoreFmtDebug,
       core.Shared0T.Insts.CoreFmtDebug.fmt, $dbg:ident, hf, core.fmt.rt.Argument.new_lower_hex,
       core.U16.Insts.CoreFmtLowerHex, core.U16.Insts.CoreFmtLowerHex.fmt, core.fmt.Arguments.new,
       alloc.fmt.format, core.hint.must_use]
-    try exact ⟨_, rfl⟩))
+    simp [Aeneas.Std.bind_ok, bind_tc_ok]
+    first | exact ⟨_, Aeneas.Std.bind_ok _ _⟩ | exact ⟨_, bind_tc_ok _ _⟩))
 
 /-! ## `[u8; LEN]` -/
 

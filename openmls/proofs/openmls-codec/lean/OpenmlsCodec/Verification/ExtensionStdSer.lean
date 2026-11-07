@@ -136,7 +136,7 @@ theorem extensions.Extension.tls_serialize_eq {W : Type} (coreiowriteWriteInst :
 
 /-- `openmls_traits::grease::is_grease_value` as a pure function. -/
 def isGreaseB (u : Std.U16) : Bool :=
-  match openmls_traits.grease.is_grease_value u with
+  match (openmls_traits.grease.is_grease_value u).match with
   | .ok b => b
   | _ => false
 
@@ -161,7 +161,7 @@ theorem extensions.Extension.extension_type_eq (x : extensions.Extension) :
     extensions.Extension.extension_type x = ok x.etOf := by
   cases x <;> try rfl
   simp only [extensions.Extension.extension_type, is_grease_value_eq, bind_tc_ok,
-    extensions.Extension.etOf]
+    Aeneas.Std.bind_ok, extensions.Extension.etOf]
   split <;> rfl
 
 /-- The size of the payload of an `Extension`. -/
@@ -204,19 +204,26 @@ include hA hR hQ hP hE hL in
 /-- The payload serializer on a fresh vector. -/
 theorem extensions.Extension.payloadSer_runs {W : Type} (WI : core.io.write.Write W)
     (x : extensions.Extension) (hroom : x.pSize ≤ imax) :
-    ∃ d r1, extensions.Extension.payloadSer WI x ⟨[], by simp⟩ = ok (d, r1) ∧
+    ∃ d r1, extensions.Extension.payloadSer WI x (Slice.new Std.U8) = ok (d, r1) ∧
       (∀ b, x.pOut = some b → ∃ n : Std.Usize, r1 = .Ok n ∧ n.val = b.length ∧ d.val = b) ∧
       (x.pOut = none → ∃ e, r1 = .Err e) := by
   cases x
   case Unknown g e =>
     change alloc.vec.Vec Std.U8 at e
-    have hs : rust_primitives.sequence.seq_to_slice e = ok ⟨e.val, e.property⟩ := rfl
+    have hs : rust_primitives.sequence.seq_to_slice e = ok e := rfl
+    obtain ⟨l, hl, hlv⟩ : ∃ l : Std.Usize, alloc.vec.Vec.len e = ok l ∧ l.val = e.val.length :=
+      ⟨_, rfl, by simp⟩
     refine ⟨_, _, by
-      simp only [extensions.Extension.payloadSer, alloc.vec.Vec.as_slice, hs, bind_tc_ok]
-      rw [StdIo.vec_write_all_eq, dif_pos (by simpa using e.property)]; rfl,
+      simp only [extensions.Extension.payloadSer, alloc.vec.Vec.as_slice, hs, bind_tc_ok,
+        Aeneas.Std.bind_ok]
+      rw [StdIo.vec_write_all_eq, dif_pos (by simpa using e.property)]
+      simp [Aeneas.Std.bind_ok, core.result.Result.map, core.result.Result.map_err,
+        extensions.codec.SerializeExtension.tls_serialize.closure.Insts.CoreOpsFunctionFnOnceTupleTupleUsize.call_once,
+        hl, Slice.new_val]
+      exact ⟨rfl, rfl⟩,
       fun b hb => ?_, fun hn => by cases hn⟩
     cases hb
-    exact ⟨_, rfl, by simp, by simp⟩
+    exact ⟨_, rfl, hlv, rfl⟩
   all_goals
     rename_i e
     first
@@ -226,7 +233,7 @@ theorem extensions.Extension.payloadSer_runs {W : Type} (WI : core.io.write.Writ
       | have hr := (hP.runs e _ (size_ok hP.SizeInstLawful e))
       | have hr := (hE.runs e _ (size_ok hE.SizeInstLawful e))
       | have hr := (hL.runs e _ (size_ok hL.SizeInstLawful e))
-    obtain ⟨r, w', h, hs, hn⟩ := hr _ _ StdIo.vec_lawful ⟨[], by simp⟩
+    obtain ⟨r, w', h, hs, hn⟩ := hr _ _ StdIo.vec_lawful (Slice.new Std.U8)
       (by rw [StdIo.vec_sink]; simpa [extensions.Extension.pSize] using hroom)
     refine ⟨w', r, ?_, fun b hb => ?_, hn⟩
     · first
@@ -236,7 +243,7 @@ theorem extensions.Extension.payloadSer_runs {W : Type} (WI : core.io.write.Writ
             extensions.last_resort.LastResortExtension.Insts.Tls_codecSerialize,
             extensions.ratchet_tree_extension.RatchetTreeExtension.serializeInst,
             tls_codec.alloc.vec.Vec.Insts.Tls_codecSerialize] at h
-           simp only [extensions.Extension.payloadSer, h, bind_tc_ok]; rfl)
+           simp only [extensions.Extension.payloadSer, h, bind_tc_ok, Aeneas.Std.bind_ok]; rfl)
     · obtain ⟨⟨n, hn1, hn2⟩, hv⟩ := hs b hb
       rw [StdIo.vec_sink, StdIo.vec_sink] at hv
       exact ⟨n, hn1, hn2, by simpa using hv⟩
@@ -266,7 +273,7 @@ theorem extensions.Extension.size_val (x : extensions.Extension) :
       ⟨_, rfl, by simp⟩
     obtain ⟨s, hs, hsv⟩ := tail l
     refine ⟨s, ?_, fun hle => by rw [hsv hle, hlv]; rfl⟩
-    simp only [extensions.Extension.Insts.Tls_codecSize.tls_serialized_len, hl, bind_tc_ok]
+    simp only [extensions.Extension.Insts.Tls_codecSize.tls_serialized_len, hl, Aeneas.Std.bind_ok]
     exact hs
   all_goals
     rename_i e
@@ -284,7 +291,7 @@ theorem extensions.Extension.size_val (x : extensions.Extension) :
            tls_codec.alloc.vec.Vec.Insts.Tls_codecSerialize, extensions.application_id_extension.ApplicationIdExtension.Insts.Tls_codecSize,
            extensions.required_capabilities.RequiredCapabilitiesExtension.Insts.Tls_codecSize, extensions.external_pub_extension.ExternalPubExtension.Insts.Tls_codecSize, extensions.last_resort.LastResortExtension.Insts.Tls_codecSize,
            tls_codec.alloc.vec.Vec.Insts.Tls_codecSize] at hz
-         simp only [extensions.Extension.Insts.Tls_codecSize.tls_serialized_len, hz, bind_tc_ok]
+         simp only [extensions.Extension.Insts.Tls_codecSize.tls_serialized_len, hz, Aeneas.Std.bind_ok]
          exact hs)
 
 include hA hR hQ hP hE hL in
@@ -339,13 +346,15 @@ theorem extensions.Extension.ser_runs
   dsimp only [extensions.ExtensionType.Insts.Tls_codecSerialize] at h0
   obtain ⟨d, r1, hp, hps, hpn⟩ :=
     extensions.Extension.payloadSer_runs hA hR hQ hP hE hL WI x (by omega)
-  have hcap : alloc.vec.Vec.with_capacity Std.U8 sz = ok ⟨[], by simp⟩ := rfl
+  have hcap : alloc.vec.Vec.with_capacity Std.U8 sz = ok (Slice.new Std.U8) := by
+    simp [CoreModels.alloc.vec.Vec.with_capacity, CoreModels.alloc.vec.Vec.new,
+      rust_primitives.sequence.seq_empty, Aeneas.Std.bind_ok, Aeneas.Std.bind_tc_ok]
   have hvl : ∀ n : Std.Usize, ⦃ ⌜ True ⌝ ⦄ extensions.codec.vlbytes_len_len n
       ⦃ ⇓ k => ⌜ k.val = varint.lenOf n.val ⌝ ⦄ := fun n => by
     obtain ⟨k, hk, hkv⟩ := extensions.codec.vlbytes_len_len_ok n
     rw [hk]; exact ok_triple_of hkv
   -- the length prefix and content of the payload bytes
-  obtain ⟨vsz, hvsz, -⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp
+  obtain ⟨vsz, hvsz, -⟩ := Aeneas.Std.triple_iff_exists_ok.mp
     (alloc.vec.Vec.size_rel U8.Insts.Tls_codecSize U8.lawful.SizeInstLawful d)
   obtain ⟨c, -, hc, hvszv⟩ := Vec.size_exact U8.lawful d vsz hvsz (SizeNat.u8 d.val)
   have hdl : d.val.length ≤ Usize.max := d.property
@@ -353,7 +362,7 @@ theorem extensions.Extension.ser_runs
       ⦃ ⇓ p => ⌜ (∀ b, x.out = some b → (∃ n : Std.Usize, p.1 = .Ok n ∧ n.val = b.length) ∧
           core.io.write.Write.view WI p.2 = core.io.write.Write.view WI w ++ b) ∧
         (x.out = none → ∃ e, p.1 = .Err e) ⌝ ⦄ by
-    obtain ⟨⟨r, w'⟩, h1, h2⟩ := Aeneas.Std.WP.triple_iff_exists_ok.mp H
+    obtain ⟨⟨r, w'⟩, h1, h2⟩ := Aeneas.Std.triple_iff_exists_ok.mp H
     exact ⟨r, w', h1, h2⟩
   have hVs : ∀ w' : W, ⦃ ⌜ (core.io.write.Write.view WI w').length + vsz.val ≤ imax ⌝ ⦄
       tls_codec.alloc.vec.Vec.Insts.Tls_codecSerialize.tls_serialize U8.Insts.Tls_codecSerialize

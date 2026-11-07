@@ -6,7 +6,7 @@ freedom, round trip, ...). The Rust code is extracted with hax (hax -> charon
 -> aeneas -> Lean) against the Lean model of tls_codec, the `TlsCodec` Lean
 project of the tls_codec fork that the workspace `Cargo.toml` patches tls_codec
 to ([cryspen/formats](https://github.com/cryspen/formats), branch
-`proofs/lean/tls_codec-clean`).
+`proofs/lean/tls_codec-aeneas-4.35`).
 
 | Scenario (`hax.toml`)    | Crate                      | Lean project                                         |
 |--------------------------|----------------------------|------------------------------------------------------|
@@ -16,7 +16,7 @@ to ([cryspen/formats](https://github.com/cryspen/formats), branch
 
 Each Lean project requires TlsCodec from git (same cryspen/formats revision as
 the Cargo patch), which brings the aeneas Lean library (cryspen/aeneas
-`4aefccc8`), hax-lean and mathlib; the two downstream projects also require
+`38960402`), hax-lean and mathlib; the two downstream projects also require
 `TraitsCodec` by relative path. Each project has its own `.lake/packages`.
 
 ## Requirements
@@ -25,6 +25,8 @@ the Cargo patch), which brings the aeneas Lean library (cryspen/aeneas
   extract`), Lean via elan (the toolchain of the projects' `lean-toolchain`).
 - To build aeneas: nix, or OCaml / opam with the dependencies of the aeneas
   README.
+- `protoc` only for workspace-wide cargo builds (the `interop_client` crate);
+  the extraction and the per-crate tests do not need it.
 
 ## Replay
 
@@ -62,6 +64,7 @@ All commands run from the repository root.
 4. Build each project and run its gates, from the project directory:
 
        lake build                              # the proofs
+       lake build TlsCodec.Tools.AxiomGate     # the gate's tool (not imported by the proofs)
        lake env lean scripts/AxiomGate.lean    # axioms vs scripts/axiom_whitelist.txt
        python3 scripts/check_statements.py     # proved statements = generated obligations
 

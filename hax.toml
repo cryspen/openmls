@@ -3,7 +3,7 @@
 # -> Lean) against the Lean model of tls_codec, the `TlsCodec` Lean project of
 # the cryspen/formats fork that the workspace `Cargo.toml` patches tls_codec to
 # (multi-crate extraction: aeneas `-emit-json` / `-external-names`).
-# Replay (details in `proofs/README.md` once the Lean projects are in):
+# Replay (details in `proofs/README.md`):
 #
 #   sh proofs/setup.sh                 # builds the aeneas binary of [tools]
 #   (cd <crate>/proofs/<scenario>/lean && lake exe cache get)   # each project

@@ -15,6 +15,7 @@ import TraitsCodec.Extraction
 import TlsCodec.Verification.ProofObligations
 import TlsCodec.Verification.Derive.Std
 import TlsCodec.Verification.Derive.RoundTripStd
+import TlsCodec.Verification.Derive.DecodersAgree
 open CoreModels Aeneas
 open Aeneas.Std hiding namespace core alloc
 open RustM ControlFlow Error
@@ -43,8 +44,10 @@ theorem VC.ser_runs (x : types.VerifiableCiphersuite) :
     simp only [types.VerifiableCiphersuite.Insts.Tls_codecSerialize.tls_serialize, hr',
       Shared0VerifiableCiphersuite.Insts.Tls_codecSize.tls_serialized_len,
       types.VerifiableCiphersuite.Insts.Tls_codecSize.tls_serialized_len,
-      U16.Insts.Tls_codecSize.tls_serialized_len, len_add_ok, lenAdd_0_2, bind_tc_ok]
-    simp [core.result.Result.Insts.CoreOpsTry_traitTryTResultInfallibleE.branch, zero_add_ok]
+      U16.Insts.Tls_codecSize.tls_serialized_len, len_add_ok, lenAdd_0_2, bind_tc_ok,
+      Aeneas.Std.bind_ok]
+    simp [core.result.Result.Insts.CoreOpsTry_traitTryTResultInfallibleE.branch, zero_add_ok,
+      lenAdd_0_2]
   · cases hb; exact ⟨⟨2#usize, rfl, hl.symm⟩, hv⟩
 
 theorem VC.size (x : types.VerifiableCiphersuite) :
@@ -62,7 +65,7 @@ theorem VC.de_runs : DeRuns types.VerifiableCiphersuite.Insts.Tls_codecDeseriali
     obtain ⟨n, sz, hn, h2, hsz, hszn, -⟩ := hp u (continue_eq_tryCF.mp hcf)
     have hu : U16.Insts.Tls_codecSize.tls_serialized_len u = ok 2#usize := by
       simp [U16.Insts.Tls_codecSize.tls_serialized_len]
-    rw [hu] at hsz; cases hsz
+    rw [hu] at hsz; ok_cases hsz
     exact ⟨n, 2#usize, hn, h2, VC.size u, hszn⟩
   · rename_i q _ _ res _ hbr
     refine try_break_vc (x := q.1) (fun e _ => ?_) hbr
